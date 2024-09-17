@@ -1,0 +1,27 @@
+/* Light background for the header */
+.navbar-custom {
+    /* background-color: #333333; */
+    padding: 15px;
+    color: #F5F5F5;
+    /* border-bottom: 1px solid #dada; */
+  }
+  
+  /* Dark elements for branding and links */
+  .navbar-brand-custom {
+    color: #333333;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  /* Custom styling for navigation links */
+  .nav-link-custom {
+    color: #333333;
+    font-size: 1rem;
+    /* padding: 10px 15px; */
+    transition: color 0.3s ease;
+  }
+  
+  .nav-link-custom:hover {
+    color: #00c896; /* Accent color on hover */
+  }
+ 
