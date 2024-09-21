@@ -1,15 +1,13 @@
 import React from "react";
-import { Container } from "react-bootstrap";
-import Footer from "../Components/Footer/Footer";
-import Header from "../Components/Header/Header";
+
+import Auth from "./Log";
 
 const Home = () => {
   return (
-    <Container>
-<Header />
-      <div>lorem</div>
-      <Footer />
-    </Container>
+    <div>
+      <Auth />
+      
+    </div>
   );
 };
 
