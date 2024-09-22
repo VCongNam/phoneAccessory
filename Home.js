@@ -1,10 +1,5 @@
 import React from 'react';
-import bn1 from './images/bn1.jpg';
-import bn2 from './images/bn2.jpg';
-import test from './images/test.png';
-
 import { Container, Navbar, Nav, Form, Button, Carousel, Row, Col, Card } from 'react-bootstrap';
-
 
 const Home = () => {
   return (
@@ -35,7 +30,7 @@ const Home = () => {
         <Carousel.Item>
           <img
             className="d-block w-100"
-            src={bn1}
+            src="/images/bn1.jpg"
             alt="First slide"
             style={styles.carouselImage}
           />
@@ -50,7 +45,7 @@ const Home = () => {
         <Carousel.Item>
           <img
             className="d-block w-100"
-            src={bn2}
+            src="/images/bn2.jpg"
             alt="Second slide"
             style={styles.carouselImage}
           />
@@ -71,7 +66,7 @@ const Home = () => {
             {products.map((product, index) => (
               <Col key={index} sm={6} md={4} lg={3} className="mb-4">
                 <Card className="text-center" style={styles.card}>
-                  <Card.Img variant="top" src={test} />
+                  <Card.Img variant="top" src={product.img} />
                   <Card.Body>
                     <Card.Title>{product.name}</Card.Title>
                     <Card.Text>Price: ${product.price}</Card.Text>
@@ -102,12 +97,12 @@ const styles = {
     marginBottom: '20px',
   },
   carouselContainer: {
-    maxWidth: '600px', 
-    margin: '0 auto', 
+    maxWidth: '600px', // Đặt chiều rộng tối đa của Carousel
+    margin: '0 auto', // Đặt Carousel ở giữa trang
   },
   carouselImage: {
-    height: '300px', 
-    objectFit: 'cover', 
+    height: '300px', // Chiều cao của ảnh Carousel
+    objectFit: 'cover', // Giữ ảnh phù hợp với kích thước
   },
   card: {
     border: 'none',
@@ -118,12 +113,12 @@ const styles = {
 };
   
 const products = [
-  { name: 'Ring', price: 200, img: 'src/images/test.png' },
-  { name: 'Watch', price: 300, img: 'src/images/test.png' },
-  { name: 'Teddy Bear', price: 110, img: 'src/images/test.png' },
-  { name: 'Flower Bouquet', price: 45, img: 'src/images/test.png' },
-  { name: 'Teddy Bear', price: 95, img: 'src/images/test.png' },
-  { name: 'Flower Bouquet', price: 70, img: 'src/images/test.png' },
-  { name: 'Watch', price: 400, img: 'src/images/test.png' },
-
+  { name: 'Ring', price: 200, img: 'images/test.png' },
+  { name: 'Watch', price: 300, img: 'images/test.png' },
+  { name: 'Teddy Bear', price: 110, img: 'images/test.png' },
+  { name: 'Flower Bouquet', price: 45, img: 'images/test.png' },
+  { name: 'Teddy Bear', price: 95, img: 'images/test.png' },
+  { name: 'Flower Bouquet', price: 70, img: 'images/test.png' },
+  { name: 'Watch', price: 400, img: 'images/test.png' },
+  { name: 'Ring', price: 450, img: 'images/test.png' },
 ];
