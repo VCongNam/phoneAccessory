@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button, Form, Container } from "react-bootstrap";
 import { supabase } from "../supabaseClient"; // Import your Supabase client
+import "./CSS/Log.css";
 
 const Auth = () => {
   const [isRegister, setIsRegister] = useState(false);
@@ -24,7 +25,7 @@ const Auth = () => {
         {
           user_name: email, // Insert email as user_name
           password: password, // Insert password as plain text
-          role_id: 1
+          role_id: 1, // Default role or any other field
         },
       ]);
 
@@ -60,46 +61,59 @@ const Auth = () => {
   };
 
   return (
-    <Container>
+    <Container className="auth-container">
       <h1>{isRegister ? "Register" : "Login"}</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="formBasicEmail">
-          <Form.Label>Email address</Form.Label>
+      {error && <p className="error-message">{error}</p>}
+      <Form
+        onSubmit={handleSubmit}
+        className={`auth-form ${isRegister ? "is-register" : "is-login"}`}
+      >
+        <Form.Group controlId="formBasicEmail" className="form-group">
+          <Form.Label className="form-label">Email address</Form.Label>
           <Form.Control
             type="email"
-            placeholder="Enter email"
+            placeholder="Email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+            className="form-control"
           />
         </Form.Group>
 
-        <Form.Group controlId="formBasicPassword">
-          <Form.Label>Password</Form.Label>
+        <Form.Group controlId="formBasicPassword" className="form-group">
+          <Form.Label className="form-label">Password</Form.Label>
           <Form.Control
             type="password"
             placeholder="Password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            className="form-control"
           />
         </Form.Group>
 
         {isRegister && (
-          <Form.Group controlId="formBasicConfirmPassword">
-            <Form.Label>Confirm Password</Form.Label>
+          <Form.Group
+            controlId="formBasicConfirmPassword"
+            className="form-group"
+          >
+            <Form.Label className="form-label">Confirm Password</Form.Label>
             <Form.Control
               type="password"
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
+              className="form-control"
             />
           </Form.Group>
         )}
 
-        <Button variant="primary" type="submit">
+        <Button variant="primary" type="submit" className="auth-button">
           {isRegister ? "Register" : "Login"}
         </Button>
-        <Button variant="secondary" onClick={handleToggle}>
+        <Button
+          variant="secondary"
+          onClick={handleToggle}
+          className="auth-button"
+        >
           {isRegister ? "Login" : "Register"}
         </Button>
       </Form>
