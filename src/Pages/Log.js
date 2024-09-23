@@ -5,7 +5,7 @@ import "./CSS/Log.css";
 
 const Auth = () => {
   const [isRegister, setIsRegister] = useState(false);
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
@@ -23,7 +23,7 @@ const Auth = () => {
 
       const { error: insertError } = await supabase.from("account").insert([
         {
-          user_name: email, // Insert email as user_name
+          user_name: phone, // Insert phone as user_name
           password: password, // Insert password as plain text
           role_id: 1, // Default role or any other field
         },
@@ -39,7 +39,7 @@ const Auth = () => {
       const { data, error: fetchError } = await supabase
         .from("account")
         .select("*")
-        .eq("user_name", email)
+        .eq("user_name", phone)
         .eq("password", password);
 
       if (fetchError) {
@@ -51,7 +51,7 @@ const Auth = () => {
         console.log("Login successful:", data[0]);
         // Redirect to another page or save login session
       } else {
-        setError("Invalid email or password");
+        setError("Invalid phone number or password");
       }
     }
   };
@@ -69,13 +69,15 @@ const Auth = () => {
         className={`auth-form ${isRegister ? "is-register" : "is-login"}`}
       >
         <Form.Group controlId="formBasicEmail" className="form-group">
-          <Form.Label className="form-label">Email address</Form.Label>
+          <Form.Label className="form-label">Phone</Form.Label>
           <Form.Control
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            type="tel"
+            placeholder="Phone number"
+            value={phone}
+            onChange={(event) => setPhone(event.target.value)}
             className="form-control"
+            pattern="[0-9]{10}"
+            required
           />
         </Form.Group>
 
@@ -87,6 +89,7 @@ const Auth = () => {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             className="form-control"
+            required
           />
         </Form.Group>
 
@@ -98,6 +101,7 @@ const Auth = () => {
             <Form.Label className="form-label">Confirm Password</Form.Label>
             <Form.Control
               type="password"
+              required
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
