@@ -35,10 +35,16 @@ const AdminAccountTable = () => {
   }, []);
 
   const handleCreateAccount = async () => {
+    const { user_name, password, role_id } = newAccount;
+    if (!user_name || !password || !role_id) {
+      alert("All input fields must be filled before creating an account");
+      return;
+    }
+  
     try {
       const { data, error } = await supabase
         .from("account")
-        .insert([newAccount])
+        .insert([{ user_name, password, role_id }])
         .select();
   
       if (error) {
