@@ -12,6 +12,8 @@ import {
 } from "antd";
 import { supabase } from "../supabaseClient";
 import "./ProductManagement.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const { Option } = Select;
 
@@ -93,14 +95,14 @@ const ProductTable = () => {
         },
       ]);
       if (!error) {
-        message.success("Product added successfully!");
+        toast.success("Thêm sản phẩm thành công!")
         fetchProducts();
         setIsModalVisible(false);
       } else {
         message.error("Failed to add product.");
       }
     } catch (error) {
-      console.error("Error adding product:", error);
+      toast.error("Error adding product:", error);
     }
   };
 
@@ -112,10 +114,10 @@ const ProductTable = () => {
         .delete()
         .eq("product_id", productToDelete.product_id);
       if (!error) {
-        message.success("Product deleted successfully!");
+        toast.success("Xóa sản phẩm thành công!");
         fetchProducts();
       } else {
-        message.error("Failed to delete product.");
+        toast.error("Xóa sản phẩm thất bại.");
       }
       setDeleteModalVisible(false);
       setProductToDelete(null);
@@ -148,11 +150,11 @@ const ProductTable = () => {
         .eq("product_id", product_id);
 
       if (!error) {
-        message.success("Product updated successfully!");
+        toast.success("Sửa thông tin sản phẩm thành công!");
         fetchProducts();
         setEditingProduct(null);
       } else {
-        message.error("Failed to update product.");
+        toast.error("Sửa thông tin sản phẩm thất bại.");
       }
     } catch (error) {
       console.error("Error editing product:", error);
@@ -164,17 +166,17 @@ const ProductTable = () => {
         .from("brand")
         .insert([{ name: newBrandName }]);
       if (error) {
-        message.error("Failed to add brand.");
+        toast.error("Failed to add brand.");
         console.error("Error adding brand:", error);
       } else {
-        message.success("Thêm nhãn hiệu thành công!");
+        toast.success("Thêm nhãn hiệu thành công!");
         setNewBrandName("");
         setIsAddBrandModalVisible(false);
         fetchBrands(); // Re-fetch brands to update the table
       }
     } catch (error) {
       console.error("Error adding brand:", error);
-      message.error("Failed to add brand.");
+      toast.error("Failed to add brand.");
     }
   };
 
@@ -185,17 +187,17 @@ const ProductTable = () => {
         .from("categories")
         .insert([{ name: newCategoryName }]);
       if (error) {
-        message.error("Failed to add category.");
+        toast.error("Failed to add category.");
         console.error("Error adding category:", error);
       } else {
-        message.success("Thêm thể loại thành công!");
+        toast.success("Thêm thể loại thành công!");
         setNewCategoryName("");
         setIsAddCategoryModalVisible(false);
         fetchCategories(); // Re-fetch categories to update the table
       }
     } catch (error) {
       console.error("Error adding category:", error);
-      message.error("Failed to add category.");
+      toast.error("Failed to add category.");
     }
   };
 
@@ -470,6 +472,7 @@ const ProductTable = () => {
       >
         <p>Bạn có muốn xóa sản phẩm này?</p>
       </Modal>
+      <ToastContainer />
     </div>
   );
 };
