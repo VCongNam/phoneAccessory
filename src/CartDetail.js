@@ -150,8 +150,8 @@ const CartDetail = () => {
                         className="cart-item-image" />
                     <div className="cart-item-info">
                         <h3>{product.name}</h3>
-                        <p>Price: {product.sell_price}</p>
-                        <p>Quantity: {product.stock_quantity}</p>
+                        <p>Giá: {product.sell_price}</p>
+                        <p>Số lượng: {product.stock_quantity}</p>
                     </div>
                     <div className="cart-item-actions">
                         <button
