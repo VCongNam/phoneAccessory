@@ -54,7 +54,7 @@ function AppHeader() {
   return (
     <Layout>
       <Header className="header-custom">
-        <div className="logo">Gadget Galaxy</div>
+        <div className="logo">Shop phụ kiện VIP</div>
         <Menu
           theme="dark"
           mode="horizontal"
