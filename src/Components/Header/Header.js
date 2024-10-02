@@ -1,13 +1,7 @@
 import { useState, useEffect } from "react";
 import { Layout, Menu, Dropdown, Avatar, Space } from "antd";
 import { UserOutlined, ShoppingCartOutlined } from "@ant-design/icons";
-<<<<<<< HEAD
 import "./Header.css"; 
-=======
-import { Link } from 'react-router-dom'; // Import Link for routing
-import "./Header.css";
->>>>>>> 6fd3d258e7cf4a8f6fcee42f14f9a9b45587bd57
-
 
 const { Header } = Layout;
 
@@ -54,7 +48,6 @@ function AppHeader() {
   );
 
   return (
-<<<<<<< HEAD
     <Header className="header-custom"> 
       <div className="logo"> 
         {/* Improved logo styling */}
@@ -86,50 +79,6 @@ function AppHeader() {
         </Menu.Item>
       </Menu>
     </Header>
-=======
-    <Layout>
-      <Header className="header-custom">
-      <div className="logo">
-          {/* Make the logo clickable using Link */}
-          <Link to="/" style={{ color: 'white', textDecoration: 'none', fontSize: '20px' }}>
-            Shop phụ kiện VIP
-          </Link>
-        </div>
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          defaultSelectedKeys={['home']}
-          className="menu-custom"
-        >
-         <Menu.Item key="home">
-            <Link to="/productlist">Sản Phẩm</Link> {/* Use Link to route to the Product List page */}
-          </Menu.Item>
-          <Menu.Item key="cart" icon={<ShoppingCartOutlined />}>
-           <Link to="/cart">Giỏ hàng</Link> 
-          </Menu.Item>
-
-          {/* Kiểm tra trạng thái đăng nhập */}
-          <Menu.Item key="account" style={{ marginLeft: 'auto' }}>
-            {isLoggedIn ? (
-              <Dropdown overlay={userMenu} placement="bottomRight">
-                <Space>
-                  <Avatar icon={<UserOutlined />} />
-                  Profile
-                </Space>
-              </Dropdown>
-            ) : (
-              <Dropdown overlay={guestMenu} placement="bottomRight">
-                <Space>
-                  <Avatar icon={<UserOutlined />} />
-                  Tài Khoản
-                </Space>
-              </Dropdown>
-            )}
-          </Menu.Item>
-        </Menu>
-      </Header>
-    </Layout>
->>>>>>> 6fd3d258e7cf4a8f6fcee42f14f9a9b45587bd57
   );
 }
 

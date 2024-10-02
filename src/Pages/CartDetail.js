@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 
-=======
->>>>>>> 6fd3d258e7cf4a8f6fcee42f14f9a9b45587bd57
 import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { Layout, Menu, List, Card, Button, InputNumber, Typography, Badge, Avatar } from 'antd';
@@ -103,7 +100,3 @@ const CartDetail = () => {
 };
 
 export default CartDetail;
-<<<<<<< HEAD
-=======
-
->>>>>>> 6fd3d258e7cf4a8f6fcee42f14f9a9b45587bd57
