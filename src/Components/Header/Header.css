@@ -1,19 +1,14 @@
-/* Header.css */
 .header-custom {
-  background-color: #001529;
-  padding: 0 50px;
   display: flex;
-  align-items: center;
+  align-items: center; /* Vertically align items */
 }
 
 .logo {
-  color: white;
-  font-size: 24px;
-  font-weight: bold;
+  margin-right: 20px; /* Add spacing between logo and menu */
 }
 
-.menu-custom {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
+.logo-text {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: white; /* Example color */
 }

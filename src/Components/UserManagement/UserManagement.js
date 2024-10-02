@@ -1,259 +1,262 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import "./AdminDash.css";
+import {
+  Table,
+  Button,
+  Input,
+  Form,
+  Modal,
+  message,
+  Popconfirm,
+  Space,
+  InputNumber,
+  Select,
+} from "antd";
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { toast } from "react-toastify";
 
 const AccountManagement = () => {
-  const [accounts, setAccounts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [editingAccountId, setEditingAccountId] = useState(null);
-  const [newAccount, setNewAccount] = useState({
-    user_name: "",
-    password: "",
-    role_id: "", // Adjust default role as needed
-  });
+const [accounts, setAccounts] = useState([]);
+const [loading, setLoading] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [form] = Form.useForm();
+  const [roles, setRoles] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
 
-  useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("account") // Replace 'account' with your actual table name
-          .select("*");
+useEffect(() => {
+fetchAccounts();
+    fetchRoles();
+}, []);
 
-        if (error) {
-          alert("Error fetching accounts: " + error.message);
-        } else {
-          setAccounts(data);
-        }
-      } catch (error) {
-        alert("Unexpected error fetching accounts: " + error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchAccounts = async () => {
+try {
+      setLoading(true);
+      // Fetch accounts and join with the role table to get role names
+const { data, error } = await supabase
+.from("account")
+        .select(`*, role (*)`); // Remove .single() 
 
-    fetchAccounts();
-  }, []);
+      if (error) throw error;
 
-  const handleCreateAccount = async () => {
-    const { user_name, password, role_id } = newAccount;
-    if (!user_name || !password || !role_id) {
-      alert("All input fields must be filled before creating an account");
-      return;
-    }
+      // Handle cases with multiple rows or no rows
+      if (data) {
+        setAccounts(data); 
+} else {
+        setAccounts([]); // Set an empty array if no accounts are found
+}
   
+} catch (error) {
+      message.error("Error fetching accounts: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const fetchRoles = async () => {
     try {
+      const { data, error } = await supabase.from("role").select("*");
+      if (error) throw error;
+      setRoles(data);
+    } catch (error) {
+      message.error("Error fetching roles: " + error.message);
+}
+};
+
+  const handleCreateAccount = async (values) => {
+try {
+      // Ensure role_id is a number
+      const formattedValues = {
+        ...values,
+        role_id: Number(values.role_id),
+      };
+
       const { data, error } = await supabase
-        .from("account")
-        .insert([{ user_name, password, role_id }])
+.from("account")
+        .insert([formattedValues])
         .select();
-  
-      if (error) {
-        console.error("Error creating account:", error);
-        alert("Error creating account: " + error.message);
-      } else if (data && data.length > 0) {
-        // Update the account list
-        setAccounts(prevAccounts => [...prevAccounts, data[0]]); 
-        
-        alert("Account created successfully!");
-  
-        // Reset form
-        setNewAccount({
-          user_name: "",
-          password: "",
-          role_id: "", 
-        });
-      } else {
-        console.warn("No data returned after account creation");
-        alert("Account may have been created, but no data was returned");
-      }
-    } catch (error) {
-      console.error("Unexpected error creating account:", error);
-      alert("Unexpected error creating account: " + error.message);
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        setAccounts((prevAccounts) => [...prevAccounts, data[0]]);
+        toast.success("Tạo tài khoản thành công!");
+        setIsModalVisible(false);
+        form.resetFields();
+}
+} catch (error) {
+      message.error("Error creating account: " + error.message);
     }
   };
-  
 
-  // Update existing account
-  const handleUpdateAccount = async (updatedAccount) => {
+  const handleUpdateAccount = async (values) => {
     try {
+      // Ensure role_id is a number
+      const formattedValues = {
+        ...values,
+        role_id: Number(values.role_id),
+      };
+
       const { error } = await supabase
         .from("account")
-        .update(updatedAccount)
-        .eq("user_id", updatedAccount.user_id);
+        .update(formattedValues)
+        .eq("user_id", formattedValues.user_id);
 
-      if (error) {
-        alert("Error updating account: " + error.message);
-      } else {
-        alert("Update account success!");
-        setAccounts(
-          accounts.map((account) =>
-            account.user_id === updatedAccount.user_id
-              ? updatedAccount
-              : account
-          )
-        );
-        setEditingAccountId(null);
-      }
+      if (error) throw error;
+
+      toast.success("Cập nhập thành công!");
+      setAccounts(
+        accounts.map((account) =>
+          account.user_id === formattedValues.user_id
+            ? { ...account, ...formattedValues }
+            : account
+        )
+      );
+      setIsModalVisible(false);
     } catch (error) {
-      alert("Unexpected error updating account: " + error.message);
+      message.error("Error updating account: " + error.message);
+}
+};
+
+const handleDeleteAccount = async (accountId) => {
+try {
+const { error } = await supabase
+.from("account")
+.delete()
+.eq("user_id", accountId);
+
+      if (error) throw error;
+
+      toast.success("Xóa thành công!");
+      setAccounts(accounts.filter((account) => account.user_id !== accountId));
+} catch (error) {
+      message.error("Error deleting account: " + error.message);
+}
+};
+
+  const showModal = (record = null) => {
+    setIsEditing(!!record);
+    if (record) {
+      form.setFieldsValue(record);
+    } else {
+      form.resetFields();
+    }
+    setIsModalVisible(true);
+  };
+
+  const handleModalOk = () => {
+    form.submit();
+  };
+
+  const handleModalCancel = () => {
+    setIsModalVisible(false);
+    form.resetFields();
+  };
+
+  const onFinish = (values) => {
+    if (isEditing) {
+      handleUpdateAccount(values);
+    } else {
+      handleCreateAccount(values);
     }
   };
 
-  // Delete account
-  const handleDeleteAccount = async (accountId) => {
-    try {
-      const { error } = await supabase
-        .from("account")
-        .delete()
-        .eq("user_id", accountId);
+  const columns = [
+    { title: "Mã tài khoản", dataIndex: "user_id", key: "user_id" },
+    {
+      title: "Quyền",
+      dataIndex: ["role", "role_name"], // Access role_name from the joined role data
+      key: "role_name",
+    },
+    { title: "Tài khoản", dataIndex: "user_name", key: "user_name" },
+    {
+      title: "Mật khẩu",
+      dataIndex: "password",
+      key: "password",
+      render: () => "••••••••", // Mask the password
+    },
+    {
+      title: "Hành động",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <Button icon={<EditOutlined />} onClick={() => showModal(record)}>
+            Sửa
+          </Button>
+          <Popconfirm
+            title="Bạn có chắc muốn xóa tài khoản này"
+            onConfirm={() => handleDeleteAccount(record.user_id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button icon={<DeleteOutlined />} danger>
+              Xóa
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
 
-      if (error) {
-        alert("Error deleting account: " + error.message);
-      } else {
-        alert("Delete account success!");
-        setAccounts(
-          accounts.filter((account) => account.user_id !== accountId)
-        );
-      }
-    } catch (error) {
-      alert("Unexpected error deleting account: " + error.message);
-    }
-  };
-
-  return (
-    <div className="admin-account-table">
-      <h2>Account Table</h2>
-      {/* Create Account Form */}
-      <h3>Create New Account</h3>
-      <div>
-        <input
-          type="text"
-          placeholder="User Name"
-          value={newAccount.user_name}
-          onChange={(e) =>
-            setNewAccount({ ...newAccount, user_name: e.target.value })
-          }
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={newAccount.password}
-          onChange={(e) =>
-            setNewAccount({ ...newAccount, password: e.target.value })
-          }
-        />
-        <input
-          type="text"
-          placeholder="Role ID"
-          value={newAccount.role_id}
-          onChange={(e) =>
-            setNewAccount({ ...newAccount, role_id: e.target.value })
-          }
-        />
-        {/* Add more fields for other account properties as needed */}
-        <button onClick={handleCreateAccount}>Create</button>
-      </div>
-      {/* Account Table */}
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>User ID</th>
-              <th>Role ID</th>
-              <th>User Name</th>
-              <th>Password</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {accounts.map((account) => (
-              <tr key={account.user_id}>
-                {editingAccountId === account.user_id ? (
-                  <>
-                    <td>{account.user_id}</td> {/* User ID is not editable */}
-                    <td>
-                      <input
-                        type="text"
-                        value={account.role_id}
-                        onChange={(e) =>
-                          setAccounts(
-                            accounts.map((a) =>
-                              a.user_id === account.user_id
-                                ? { ...a, role_id: e.target.value }
-                                : a
-                            )
-                          )
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={account.user_name}
-                        onChange={(e) =>
-                          setAccounts(
-                            accounts.map((a) =>
-                              a.user_id === account.user_id
-                                ? { ...a, user_name: e.target.value }
-                                : a
-                            )
-                          )
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="password"
-                        value={account.password}
-                        onChange={(e) =>
-                          setAccounts(
-                            accounts.map((a) =>
-                              a.user_id === account.user_id
-                                ? { ...a, password: e.target.value }
-                                : a
-                            )
-                          )
-                        }
-                      />
-                    </td>
-                    <td>
-                      <button onClick={() => handleUpdateAccount(account)}>
-                        Save
-                      </button>
-                      <button onClick={() => setEditingAccountId(null)}>
-                        Cancel
-                      </button>
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td>{account.user_id}</td>
-                    <td>{account.role_id}</td>
-                    <td>{account.user_name}</td>
-                    <td>{account.password}</td>
-                    <td>
-                      <button
-                        onClick={() => setEditingAccountId(account.user_id)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteAccount(account.user_id)}
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
-  );
+return (
+    <div style={{ padding: "24px" }}>
+      <h2>Quản lý tài khoản</h2>
+      <Button
+        type="primary"
+        icon={<PlusOutlined />}
+        onClick={() => showModal()}
+        style={{ marginBottom: "16px" }}
+      >
+        Tạo tài khoản
+      </Button>
+      <Table
+        columns={columns}
+        dataSource={accounts}
+        loading={loading}
+        rowKey="user_id"
+      />
+      <Modal
+        title={isEditing ? "Edit Account" : "Create New Account"}
+        open={isModalVisible}
+        onOk={handleModalOk}
+        onCancel={handleModalCancel}
+      >
+        <Form form={form} onFinish={onFinish} layout="vertical">
+          {isEditing && (
+            <Form.Item name="user_id" hidden>
+              <Input />
+            </Form.Item>
+          )}
+          <Form.Item
+            name="user_name"
+            label="User Name"
+            rules={[{ required: true, message: "Please input the user name!" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="password"
+            label="Password"
+            rules={[{ required: true, message: "Please input the password!" }]}
+          >
+            <Input.Password />
+          </Form.Item>
+          <Form.Item
+            name="role_id"
+            label="Role"
+            rules={[{ required: true, message: "Please select a role!" }]}
+          >
+            <Select>
+              {roles.map((role) => (
+                <Select.Option key={role.role_id} value={role.role_id}>
+                  {role.role_name}{" "}
+                  {/* Assuming your role table has a role_name column */}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+</div>
+);
 };
 
 export default AccountManagement;
