@@ -56,7 +56,7 @@ const ProductList = () => {
 
     return (
         <div>
-            <Header></Header>
+          
             <div className="list">
             {list.map(product => (
                 <div className='list-div' key={product.id}>
@@ -77,7 +77,7 @@ const ProductList = () => {
                     </div>
                 ))}
             </div>
-            <Footer></Footer>
+           
         </div>
 
     );

@@ -1,19 +1,45 @@
-/* Header.css */
+/* Customize header styling */
+
 .header-custom {
-  background-color: #001529;
-  padding: 0 50px;
+  display: flex;
+  align-items: center;
+  background-color: #001529; /* Ant Design dark theme color */
+  padding: 0 20px;
+  height: 64px;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.logo-link {
+  color: white;
+  text-decoration: none;
+}
+
+.menu-custom {
+  display: flex;
+  justify-content: center; /* Center the menu items */
+}
+
+.menu-custom .ant-menu-item {
+  padding: 0 30px; /* Increase padding for more space between items */
+}
+
+.account-section {
+  margin-left: auto; /* Align the account section to the right */
   display: flex;
   align-items: center;
 }
 
-.logo {
-  color: white;
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.menu-custom {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
+.account-section .ant-menu-item {
+  margin-left: 20px; /* Add some spacing between the avatar and menu */
 }

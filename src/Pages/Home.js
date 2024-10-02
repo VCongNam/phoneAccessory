@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Layout, Row, Col, Card, Carousel, Button, Spin } from "antd";
 import { supabase } from "../supabaseClient"; // Import Supabase client
-import Header from "../Components/Header/Header";
-import Footer from "../Components/Footer/Footer";
 import "./CSS/Home.css";
 
 const { Content } = Layout;
@@ -78,8 +76,7 @@ const Home = () => {
 
   return (
     <Layout>
-      {/* Header */}
-      <Header />
+      
 
       {/* Nội dung trang chủ */}
       <Content>
@@ -127,8 +124,7 @@ const Home = () => {
         </section>
       </Content>
 
-      {/* Footer */}
-      <Footer />
+     
 
       {/* Biểu tượng hộp thư và hộp chat */}
       <div className="mail-icon" onClick={toggleChat}>
