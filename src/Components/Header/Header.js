@@ -38,7 +38,7 @@ function AppHeader() {
   const guestMenu = (
     <Menu>
       <Menu.Item key="login" onClick={handleLogin}>
-        <Link to="/login" >Đăng nhập</Link> 
+        Đăng nhập
       </Menu.Item>
       <Menu.Divider /> {/* Added divider */}
       <Menu.Item key="signup">
