@@ -24,7 +24,7 @@ const Auth = () => {
         {
           user_name: phone,
           password: password,
-          role_id: 1, // Default role (e.g., 'User')
+          role_id: 1, // Default role (as 'User')
         },
       ]);
 
@@ -51,11 +51,11 @@ const Auth = () => {
         localStorage.setItem("user", JSON.stringify(data[0]));
         // Redirect to the authorized area
         const u = JSON.parse(localStorage.getItem("user"));
-        if (u.role_id === 1) {
-        window.location.href = "/";
+        if (u.role_id === 2) {
+        window.location.href = "/dashboard";
       }
       else {
-        window.location.href = "/dashboard";
+        window.location.href = "/";
       }
     } else {
       setError("Invalid phone number or password");
@@ -84,7 +84,7 @@ return (
           value={phone}
           onChange={(event) => setPhone(event.target.value)}
           className="form-control"
-          pattern="[0-9]{10}"
+          pattern="^0[0-9]{9}$"
           required
         />
       </Form.Group>
