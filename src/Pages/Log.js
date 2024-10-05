@@ -47,90 +47,95 @@ const Auth = () => {
 
       if (data.length > 0) {
         console.log("Login successful:", data[0]);
+        // Store the user's role and other info in session
+        const user = data[0];
+        document.cookie = `user_id=${user.id}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; samesite=strict; secure`;
+        document.cookie = `user_name=${user.user_name}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; samesite=strict; secure`;
+        document.cookie = `role_id=${user.role_id}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; samesite=strict; secure`;
+
         // Store the user's role
         localStorage.setItem("user", JSON.stringify(data[0]));
+
         // Redirect to the authorized area
-        const u = JSON.parse(localStorage.getItem("user"));
-        if (u.role_id === 2) {
-        window.location.href = "/dashboard";
+        if (user.role_id === 2) {
+          window.location.href = "/dashboard";
+        } else {
+          window.location.href = "/";
+        }
+      } else {
+        setError("Invalid phone number or password");
       }
-      else {
-        window.location.href = "/";
-      }
-    } else {
-      setError("Invalid phone number or password");
     }
-  }
-};
+  };
 
 
-const handleToggle = () => {
-  setIsRegister(!isRegister);
-};
+  const handleToggle = () => {
+    setIsRegister(!isRegister);
+  };
 
-return (
-  <Container className="auth-container">
-    <h1>{isRegister ? "Đăng kí" : "Đăng nhập"}</h1>
-    {error && <p className="error-message">{error}</p>}
-    <Form
-      onSubmit={handleSubmit}
-      className={`auth-form ${isRegister ? "is-register" : "is-login"}`}
-    >
-      <Form.Group controlId="formBasicEmail" className="form-group">
-        <Form.Label className="form-label">Số điện thoại</Form.Label>
-        <Form.Control
-          type="tel"
-          placeholder="Phone number"
-          value={phone}
-          onChange={(event) => setPhone(event.target.value)}
-          className="form-control"
-          pattern="^0[0-9]{9}$"
-          required
-        />
-      </Form.Group>
-
-      <Form.Group controlId="formBasicPassword" className="form-group">
-        <Form.Label className="form-label">Mật khẩu</Form.Label>
-        <Form.Control
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          className="form-control"
-          required
-        />
-      </Form.Group>
-
-      {isRegister && (
-        <Form.Group
-          controlId="formBasicConfirmPassword"
-          className="form-group"
-        >
-          <Form.Label className="form-label">Nhập lại mật khẩu</Form.Label>
+  return (
+    <Container className="auth-container">
+      <h1>{isRegister ? "Đăng kí" : "Đăng nhập"}</h1>
+      {error && <p className="error-message">{error}</p>}
+      <Form
+        onSubmit={handleSubmit}
+        className={`auth-form ${isRegister ? "is-register" : "is-login"}`}
+      >
+        <Form.Group controlId="formBasicEmail" className="form-group">
+          <Form.Label className="form-label">Số điện thoại</Form.Label>
           <Form.Control
-            type="password"
-            required
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
+            type="tel"
+            placeholder="Phone number"
+            value={phone}
+            onChange={(event) => setPhone(event.target.value)}
             className="form-control"
+            pattern="^0[0-9]{9}$"
+            required
           />
         </Form.Group>
-      )}
 
-      <Button variant="primary" type="submit" className="auth-button">
-        {isRegister ? "Đăng kí" : "Đăng nhập"}
-      </Button>
-      <Button
-        variant="secondary"
-        onClick={handleToggle}
-        className="auth-button"
-      >
-        {isRegister ? "Đăng nhập" : "Đăng kí"}
-      </Button>
-    </Form>
-  </Container>
-);
+        <Form.Group controlId="formBasicPassword" className="form-group">
+          <Form.Label className="form-label">Mật khẩu</Form.Label>
+          <Form.Control
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            className="form-control"
+            required
+          />
+        </Form.Group>
+
+        {isRegister && (
+          <Form.Group
+            controlId="formBasicConfirmPassword"
+            className="form-group"
+          >
+            <Form.Label className="form-label">Nhập lại mật khẩu</Form.Label>
+            <Form.Control
+              type="password"
+              required
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              className="form-control"
+            />
+          </Form.Group>
+        )}
+
+        <Button variant="primary" type="submit" className="auth-button">
+          {isRegister ? "Đăng kí" : "Đăng nhập"}
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={handleToggle}
+          className="auth-button"
+        >
+          {isRegister ? "Đăng nhập" : "Đăng kí"}
+        </Button>
+      </Form>
+    </Container>
+  );
 };
 
 export default Auth;
