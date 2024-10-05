@@ -11,7 +11,6 @@ const AppRouter = () => {
         <Router>
             <div>
                 {/* Example header at the bottom */}
-                <AppHeader />
                 {/* Define Routes */}
                 <Routes>
                     {/* Route for Home page */}
@@ -20,7 +19,6 @@ const AppRouter = () => {
                     <Route path="/productlist" element={<ProductList />} />
                     <Route path="/login" element={<Auth />} />
                 </Routes>
-                <AppFooter />
             </div>
         </Router>
     );
