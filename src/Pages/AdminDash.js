@@ -6,8 +6,8 @@ import OrderManagement from '../Components/OrderManagement/OrderManagement';
 import ProductManagement from '../Components/ProductManagement/ProductManagement';
 import UserManagement from '../Components/UserManagement/UserManagement';
 import AccountManagement from '../Components/UserManagement/UserManagement';
-import ReportAndStatistics from '../Components/Report/ReportAndStatistics';
-
+import VoucherManagement  from '../Components/Voucher/Voucher';
+import ProfileManagement from '../Components/CustomerManagement/CustomerManage';
 const { Content } = Layout;
 
 const DashboardPage = () => {
@@ -22,11 +22,11 @@ const DashboardPage = () => {
       case 'orders':
         return <OrderManagement />;
       case 'customers':
-        return <UserManagement />;
+        return <ProfileManagement />;
       case 'accounts':
         return <AccountManagement />;
       case 'reports':
-        return <ReportAndStatistics />;
+        return <VoucherManagement />;
       default:
         return <div>Dashboard/Tổng quan</div>;
     }

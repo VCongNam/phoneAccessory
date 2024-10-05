@@ -41,7 +41,7 @@ const Sidebar = ({ onMenuClick }) => {
           Quản lý tài khoản
         </Menu.Item>
         <Menu.Item key="reports" icon={<BarChartOutlined />}>
-          Báo cáo & Thống kê
+          Quản lý mã giảm giá
         </Menu.Item>
       </Menu>
     </Sider>
