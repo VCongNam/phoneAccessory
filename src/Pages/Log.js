@@ -70,14 +70,14 @@ const handleToggle = () => {
 
 return (
   <Container className="auth-container">
-    <h1>{isRegister ? "Register" : "Login"}</h1>
+    <h1>{isRegister ? "Đăng kí" : "Đăng nhập"}</h1>
     {error && <p className="error-message">{error}</p>}
     <Form
       onSubmit={handleSubmit}
       className={`auth-form ${isRegister ? "is-register" : "is-login"}`}
     >
       <Form.Group controlId="formBasicEmail" className="form-group">
-        <Form.Label className="form-label">Phone</Form.Label>
+        <Form.Label className="form-label">Số điện thoại</Form.Label>
         <Form.Control
           type="tel"
           placeholder="Phone number"
@@ -90,7 +90,7 @@ return (
       </Form.Group>
 
       <Form.Group controlId="formBasicPassword" className="form-group">
-        <Form.Label className="form-label">Password</Form.Label>
+        <Form.Label className="form-label">Mật khẩu</Form.Label>
         <Form.Control
           type="password"
           placeholder="Password"
@@ -106,7 +106,7 @@ return (
           controlId="formBasicConfirmPassword"
           className="form-group"
         >
-          <Form.Label className="form-label">Confirm Password</Form.Label>
+          <Form.Label className="form-label">Nhập lại mật khẩu</Form.Label>
           <Form.Control
             type="password"
             required
@@ -119,14 +119,14 @@ return (
       )}
 
       <Button variant="primary" type="submit" className="auth-button">
-        {isRegister ? "Register" : "Login"}
+        {isRegister ? "Đăng kí" : "Đăng nhập"}
       </Button>
       <Button
         variant="secondary"
         onClick={handleToggle}
         className="auth-button"
       >
-        {isRegister ? "Login" : "Register"}
+        {isRegister ? "Đăng nhập" : "Đăng kí"}
       </Button>
     </Form>
   </Container>
