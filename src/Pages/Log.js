@@ -52,7 +52,7 @@ const Auth = () => {
         // Redirect to the authorized area
         const u = JSON.parse(localStorage.getItem("user"));
         if (u.role_id === 1) {
-        window.location.href = "/home";
+        window.location.href = "/";
       }
       else {
         window.location.href = "/dashboard";
