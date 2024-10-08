@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { supabase } from '../supabaseClient';
@@ -9,6 +9,13 @@ const { Title } = Typography;
 const Auth = () => {
   const [isRegister, setIsRegister] = useState(false);
   const [form] = Form.useForm();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Check if the user is already logged in from localStorage
+    const loggedInStatus = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedInStatus);
+  }, []);
 
   const handleSubmit = async (values) => {
     const { phone, password, confirmPassword } = values;
@@ -23,7 +30,7 @@ const Auth = () => {
         {
           user_name: phone,
           password: password,
-          role_id: 1, // Default role (as 'User')
+          role_id: 1, // Default role (as 'User'),
         },
       ]);
 
@@ -48,9 +55,22 @@ const Auth = () => {
       if (data.length > 0) {
         message.success('Login successful');
         const user = data[0];
+
+        // Set the logged-in status to true
+        setIsLoggedIn(true);
+        localStorage.setItem('isLoggedIn', 'true');  // Store the logged-in status in localStorage
+        
         document.cookie = `user_id=${user.id}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; samesite=strict; secure`;
         document.cookie = `user_name=${user.user_name}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; samesite=strict; secure`;
         document.cookie = `role_id=${user.role_id}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; samesite=strict; secure`;
+
+        const { data: tokenData, error: tokenError } = await supabase.auth.getSession();
+
+        if (tokenError) {
+          message.error(`Error getting token: ${tokenError.message}`);
+        } else {
+          localStorage.setItem('token', tokenData.access_token);
+        }
 
         localStorage.setItem('user', JSON.stringify(data[0]));
 
@@ -128,3 +148,4 @@ const Auth = () => {
 };
 
 export default Auth;
+

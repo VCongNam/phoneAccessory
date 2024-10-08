@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Layout, Menu, Dropdown, Avatar, Space } from "antd";
 import { UserOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import "./Header.css"; 
-
+import { Link } from "react-router-dom";
 const { Header } = Layout;
 
 function AppHeader() {
@@ -16,6 +16,18 @@ function AppHeader() {
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.setItem("isLoggedIn", "false");
+
+    // Clear cookies by setting them to expire in the past
+    document.cookie = 'user_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; samesite=strict; secure';
+    document.cookie = 'user_name=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; samesite=strict; secure';
+    document.cookie = 'role_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; samesite=strict; secure';
+
+    // Clear localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+
+    // Redirect to the login page
+    window.location.href = '/';
   };
 
   const handleLogin = () => {
@@ -38,7 +50,7 @@ function AppHeader() {
   const guestMenu = (
     <Menu>
       <Menu.Item key="login" onClick={handleLogin}>
-        Đăng nhập
+       <Link to="/login">Đăng nhập</Link>
       </Menu.Item>
       <Menu.Divider /> {/* Added divider */}
       <Menu.Item key="signup">
@@ -62,7 +74,7 @@ function AppHeader() {
         className="menu-custom"
       >
         <Menu.Item key="home">
-          <a href="#home">Sản Phẩm</a>
+          <Link to={"/productlist"}>Sản Phẩm</Link>
         </Menu.Item>
         <Menu.Item key="cart" icon={<ShoppingCartOutlined />}>
           Giỏ hàng
