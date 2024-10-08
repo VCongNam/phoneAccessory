@@ -1,127 +1,129 @@
-import React, { useState } from "react";
-import { Button, Form, Container } from "react-bootstrap";
-import { supabase } from "../supabaseClient"; // Import your Supabase client
-import "./CSS/Log.css";
+import React, { useState } from 'react';
+import { Form, Input, Button, Typography, message } from 'antd';
+import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { supabase } from '../supabaseClient';
+import './CSS/Log.css';
+
+const { Title } = Typography;
 
 const Auth = () => {
   const [isRegister, setIsRegister] = useState(false);
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [form] = Form.useForm();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError(null);
+  const handleSubmit = async (values) => {
+    const { phone, password, confirmPassword } = values;
 
     if (isRegister) {
-      // Registration process
       if (password !== confirmPassword) {
-        setError("Passwords do not match");
+        message.error('Passwords do not match');
         return;
       }
 
-      const { error: insertError } = await supabase.from("account").insert([
+      const { error: insertError } = await supabase.from('account').insert([
         {
-          user_name: phone, // Insert phone as user_name
-          password: password, // Insert password as plain text
-          role_id: 1, // Default role or any other field
+          user_name: phone,
+          password: password,
+          role_id: 1, // Default role (as 'User')
         },
       ]);
 
       if (insertError) {
-        setError(`Error inserting into account table: ${insertError.message}`);
+        message.error(`Error inserting into account table: ${insertError.message}`);
       } else {
-        console.log("User registered and data inserted into account table.");
+        message.success('User registered successfully');
+        setIsRegister(false);
       }
     } else {
-      // Login process
       const { data, error: fetchError } = await supabase
-        .from("account")
-        .select("*")
-        .eq("user_name", phone)
-        .eq("password", password);
+        .from('account')
+        .select('*')
+        .eq('user_name', phone)
+        .eq('password', password);
 
       if (fetchError) {
-        setError(`Error fetching user: ${fetchError.message}`);
+        message.error(`Error fetching user: ${fetchError.message}`);
         return;
       }
 
       if (data.length > 0) {
-        console.log("Login successful:", data[0]);
-        // Redirect to another page or save login session
+        message.success('Login successful');
+        const user = data[0];
+        document.cookie = `user_id=${user.id}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; samesite=strict; secure`;
+        document.cookie = `user_name=${user.user_name}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; samesite=strict; secure`;
+        document.cookie = `role_id=${user.role_id}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; samesite=strict; secure`;
+
+        localStorage.setItem('user', JSON.stringify(data[0]));
+
+        if (user.role_id === 2) {
+          window.location.href = '/dashboard';
+        } else {
+          window.location.href = '/';
+        }
       } else {
-        setError("Invalid phone number or password");
+        message.error('Invalid phone number or password');
       }
     }
   };
 
   const handleToggle = () => {
     setIsRegister(!isRegister);
+    form.resetFields();
   };
 
   return (
-    <Container className="auth-container">
-      <h1>{isRegister ? "Register" : "Login"}</h1>
-      {error && <p className="error-message">{error}</p>}
+    <div className="auth-container">
+      <Title level={2}>{isRegister ? 'Đăng kí' : 'Đăng nhập'}</Title>
       <Form
-        onSubmit={handleSubmit}
-        className={`auth-form ${isRegister ? "is-register" : "is-login"}`}
+        form={form}
+        name="auth-form"
+        onFinish={handleSubmit}
+        layout="vertical"
+        className="auth-form"
       >
-        <Form.Group controlId="formBasicEmail" className="form-group">
-          <Form.Label className="form-label">Phone</Form.Label>
-          <Form.Control
-            type="tel"
-            placeholder="Phone number"
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-            className="form-control"
-            pattern="[0-9]{10}"
-            required
-          />
-        </Form.Group>
-
-        <Form.Group controlId="formBasicPassword" className="form-group">
-          <Form.Label className="form-label">Password</Form.Label>
-          <Form.Control
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            className="form-control"
-            required
-          />
-        </Form.Group>
-
-        {isRegister && (
-          <Form.Group
-            controlId="formBasicConfirmPassword"
-            className="form-group"
-          >
-            <Form.Label className="form-label">Confirm Password</Form.Label>
-            <Form.Control
-              type="password"
-              required
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-              className="form-control"
-            />
-          </Form.Group>
-        )}
-
-        <Button variant="primary" type="submit" className="auth-button">
-          {isRegister ? "Register" : "Login"}
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={handleToggle}
-          className="auth-button"
+        <Form.Item
+          name="phone"
+          rules={[
+            { required: true, message: 'Please input your phone number!' },
+            { pattern: /^0[0-9]{9}$/, message: 'Please enter a valid phone number!' },
+          ]}
         >
-          {isRegister ? "Login" : "Register"}
-        </Button>
+          <Input prefix={<UserOutlined />} placeholder="Số điện thoại" />
+        </Form.Item>
+        <Form.Item
+          name="password"
+          rules={[{ required: true, message: 'Please input your password!' }]}
+        >
+          <Input.Password prefix={<LockOutlined />} placeholder="Mật khẩu" />
+        </Form.Item>
+        {isRegister && (
+          <Form.Item
+            name="confirmPassword"
+            dependencies={['password']}
+            rules={[
+              { required: true, message: 'Please confirm your password!' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('password') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('The two passwords do not match!'));
+                },
+              }),
+            ]}
+          >
+            <Input.Password prefix={<LockOutlined />} placeholder="Nhập lại mật khẩu" />
+          </Form.Item>
+        )}
+        <Form.Item>
+          <Button type="primary" htmlType="submit" className="auth-button">
+            {isRegister ? 'Đăng kí' : 'Đăng nhập'}
+          </Button>
+        </Form.Item>
       </Form>
-    </Container>
+      <Button onClick={handleToggle} className="toggle-button">
+        {isRegister ? 'Đã có tài khoản? Đăng nhập' : 'Chưa có tài khoản? Đăng kí'}
+      </Button>
+    </div>
   );
 };
 
