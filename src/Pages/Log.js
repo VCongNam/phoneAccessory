@@ -22,7 +22,7 @@ const Auth = () => {
 
     if (isRegister) {
       if (password !== confirmPassword) {
-        message.error('Passwords do not match');
+        message.error('Mật khẩu không trùng!');
         return;
       }
 
@@ -37,7 +37,7 @@ const Auth = () => {
       if (insertError) {
         message.error(`Error inserting into account table: ${insertError.message}`);
       } else {
-        message.success('User registered successfully');
+        message.success('Đăng kí thành công');
         setIsRegister(false);
       }
     } else {
@@ -53,7 +53,7 @@ const Auth = () => {
       }
 
       if (data.length > 0) {
-        message.success('Login successful');
+        message.success('Đăng nhập thành công');
         const user = data[0];
 
         // Set the logged-in status to true
@@ -80,7 +80,7 @@ const Auth = () => {
           window.location.href = '/';
         }
       } else {
-        message.error('Invalid phone number or password');
+        message.error('Số điện thoại hoặc mật khẩu không hợp lệ!');
       }
     }
   };
@@ -103,15 +103,15 @@ const Auth = () => {
         <Form.Item
           name="phone"
           rules={[
-            { required: true, message: 'Please input your phone number!' },
-            { pattern: /^0[0-9]{9}$/, message: 'Please enter a valid phone number!' },
+            { required: true, message: 'Nhập số điện thoại của bạn!' },
+            { pattern: /^0[0-9]{9}$/, message: 'Hãy nhập số điện thoại hợp lệ!'},
           ]}
         >
           <Input prefix={<UserOutlined />} placeholder="Số điện thoại" />
         </Form.Item>
         <Form.Item
           name="password"
-          rules={[{ required: true, message: 'Please input your password!' }]}
+          rules={[{ required: true, message: 'Hãy nhập mật khẩu!' }]}
         >
           <Input.Password prefix={<LockOutlined />} placeholder="Mật khẩu" />
         </Form.Item>
@@ -120,13 +120,13 @@ const Auth = () => {
             name="confirmPassword"
             dependencies={['password']}
             rules={[
-              { required: true, message: 'Please confirm your password!' },
+              { required: true, message: 'Hãy nhập mật khẩu xác nhận!' },
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (!value || getFieldValue('password') === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error('The two passwords do not match!'));
+                  return Promise.reject(new Error('Mật khẩu không khớp!'));
                 },
               }),
             ]}
