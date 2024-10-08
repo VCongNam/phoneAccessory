@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import './CSS/ProductList.css';
 import Header from '../Components/Header/Header';
 import Footer from '../Components/Footer/Footer';
+import demo from "./images/download.jpg";
 
 
 const ProductList = () => {
@@ -12,19 +13,19 @@ const ProductList = () => {
             id: 1,
             name: "Premium Phone Case",
             price: "29.000",
-            imageUrl: "./Image/group_170_1_1.jpg"
+            imageUrl: demo
         },
         {
             id: 2,
             name: "Wireless Charger",
             price: "19.000",
-            imageUrl: "./Image/group_170_1_1.jpg"
+            imageUrl: demo
         },
         {
             id: 3,
             name: "Screen Protector",
             price: "9.000",
-            imageUrl: "./Image/group_170_1_1.jpg"
+            imageUrl: demo
         }
     ];
     const list = [
