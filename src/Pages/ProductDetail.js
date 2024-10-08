@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import "./CSS/ProductDetail.css"
 import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
+import demo from "./images/download.jpg";
 
-
-const ProductDetail = () => {
+function ProductDetail() {
     const [quantity, setQuantity] = useState(1);
 
     // Example product data
@@ -13,7 +13,7 @@ const ProductDetail = () => {
         name: "Tai nghe Bluetooth Apple AirPods 3 2022 sạc có dây | Chính hãng Apple Việt Nam",
         price: "300.000",
         description: "Apple Airpods 3 2022 là mẫu tai nghe bluetooth mới nhất đến từ ông trùm công nghệ Apple. Tai nghe sở hữu thiết kế nhỏ gọn cùng rất nhiều công nghệ hiện đại tai nghe mang tới cho người dùng trải nghiệm âm thanh cực sống động. Dưới đây là điểm nổi bật trên Airpod 3 2022 mà bạn không nên bỏ qua.",
-        imageUrl: './Components/assets/apple.png' 
+        imageUrl: demo
     };
 
     // Handle quantity change
@@ -45,21 +45,20 @@ const ProductDetail = () => {
                             name="quantity"
                             min="1"
                             value={quantity}
-                            onChange={handleQuantityChange}
-                        />
+                            onChange={handleQuantityChange} />
                         <button onClick={handleAddToCart}>Add to Cart</button>
                         <p className="product-description">{product.description}</p>
 
                     </div>
 
                 </div>
-                
+
 
             </div>
             <Footer></Footer>
         </div>
 
     );
-};
+}
 
 export default ProductDetail;
