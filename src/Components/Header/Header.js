@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Layout, Menu, Dropdown, Avatar, Space } from "antd";
 import { UserOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import "./Header.css"; 
-
+import { Link } from "react-router-dom";
 const { Header } = Layout;
 
 function AppHeader() {
@@ -51,9 +51,9 @@ function AppHeader() {
     <Header className="header-custom"> 
       <div className="logo"> 
         {/* Improved logo styling */}
-        <a href="#home"> 
+        <Link to="/"> 
           <span className="logo-text">Gadget Galaxy</span>
-        </a>
+        </Link>
       </div>
       <Menu
         theme="dark"
@@ -62,10 +62,10 @@ function AppHeader() {
         className="menu-custom"
       >
         <Menu.Item key="home">
-          <a href="#home">Sản Phẩm</a>
+          <Link to="/productlist">Sản Phẩm</Link>
         </Menu.Item>
         <Menu.Item key="cart" icon={<ShoppingCartOutlined />}>
-          Giỏ hàng
+         <Link to="/cart"> Giỏ hàng </Link>
         </Menu.Item>
         <Menu.Item key="account" style={{ marginLeft: "auto" }}>
           <Dropdown overlay={isLoggedIn ? userMenu : guestMenu} placement="bottomRight">
