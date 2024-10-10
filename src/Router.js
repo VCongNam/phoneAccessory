@@ -4,6 +4,7 @@ import AppFooter from './Components/Footer/Footer';
 import Home from './Pages/Home';
 import Auth from './Pages/Log';
 import ProductList from './Pages/ProductList';
+import ProductDetail from './Pages/ProductDetail';
 import DashboardPage from './Pages/AdminDash';
 import CartDetail from './Pages/CartDetail';
 
@@ -18,6 +19,7 @@ const AppRouter = () => {
                     <Route path="/" element={<Home/>} />
                     <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/productlist" element={<ProductList />} />
+                    <Route path="/productdetail/:id" element={<ProductDetail />} />
                     <Route path="/login" element={<Auth />} />
                     <Route path="/cart" element={<CartDetail />} />
                 </Routes>

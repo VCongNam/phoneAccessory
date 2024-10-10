@@ -3,15 +3,12 @@ import { Layout, Row, Col, Card, List, Spin, Carousel } from "antd";
 import { supabase } from "../supabaseClient"; // Import Supabase client
 import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
+import ProductDetail from "./ProductDetail";
 import "./CSS/ProductList.css";
-import { PiTextbox } from "react-icons/pi";
-import { Icon, KeyIcon } from "lucide-react";
-import { IoIosSearch } from "react-icons/io";
-
+import { useNavigate } from 'react-router-dom';
 
 const { Content } = Layout;
 const { Meta } = Card;
-
 
 
 const ProductList = () => {
@@ -22,6 +19,7 @@ const ProductList = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null); // Loại sản phẩm được chọn
+  const navigate = useNavigate();
 
   //hàm search
   const handleSearch = async (e) => {
@@ -85,6 +83,10 @@ const ProductList = () => {
       // Chọn loại sản phẩm khác
       setSelectedCategory(categoryId);
     }
+  };
+
+  const handleProductClick = (id) => {
+    navigate(`/ProductDetail/${id}`); // Điều hướng đến trang chi tiết sản phẩm với id
   };
 
   return (
@@ -176,6 +178,11 @@ const ProductList = () => {
                             title={product.name}
                             description={`Price: ${product.sell_price}VND`}
                           />
+                          <ul className="product">
+                            <p  key={product.id} style={{ marginTop: "20px",marginBottom: "-15px" }}>
+                              <button  onClick={() => handleProductClick(product.product_id)}>Xem chi tiết</button>
+                            </p>
+                          </ul>
                         </Card>
                       </Col>
                     ))}
