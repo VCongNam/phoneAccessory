@@ -9,49 +9,50 @@
     padding: 20px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-  }
-  
-  .sidebar ul {
+}
+
+.sidebar ul {
     list-style-type: none;
     padding: 0;
-  }
-  
-  .sidebar ul li {
+}
+
+.sidebar ul li {
     margin: 10px 0;
-  }
-  
-  .sidebar ul li a {
+}
+
+.sidebar ul li a {
     text-decoration: none;
     color: black;
     font-size: 18px;
     padding: 10px;
     display: block;
-  }
-  
-  .sidebar ul li a:hover {
+}
+
+.sidebar ul li a:hover {
     background-color: #f0f0f0;
     border-radius: 4px;
-  }
-  
-  .content {
-    margin-left: 270px; /* Offset for the sidebar */
+}
+
+.content {
+    margin-left: 270px;
+    /* Offset for the sidebar */
     padding: 20px;
-  }
-  
-  
-  .shop_section {
+}
+
+
+.shop_section {
     padding: 50px 0;
-  }
-  
-  .spinner-container {
+}
+
+.spinner-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-  }
-  
-    /* CSS cho biểu tượng hộp thư */
-  .mail-icon {
+}
+
+/* CSS cho biểu tượng hộp thư */
+.mail-icon {
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -61,10 +62,10 @@
     border-radius: 50%;
     cursor: pointer;
     font-size: 24px;
-  }
-  
-  /* CSS cho hộp chat */
-  .chat-box {
+}
+
+/* CSS cho hộp chat */
+.chat-box {
     position: fixed;
     bottom: 80px;
     right: 20px;
@@ -73,37 +74,37 @@
     border-radius: 10px;
     background-color: white;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .chat-header {
+}
+
+.chat-header {
     background-color: #001529;
     color: white;
     padding: 10px;
     text-align: center;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
-  }
-  
-  .chat-content {
+}
+
+.chat-content {
     padding: 10px;
     height: 200px;
     overflow-y: auto;
-  }
-  
-  .chat-input {
+}
+
+.chat-input {
     display: flex;
     padding: 10px;
     border-top: 1px solid #ddd;
-  }
-  
-  .chat-input input {
+}
+
+.chat-input input {
     flex: 1;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
-  }
-  
-  .chat-input button {
+}
+
+.chat-input button {
     background-color: #001529;
     color: white;
     border: none;
@@ -111,84 +112,98 @@
     margin-left: 10px;
     cursor: pointer;
     border-radius: 5px;
-  }
-  .why_section {
+}
+
+.why_section {
     padding: 60px 0;
     background-color: #f8f9fa;
-  }
-  
-  .heading_container {
+}
+
+.heading_container {
     text-align: center;
     margin-bottom: 40px;
-  }
-  
-  .heading_container h2 {
+}
+
+.heading_container h2 {
     font-size: 36px;
     font-weight: bold;
-  }
-  
-  .box {
+}
+
+.box {
     background-color: #fff;
     border-radius: 10px;
     padding: 20px;
     text-align: center;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-  }
-  
-  .img-boxwhy {
+}
+
+.img-boxwhy {
     margin-bottom: 20px;
-  }
-  
-  .img-box svg {
+}
+
+.img-box svg {
     width: 64px;
     height: 64px;
-    color: #6c63ff; /* You can adjust the color */
-  }
-  
-  .detail-box h5 {
+    color: #6c63ff;
+    /* You can adjust the color */
+}
+
+.detail-box h5 {
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 10px;
-  }
-  
-  .detail-box p {
+}
+
+.detail-box p {
     font-size: 14px;
     color: #6c757d;
-  }
-  
-  @media (max-width: 768px) {
+}
+
+.product button {
+    padding: 12px 20px;
+    background-color: #ff5722;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
+}
+
+@media (max-width: 768px) {
     .box {
-      margin-bottom: 20px;
+        margin-bottom: 20px;
     }
-  }
+}
 
 form {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-  width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    width: 100%;
 }
 
 input[type="text"] {
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-  border: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  width: 100%;
-  max-width: 250px;
-  margin-right: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 250px;
+    margin-right: 0.5rem;
 }
 
 button[type="submit"] {
-  padding: 0.5rem;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 0.25rem;
-  text-align: center;
-  display: inline-block;
-  font-size: 11px;
-  cursor: pointer;
+    padding: 0.5rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 0.25rem;
+    text-align: center;
+    display: inline-block;
+    font-size: 11px;
+    cursor: pointer;
 }
