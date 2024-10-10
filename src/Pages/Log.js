@@ -55,9 +55,9 @@ const Auth = () => {
       if (data.length > 0) {
         message.success('Đăng nhập thành công');
         const user = data[0];
-        const token = jwt.sign({ userId: user.id, role: user.role }, process.env.SECRET_KEY, {
-          expiresIn: '1h', // token expires in 1 hour
-        });
+        // const token = jwt.sign({ userId: user.id, role: user.role }, process.env.SECRET_KEY, {
+        //   expiresIn: '1h', // token expires in 1 hour
+        // });
       
       // Set the logged-in status to true
       setIsLoggedIn(true);
