@@ -21,6 +21,7 @@ function AppHeader() {
     document.cookie = 'user_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; samesite=strict; secure';
     document.cookie = 'user_name=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; samesite=strict; secure';
     document.cookie = 'role_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; samesite=strict; secure';
+    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; samesite=strict; secure';
 
     // Clear localStorage
     localStorage.removeItem('token');
