@@ -11,7 +11,7 @@ import {
   Row,
   Space,
   Badge,
-  List
+  List,
 } from "antd";
 import { supabase } from "../supabaseClient";
 import "./ProductManagement.css";
@@ -31,27 +31,45 @@ const ProductTable = () => {
   const [productToDelete, setProductToDelete] = useState(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [isAddBrandModalVisible, setIsAddBrandModalVisible] = useState(false);
-  const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] = useState(false);
+  const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] =
+    useState(false);
   const [newBrandName, setNewBrandName] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
-  const [isNotificationModalVisible, setIsNotificationModalVisible] = useState(false);
+  const [isNotificationModalVisible, setIsNotificationModalVisible] =
+    useState(false);
   const [under10, setUnder10] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedBrand, setSelectedBrand] = useState(null);
 
   useEffect(() => {
     fetchProducts();
     fetchCategories();
     fetchBrands();
-  }, []);
+  }, [selectedCategory, selectedBrand]);
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from("products").select("*");
+      let query = supabase.from("products").select("*");
+
+      // Apply category filter
+      if (selectedCategory) {
+        query = query.eq("cate_id", selectedCategory);
+      }
+
+      // Apply brand filter
+      if (selectedBrand) {
+        query = query.eq("brand_id", selectedBrand);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       setProducts(data);
 
-      const lowStockProducts = data.filter(product => product.stock_quantity < 10);
-      lowStockProducts.forEach(product => {
+      const lowStockProducts = data.filter(
+        (product) => product.stock_quantity < 10
+      );
+      lowStockProducts.forEach((product) => {
         toast.warn(`Sản phẩm "${product.name}" sắp hết hàng!`);
       });
     } catch (error) {
@@ -168,7 +186,6 @@ const ProductTable = () => {
 
   const columns = [
     { title: "Tên sản phẩm", dataIndex: "name", key: "name" },
-    { title: "Mô tả", dataIndex: "des", key: "des" },
     { title: "Giá nhập", dataIndex: "import_price", key: "import_price" },
     { title: "Giá bán", dataIndex: "sell_price", key: "sell_price" },
     { title: "Số lượng", dataIndex: "stock_quantity", key: "stock_quantity" },
@@ -176,19 +193,22 @@ const ProductTable = () => {
       title: "Ảnh",
       dataIndex: "img",
       key: "img",
-      render: (img) => img ? <img src={img} alt="Product" width="50" /> : "Trống",
+      render: (img) =>
+        img ? <img src={img} alt="Product" width="50" /> : "Trống",
     },
     {
       title: "Thể loại",
       dataIndex: "cate_id",
       key: "cate_id",
-      render: (cate_id) => categories.find((cat) => cat.id === cate_id)?.name || "Trống",
+      render: (cate_id) =>
+        categories.find((cat) => cat.id === cate_id)?.name || "Trống",
     },
     {
       title: "Nhãn hiệu",
       dataIndex: "brand_id",
       key: "brand_id",
-      render: (brand_id) => brands.find((brand) => brand.brand_id === brand_id)?.name || "Trống",
+      render: (brand_id) =>
+        brands.find((brand) => brand.brand_id === brand_id)?.name || "Trống",
     },
     {
       title: "Hành động",
@@ -196,7 +216,9 @@ const ProductTable = () => {
       render: (_, record) => (
         <Space>
           <Button onClick={() => setEditingProduct(record)}>Sửa</Button>
-          <Button onClick={() => handleDeleteProduct(record)} danger>Xóa</Button>
+          <Button onClick={() => handleDeleteProduct(record)} danger>
+            Xóa
+          </Button>
         </Space>
       ),
     },
@@ -204,6 +226,7 @@ const ProductTable = () => {
 
   return (
     <div className="product-table">
+      <h1>Quản lí sản phẩm</h1>
       <Space>
         <Button type="primary" onClick={() => setIsModalVisible(true)}>
           Thêm sản phẩm
@@ -217,22 +240,52 @@ const ProductTable = () => {
         <Button
           onClick={() => {
             setIsNotificationModalVisible(true);
-            const under10 = products.filter((product) => product.stock_quantity < 10);
+            const under10 = products.filter(
+              (product) => product.stock_quantity < 10
+            );
             setUnder10(under10);
           }}
         >
           <Badge count={under10.length} offset={[10, 0]}>
-            <BellOutlined style={{ fontSize: '18px' }} />
+            <BellOutlined style={{ fontSize: "18px" }} />
           </Badge>
         </Button>
       </Space>
-
-      <Table
-        columns={columns}
-        dataSource={products}
-        loading={loading}
-        rowKey="product_id"
-      />
+      <Space>
+        <Select
+          placeholder="Lọc theo thể loại"
+          onChange={(value) => setSelectedCategory(value)}
+          value={selectedCategory}
+          allowClear
+        >
+          {categories.map((category) => (
+            <Option key={category.id} value={category.id}>
+              {category.name}
+            </Option>
+          ))}
+        </Select>
+        <Select
+          placeholder="Lọc theo nhãn hiệu"
+          onChange={(value) => setSelectedBrand(value)}
+          value={selectedBrand}
+          allowClear
+        >
+          {brands.map((brand) => (
+            <Option key={brand.brand_id} value={brand.brand_id}>
+              {brand.name}
+            </Option>
+          ))}
+        </Select>
+      </Space>
+      <Table className="my-3"
+  columns={columns}
+  dataSource={products}
+  loading={loading}
+  rowKey="product_id"
+  pagination={{
+    pageSize: 10 // Hiển thị tổng số sản phẩm
+  }}
+/>
 
       <Modal
         title="Thêm sản phẩm"
@@ -241,8 +294,66 @@ const ProductTable = () => {
         footer={null}
       >
         <Form onFinish={addProduct}>
-          {/* Form fields for adding product */}
-          {/* ... */}
+          <Form.Item
+            name="name"
+            label="Tên sản phẩm"
+            rules={[{ required: true, message: "Nhập tên sản phẩm" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item name="des" label="Mô tả">
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="import_price"
+            label="Giá nhập"
+            rules={[{ required: true, message: "Nhập giá nhập" }]}
+          >
+            <InputNumber min={0} />
+          </Form.Item>
+          <Form.Item
+            name="sell_price"
+            label="Giá bán"
+            rules={[{ required: true, message: "Nhập giá bán" }]}
+          >
+            <InputNumber min={0} />
+          </Form.Item>
+          <Form.Item
+            name="stock_quantity"
+            label="Số lượng"
+            rules={[{ required: true, message: "Nhập số lượng" }]}
+          >
+            <InputNumber min={0} />
+          </Form.Item>
+          <Form.Item
+            name="cate_id"
+            label="Thể loại"
+            rules={[{ required: true, message: "Chọn thể loại" }]}
+          >
+            <Select>
+              {categories.map((category) => (
+                <Option key={category.id} value={category.id}>
+                  {category.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="brand_id"
+            label="Nhãn hiệu"
+            rules={[{ required: true, message: "Chọn nhãn hiệu" }]}
+          >
+            <Select>
+              {brands.map((brand) => (
+                <Option key={brand.brand_id} value={brand.brand_id}>
+                  {brand.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item name="img" label="Ảnh sản phẩm">
+            <Input />
+          </Form.Item>
           <Button type="primary" htmlType="submit">
             Thêm sản phẩm
           </Button>
@@ -259,8 +370,66 @@ const ProductTable = () => {
           initialValues={editingProduct}
           onFinish={(values) => editProduct(editingProduct.product_id, values)}
         >
-          {/* Form fields for editing product */}
-          {/* ... */}
+          <Form.Item
+            name="name"
+            label="Tên sản phẩm"
+            rules={[{ required: true, message: "Nhập tên sản phẩm" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item name="des" label="Mô tả">
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="import_price"
+            label="Giá nhập"
+            rules={[{ required: true, message: "Nhập giá nhập" }]}
+          >
+            <InputNumber min={0} />
+          </Form.Item>
+          <Form.Item
+            name="sell_price"
+            label="Giá bán"
+            rules={[{ required: true, message: "Nhập giá bán" }]}
+          >
+            <InputNumber min={0} />
+          </Form.Item>
+          <Form.Item
+            name="stock_quantity"
+            label="Số lượng"
+            rules={[{ required: true, message: "Nhập số lượng" }]}
+          >
+            <InputNumber min={0} />
+          </Form.Item>
+          <Form.Item
+            name="cate_id"
+            label="Thể loại"
+            rules={[{ required: true, message: "Chọn thể loại" }]}
+          >
+            <Select>
+              {categories.map((category) => (
+                <Option key={category.id} value={category.id}>
+                  {category.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="brand_id"
+            label="Nhãn hiệu"
+            rules={[{ required: true, message: "Chọn nhãn hiệu" }]}
+          >
+            <Select>
+              {brands.map((brand) => (
+                <Option key={brand.brand_id} value={brand.brand_id}>
+                  {brand.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item name="img" label="Ảnh sản phẩm">
+            <Input />
+          </Form.Item>
           <Button type="primary" htmlType="submit">
             Cập nhật thông tin
           </Button>
