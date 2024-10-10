@@ -1,20 +1,28 @@
-import React, { useState } from "react";
-import "./CSS/ProductDetail.css"
+import React, { useEffect, useState } from "react";
+import { Layout, Row, Col, Card, List, Spin, Carousel } from "antd";
+import { supabase } from "../supabaseClient"; // Import Supabase client
 import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
-import demo from "./images/download.jpg";
+import "./CSS/ProductList.css";
+
+const { Content } = Layout;
+const { Meta } = Card;
 
 function ProductDetail() {
-    const [quantity, setQuantity] = useState(1);
+    const [products, setProducts] = useState([]);
+ const [categories, setCategories] = useState([]);
+ const [loading, setLoading] = useState(true);
+ const [selectedCategory, setSelectedCategory] = useState(null); // Loại sản phẩm được chọn
 
-    // Example product data
-    const product = {
-        id: 1,
-        name: "Tai nghe Bluetooth Apple AirPods 3 2022 sạc có dây | Chính hãng Apple Việt Nam",
-        price: "300.000",
-        description: "Apple Airpods 3 2022 là mẫu tai nghe bluetooth mới nhất đến từ ông trùm công nghệ Apple. Tai nghe sở hữu thiết kế nhỏ gọn cùng rất nhiều công nghệ hiện đại tai nghe mang tới cho người dùng trải nghiệm âm thanh cực sống động. Dưới đây là điểm nổi bật trên Airpod 3 2022 mà bạn không nên bỏ qua.",
-        imageUrl: demo
-    };
+ // Hàm lấy danh sách sản phẩm từ Supabase
+ const fetchProducts = async () => {
+   const { data, error } = await supabase.from("products").select("*");
+   if (error) {
+     console.error("Error fetching products:", error);
+   } else {
+     setProducts(data);
+   }
+   setLoading(false);
 
     // Handle quantity change
     const handleQuantityChange = (e) => {
@@ -59,6 +67,6 @@ function ProductDetail() {
         </div>
 
     );
-}
+}};
 
 export default ProductDetail;
