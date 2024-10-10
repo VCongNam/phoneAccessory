@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Typography, message } from 'antd';
+import { Form, Input, Button, Typography, message, Layout } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { supabase } from '../supabaseClient';
 import './CSS/Log.css';
@@ -94,7 +94,7 @@ const handleToggle = () => {
 };
 
 return (
-  <div className="auth-container">
+  <Layout className="auth-container" >
     <Title level={2}>{isRegister ? 'Đăng kí' : 'Đăng nhập'}</Title>
     <Form
       form={form}
@@ -146,7 +146,7 @@ return (
     <Button onClick={handleToggle} className="toggle-button">
       {isRegister ? 'Đã có tài khoản? Đăng nhập' : 'Chưa có tài khoản? Đăng kí'}
     </Button>
-  </div>
+  </Layout>
 );
 };
 

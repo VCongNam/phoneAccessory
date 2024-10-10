@@ -1,48 +1,41 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Row, Col, Card, List, Spin, Carousel } from "antd";
-import { supabase } from "../supabaseClient"; // Import Supabase client
+import { Layout, Row, Col, Card, Input, List, Spin, Button } from "antd";
+import { supabase } from "../supabaseClient";
 import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
-import ProductDetail from "./ProductDetail";
+import { useNavigate } from "react-router-dom";
 import "./CSS/ProductList.css";
-import { useNavigate } from 'react-router-dom';
 
 const { Content } = Layout;
 const { Meta } = Card;
-
+const { Search } = Input;
 
 const ProductList = () => {
-  // Example product data
-  // State lưu trữ danh sách sản phẩm và trạng thái tải
-  const [searchTerm, setSearchTerm] = useState(''); // State for search input
+  const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState(null); // Loại sản phẩm được chọn
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const navigate = useNavigate();
 
-  //hàm search
-  const handleSearch = async (e) => {
-    e.preventDefault();
+  // Search products by name
+  const handleSearch = async (value) => {
     setLoading(true);
-    // Fetch products from Supabase that match the search term
     const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .ilike('name', `%${searchTerm}%`); // Search by product name (case-insensitive)
+      .from("products")
+      .select("*")
+      .ilike("name", `%${value}%`);
 
     if (error) {
-      console.error('Error fetching products:', error);
+      console.error("Error fetching products:", error);
     } else {
-      setProducts(data); // Update the product list with search results
+      setProducts(data);
     }
 
     setLoading(false);
   };
 
-
-
-  // Hàm lấy danh sách sản phẩm từ Supabase
+  // Fetch all products
   const fetchProducts = async () => {
     const { data, error } = await supabase.from("products").select("*");
     if (error) {
@@ -53,7 +46,7 @@ const ProductList = () => {
     setLoading(false);
   };
 
-  // Hàm lấy danh sách loại sản phẩm từ Supabase
+  // Fetch all categories
   const fetchCategories = async () => {
     const { data, error } = await supabase.from("categories").select("*");
     if (error) {
@@ -63,141 +56,118 @@ const ProductList = () => {
     }
   };
 
-  // Sử dụng useEffect để fetch dữ liệu khi component được render
   useEffect(() => {
     fetchProducts();
     fetchCategories();
   }, []);
 
-  // Hàm lọc sản phẩm theo loại sản phẩm được chọn
   const filteredProducts = selectedCategory
     ? products.filter((product) => product.cate_id === selectedCategory)
     : products;
 
-  // Hàm xử lý khi nhấn vào loại sản phẩm
   const handleCategoryClick = (categoryId) => {
-    // Nếu người dùng nhấn vào loại sản phẩm đã chọn, hủy chọn (hiển thị lại tất cả sản phẩm)
-    if (selectedCategory === categoryId) {
-      setSelectedCategory(null);
-    } else {
-      // Chọn loại sản phẩm khác
-      setSelectedCategory(categoryId);
-    }
+    setSelectedCategory(selectedCategory === categoryId ? null : categoryId);
   };
 
   const handleProductClick = (id) => {
-    navigate(`/ProductDetail/${id}`); // Điều hướng đến trang chi tiết sản phẩm với id
+    navigate(`/ProductDetail/${id}`);
   };
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      {/* Header */}
       <Header />
 
-      {/* Nội dung trang chủ */}
       <Content style={{ padding: "50px" }}>
+        <Row
+          justify="center" // Căn giữa theo trục ngang
+          align="middle" // Căn giữa theo trục dọc
+          gutter={[16, 16]}
+        >
+          {/* Categories and Search */}
+          <Col xs={24} sm={6}>
+            <Card title="Tìm kiếm sản phẩm" bordered={false}>
+              <Search
+                placeholder="Nhập tên sản phẩm"
+                allowClear
+                enterButton="Tìm kiếm"
+                size="large"
+                onSearch={handleSearch}
+              />
+            </Card>
 
-        <Row gutter={[16, 16]} style={{ marginTop: "50px" }}>
-          {/* Danh sách loại sản phẩm */}
-          <Col
-            xs={24}
-            sm={6}
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: "10px",
-              padding: "20px",
-
-            }}
-          >
-            {/* search sản phẩm*/}
-            <div className="sidebar-widget mb-50">
-              <h3 className="sidebar-title">Tìm kiếm sản phẩm</h3>
-              <div className="sidebar-search">
-                <div>
-                  <form onSubmit={handleSearch}>
-                    <input
-                      type="text"
-                      placeholder="Tìm kiếm tên sản phẩm"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)} // Update search term state
-                    />
-                    <button type="submit">Tìm kiếm</button>
-                  </form>
-                </div>
-              </div>
-            </div>
-            <h3 className="sidebar-title">Thể loại</h3>
-            <List
-              dataSource={categories}
-              renderItem={(category) => (
-                <List.Item
-                  onClick={() => handleCategoryClick(category.id)} // Xử lý khi nhấn vào loại sản phẩm
-                  style={{
-                    cursor: "pointer",
-                    backgroundColor:
-                      selectedCategory === category.id ? "#e6f7ff" : "white",
-                    maxHeight: "auto",
-                  }}
-                >
-                  {category.name}
-                </List.Item>
-              )}
-            />
-          </Col>
-
-          {/* Danh sách sản phẩm */}
-          <Col xs={24} sm={18}>
-            <section id="shop" className="shop_section">
-              <div className="container">
-                <h2 className="text-center mb-5">
-                  {selectedCategory
-                    ? `Sản phẩm của ${categories.find(
-                      (cat) => cat.id === selectedCategory
-                    )?.name}`
-                    : "Tất cả sản phẩm"}
-                </h2>
-                {loading ? (
-                  <div className="spinner-container">
-                    <Spin size="large" />
-                  </div>
-                ) : (
-                  <Row gutter={[16, 16]}>
-                    {filteredProducts.map((product, index) => (
-                      <Col key={index} xs={24} sm={12} md={8} lg={6}>
-                        <Card
-                          hoverable
-                          cover={
-                            <img
-                              alt={product.name}
-                              src={product.img}
-                              style={{ height: "200px", objectFit: "cover" }}
-                            />
-                          }
-                        >
-                          <Meta
-                            title={product.name}
-                            description={`Price: ${product.sell_price}VND`}
-                          />
-                          <ul className="product">
-                            <p  key={product.id} style={{ marginTop: "20px",marginBottom: "-15px" }}>
-                              <button  onClick={() => handleProductClick(product.product_id)}>Xem chi tiết</button>
-                            </p>
-                          </ul>
-                        </Card>
-                      </Col>
-                    ))}
-                  </Row>
+            <Card
+              title="Thể loại sản phẩm"
+              bordered={false}
+              style={{ marginTop: 20 }}
+            >
+              <List
+                dataSource={categories}
+                renderItem={(category) => (
+                  <List.Item
+                    onClick={() => handleCategoryClick(category.id)}
+                    style={{
+                      cursor: "pointer",
+                      backgroundColor:
+                        selectedCategory === category.id ? "#e6f7ff" : "white",
+                    }}
+                  >
+                    {category.name}
+                  </List.Item>
                 )}
+              />
+            </Card>
+          </Col>
+          {/* Product List */}
+          <Col xs={24} sm={16}>
+            <h2 className="text-center">
+              {selectedCategory
+                ? `Sản phẩm của ${
+                    categories.find((cat) => cat.id === selectedCategory)?.name
+                  }`
+                : "Tất cả sản phẩm"}
+            </h2>
+
+            {loading ? (
+              <div className="spinner-container">
+                <Spin size="large" />
               </div>
-            </section>
+            ) : (
+              <Row gutter={[16, 16]}>
+                {filteredProducts.map((product) => (
+                  <Col key={product.id} xs={24} sm={12} md={8} lg={6}>
+                    <Card
+                      hoverable
+                      cover={
+                        <img
+                          alt={product.name}
+                          src={product.img}
+                          style={{ height: "200px", objectFit: "cover" }}
+                        />
+                      }
+                      actions={[
+                        <Button
+                          type="primary"
+                          onClick={() => handleProductClick(product.product_id)}
+                        >
+                          Xem chi tiết
+                        </Button>,
+                      ]}
+                    >
+                      <Meta
+                        title={product.name}
+                        description={`Giá: ${product.sell_price.toLocaleString()} VND`}
+                      />
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            )}
           </Col>
         </Row>
       </Content>
 
-
-      {/* Footer */}
       <Footer />
-    </Layout >
+    </Layout>
   );
 };
 

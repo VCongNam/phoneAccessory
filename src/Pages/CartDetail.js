@@ -3,6 +3,8 @@ import { supabase } from "../supabaseClient";
 import { Layout, Menu, List, Card, Button, InputNumber, Typography, Badge, Avatar } from 'antd';
 import { ShoppingCartOutlined, DeleteOutlined, HomeOutlined, UserOutlined } from '@ant-design/icons';
 import "./CSS/CartDetail.css";
+import  Header  from "../Components/Header/Header";
+import Footer from "../Components/Footer/Footer";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -97,7 +99,8 @@ const CartDetail = () => {
     const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
     return (
-        <Layout className="layout">
+        <Layout className="layout" style={{ minHeight: "100vh" }}>
+            <Header/>
             <Content style={{ padding: '0 50px', marginTop: 64 }}>
                 <div className="site-layout-content" style={{ background: '#fff', padding: 24, minHeight: 380 }}>
                     <Title level={2}>{user ? `${user.name}'s Shopping Cart` : 'Your Shopping Cart'}</Title>
@@ -138,6 +141,7 @@ const CartDetail = () => {
                     </Card>
                 </div>
             </Content>
+            <Footer/>
         </Layout>
     );
 };
