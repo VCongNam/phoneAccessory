@@ -6,6 +6,7 @@ import ProductList from './Pages/ProductList';
 import ProductDetail from './Pages/ProductDetail';
 import DashboardPage from './Pages/AdminDash';
 import CartDetail from './Pages/CartDetail';
+import Profile from './Pages/Profile';
 
 const AppRouter = () => {
     return (
@@ -24,6 +25,7 @@ const AppRouter = () => {
                     <Route path="/productdetail/:id" element={<ProductDetail />} />
                     <Route path="/login" element={<Auth />} />
                     <Route path="/cart" element={<CartDetail />} />
+                    <Route path="/profile" element={<Profile />} />
                 </Routes>
             </div>
         </Router>
