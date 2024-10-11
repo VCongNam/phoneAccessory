@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Typography, message, Layout } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { supabase } from '../supabaseClient';
+import {encoder64} from '../Components/Base64Encoder/Base64Encoder';
 import './CSS/Log.css';
 
 const { Title } = Typography;
@@ -9,13 +10,6 @@ const { Title } = Typography;
 const Auth = () => {
   const [isRegister, setIsRegister] = useState(false);
   const [form] = Form.useForm();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    // Check if the user is already logged in from localStorage
-    const loggedInStatus = localStorage.getItem('isLoggedIn') === 'true';
-    setIsLoggedIn(loggedInStatus);
-  }, []);
 
   const handleSubmit = async (values) => {
     const { phone, password, confirmPassword } = values;
@@ -55,14 +49,15 @@ const Auth = () => {
       if (data.length > 0) {
         message.success('Đăng nhập thành công');
         const user = data[0];
-
-        const tokenData = { userId: user.user_id, roleId: user.role_id };
+        const tokenData = { user_id: user.user_id, role_id: user.role_id };
+        
+        const encodedToken = encoder64(JSON.stringify(tokenData));
         // Set the user cookie
-        document.cookie = `token=${JSON.stringify(tokenData)}; expires=${new Date(
+        document.cookie = `token=${encodedToken}; expires=${new Date(
           new Date().getTime() + 60 * 60 * 1000 // 1 hour expiry
         ).toUTCString()}; path=/; samesite=strict; secure`;
+
         // Set the logged-in status to true
-        setIsLoggedIn(true);
         localStorage.setItem('isLoggedIn', 'true'); // Store the logged-in status in localStorage
 
         // Redirect based on the user role

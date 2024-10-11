@@ -24,8 +24,8 @@ function AppHeader() {
     document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; samesite=strict; secure';
 
     // Clear localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    // localStorage.removeItem('token');
+    // localStorage.removeItem('user');
 
     // Redirect to the login page
     window.location.href = '/';
