@@ -23,10 +23,11 @@ function AppHeader() {
     document.cookie = 'user_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; samesite=strict; secure';
     document.cookie = 'user_name=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; samesite=strict; secure';
     document.cookie = 'role_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; samesite=strict; secure';
+    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; samesite=strict; secure';
 
     // Clear localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    // localStorage.removeItem('token');
+    // localStorage.removeItem('user');
 
     // Redirect to the login page
     window.location.href = '/';
@@ -55,8 +56,8 @@ function AppHeader() {
         <Link to="/login">Đăng nhập</Link>
       </Menu.Item>
       <Menu.Divider /> {/* Added divider */}
-      <Menu.Item key="signup" icon={<UserAddOutlined />}>
-        <Link to="/signup">Đăng kí</Link>
+      <Menu.Item key="signup">
+        <Link to={"/signup"}>Đăng kí</Link>
       </Menu.Item>
     </Menu>
   );

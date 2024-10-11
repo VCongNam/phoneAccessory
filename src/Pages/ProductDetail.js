@@ -1,25 +1,55 @@
-import React, { useState } from "react";
-import "./CSS/ProductDetail.css"
+import React, { useEffect, useState } from "react";
+import { Layout, Row, Col, Card, List, Spin, Carousel } from "antd";
+import { useParams } from 'react-router-dom';
+import { supabase } from "../supabaseClient"; // Import Supabase client
 import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
-import demo from "./images/download.jpg";
+import "./CSS/ProductDetail.css";
+
+const { Content } = Layout;
+const { Meta } = Card;
+
 
 function ProductDetail() {
     const [quantity, setQuantity] = useState(1);
+    const { id } = useParams(); // Lấy id từ URL
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    // Example product data
-    const product = {
-        id: 1,
-        name: "Tai nghe Bluetooth Apple AirPods 3 2022 sạc có dây | Chính hãng Apple Việt Nam",
-        price: "300.000",
-        description: "Apple Airpods 3 2022 là mẫu tai nghe bluetooth mới nhất đến từ ông trùm công nghệ Apple. Tai nghe sở hữu thiết kế nhỏ gọn cùng rất nhiều công nghệ hiện đại tai nghe mang tới cho người dùng trải nghiệm âm thanh cực sống động. Dưới đây là điểm nổi bật trên Airpod 3 2022 mà bạn không nên bỏ qua.",
-        imageUrl: demo
-    };
+    // Hàm lấy danh sách sản phẩm từ Supabase
+    useEffect(() => {
+        const fetchProduct = async () => {
+            const { data, error } = await supabase
+                .from('products')
+                .select('*')
+                .eq('product_id', id) // Lấy sản phẩm có id tương ứng
+                .single();
+
+            if (error) {
+                console.error('Error fetching product:', error);
+            } else {
+                setProduct(data); // Cập nhật chi tiết sản phẩm
+            }
+
+            setLoading(false);
+        };
+
+        fetchProduct();
+    }, [id]);
+
+    if (loading) {
+        return <p>Loading product details...</p>;
+    }
+
+    if (!product) {
+        return <p>Product not found.</p>;
+    }
 
     // Handle quantity change
     const handleQuantityChange = (e) => {
         setQuantity(e.target.value);
     };
+
 
     // Handle add to cart
     const handleAddToCart = () => {
@@ -28,15 +58,22 @@ function ProductDetail() {
 
     return (
         <div>
-            <Header></Header>
+            <Header />
             <div>
+                
                 <div className="product-container">
                     <div className="product-image">
-                        <img src={product.imageUrl} alt={product.name} />
+                        <img
+                            alt={product.name}
+                            src={product.img}
+                            style={{ height: "200px", objectFit: "cover" }}
+                        />
                     </div>
                     <div className="product-details">
                         <h1>{product.name}</h1>
-                        <p className="product-price">{product.price}VND</p>
+                        <p className="product-price">{product.sell_price}VND</p>
+                        <p className="product-description">{product.des}</p>
+
                         <label htmlFor="quantity">Quantity:</label>
 
                         <input
@@ -47,18 +84,14 @@ function ProductDetail() {
                             value={quantity}
                             onChange={handleQuantityChange} />
                         <button onClick={handleAddToCart}>Add to Cart</button>
-                        <p className="product-description">{product.description}</p>
 
                     </div>
-
                 </div>
-
-
             </div>
             <Footer></Footer>
         </div>
 
     );
-}
+};
 
 export default ProductDetail;

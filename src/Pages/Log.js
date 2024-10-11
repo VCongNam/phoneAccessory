@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Typography, message } from 'antd';
+import { Form, Input, Button, Typography, message, Layout } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { supabase } from '../supabaseClient';
+import {encoder64} from '../Components/Base64Encoder/Base64Encoder';
 import './CSS/Log.css';
 
 const { Title } = Typography;
@@ -9,20 +10,13 @@ const { Title } = Typography;
 const Auth = () => {
   const [isRegister, setIsRegister] = useState(false);
   const [form] = Form.useForm();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    // Check if the user is already logged in from localStorage
-    const loggedInStatus = localStorage.getItem('isLoggedIn') === 'true';
-    setIsLoggedIn(loggedInStatus);
-  }, []);
 
   const handleSubmit = async (values) => {
     const { phone, password, confirmPassword } = values;
 
     if (isRegister) {
       if (password !== confirmPassword) {
-        message.error('Passwords do not match');
+        message.error('Mật khẩu không trùng!');
         return;
       }
 
@@ -37,7 +31,7 @@ const Auth = () => {
       if (insertError) {
         message.error(`Error inserting into account table: ${insertError.message}`);
       } else {
-        message.success('User registered successfully');
+        message.success('Đăng kí thành công');
         setIsRegister(false);
       }
     } else {
@@ -53,34 +47,27 @@ const Auth = () => {
       }
 
       if (data.length > 0) {
-        message.success('Login successful');
+        message.success('Đăng nhập thành công');
         const user = data[0];
+        const tokenData = { user_id: user.user_id, role_id: user.role_id };
+        
+        const encodedToken = encoder64(JSON.stringify(tokenData));
+        // Set the user cookie
+        document.cookie = `token=${encodedToken}; expires=${new Date(
+          new Date().getTime() + 60 * 60 * 1000 // 1 hour expiry
+        ).toUTCString()}; path=/; samesite=strict; secure`;
 
         // Set the logged-in status to true
-        setIsLoggedIn(true);
-        localStorage.setItem('isLoggedIn', 'true');  // Store the logged-in status in localStorage
-        
-        document.cookie = `user_id=${user.id}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; samesite=strict; secure`;
-        document.cookie = `user_name=${user.user_name}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; samesite=strict; secure`;
-        document.cookie = `role_id=${user.role_id}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/; samesite=strict; secure`;
+        localStorage.setItem('isLoggedIn', 'true'); // Store the logged-in status in localStorage
 
-        const { data: tokenData, error: tokenError } = await supabase.auth.getSession();
-
-        if (tokenError) {
-          message.error(`Error getting token: ${tokenError.message}`);
-        } else {
-          localStorage.setItem('token', tokenData.access_token);
-        }
-
-        localStorage.setItem('user', JSON.stringify(data[0]));
-
+        // Redirect based on the user role
         if (user.role_id === 2) {
           window.location.href = '/dashboard';
         } else {
           window.location.href = '/';
         }
       } else {
-        message.error('Invalid phone number or password');
+        message.error('Số điện thoại hoặc mật khẩu không hợp lệ!');
       }
     }
   };
@@ -103,15 +90,15 @@ const Auth = () => {
         <Form.Item
           name="phone"
           rules={[
-            { required: true, message: 'Please input your phone number!' },
-            { pattern: /^0[0-9]{9}$/, message: 'Please enter a valid phone number!' },
+            { required: true, message: 'Nhập số điện thoại của bạn!' },
+            { pattern: /^0[0-9]{9}$/, message: 'Hãy nhập số điện thoại hợp lệ!' },
           ]}
         >
           <Input prefix={<UserOutlined />} placeholder="Số điện thoại" />
         </Form.Item>
         <Form.Item
           name="password"
-          rules={[{ required: true, message: 'Please input your password!' }]}
+          rules={[{ required: true, message: 'Hãy nhập mật khẩu!' }]}
         >
           <Input.Password prefix={<LockOutlined />} placeholder="Mật khẩu" />
         </Form.Item>
@@ -120,13 +107,13 @@ const Auth = () => {
             name="confirmPassword"
             dependencies={['password']}
             rules={[
-              { required: true, message: 'Please confirm your password!' },
+              { required: true, message: 'Hãy nhập mật khẩu xác nhận!' },
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (!value || getFieldValue('password') === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error('The two passwords do not match!'));
+                  return Promise.reject(new Error('Mật khẩu không khớp!'));
                 },
               }),
             ]}
@@ -148,4 +135,3 @@ const Auth = () => {
 };
 
 export default Auth;
-
