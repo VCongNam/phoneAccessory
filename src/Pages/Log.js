@@ -49,10 +49,10 @@ const Auth = () => {
       if (data.length > 0) {
         message.success('Đăng nhập thành công');
         const user = data[0];
-        const tokenData = { userId: user.user_id, roleId: user.role_id };
-
+        const tokenData = { user_id: user.user_id, role_id: user.role_id };
+        const encodedToken = encoder64(JSON.stringify(tokenData));
         // Set the user cookie
-        document.cookie = `token=${JSON.stringify(encoder64(tokenData))}; expires=${new Date(
+        document.cookie = `token=${encodedToken}; expires=${new Date(
           new Date().getTime() + 60 * 60 * 1000 // 1 hour expiry
         ).toUTCString()}; path=/; samesite=strict; secure`;
 
