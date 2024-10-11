@@ -50,6 +50,7 @@ const Auth = () => {
         message.success('Đăng nhập thành công');
         const user = data[0];
         const tokenData = { user_id: user.user_id, role_id: user.role_id };
+        
         const encodedToken = encoder64(JSON.stringify(tokenData));
         // Set the user cookie
         document.cookie = `token=${encodedToken}; expires=${new Date(
