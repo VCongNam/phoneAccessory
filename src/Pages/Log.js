@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { supabase } from '../supabaseClient';
-import base64Encoder from '../Components/Base64Encoder/Base64Encoder';
+import {encoder64} from '../Components/Base64Encoder/Base64Encoder';
 import './CSS/Log.css';
 
 const { Title } = Typography;
@@ -52,7 +52,7 @@ const Auth = () => {
         const tokenData = { userId: user.user_id, roleId: user.role_id };
 
         // Set the user cookie
-        document.cookie = `token=${JSON.stringify(base64Encoder(tokenData))}; expires=${new Date(
+        document.cookie = `token=${JSON.stringify(encoder64(tokenData))}; expires=${new Date(
           new Date().getTime() + 60 * 60 * 1000 // 1 hour expiry
         ).toUTCString()}; path=/; samesite=strict; secure`;
 
