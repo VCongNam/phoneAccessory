@@ -1,0 +1,23 @@
+.product-grid-container {
+    padding: 20px;
+  }
+  
+  .product-card {
+    background-color: #ffff66; /* Màu nền vàng nhạt */
+    border-radius: 10px; /* Bo tròn góc */
+    padding: 15px;
+  }
+  
+  .product-image {
+    width: 80px; /* Điều chỉnh kích thước ảnh */
+    height: 80px;
+    margin-bottom: 10px;
+    object-fit: contain;
+  }
+  
+  .card-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: black;
+  }
+  

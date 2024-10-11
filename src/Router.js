@@ -5,6 +5,7 @@ import Home from './Pages/Home';
 import Auth from './Pages/Log';
 import ProductList from './Pages/ProductList';
 import DashboardPage from './Pages/AdminDash';
+import CartDetail from './Pages/CartDetail';
 
 const AppRouter = () => {
     return (
@@ -18,6 +19,7 @@ const AppRouter = () => {
                     <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/productlist" element={<ProductList />} />
                     <Route path="/login" element={<Auth />} />
+                    <Route path="/cart" element={<CartDetail />} />
                 </Routes>
             </div>
         </Router>

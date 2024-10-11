@@ -1,14 +1,58 @@
 .header-custom {
   display: flex;
-  align-items: center; /* Vertically align items */
+  align-items: center;
+  justify-content: space-between; /* Phân chia không gian đều */
+  padding: 0 20px;
+  background-color: #001529; /* Màu nền */
+}
+
+.header-content {
+  display: flex;
+  width: 100%;
+  align-items: center;
 }
 
 .logo {
-  margin-right: 20px; /* Add spacing between logo and menu */
+  flex-shrink: 0;
+}
+
+.blank-space {
+  flex-grow: 1; /* Tạo khoảng trắng trống giữa logo và menu bên phải */
+}
+
+.right-menu {
+  display: flex;
+  align-items: center;
+}
+
+.menu-custom {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+}
+
+.menu-custom .ant-menu-item, .menu-custom a {
+  color: #fff !important; /* Đổi màu chữ thành trắng */
+  text-decoration: none; /* Xóa gạch chân */
+}
+
+.menu-custom a:hover {
+  color: #1890ff !important; /* Màu khi hover */
+  text-decoration: none; /* Đảm bảo không có gạch chân khi hover */
 }
 
 .logo-text {
-  font-size: 1.2em;
+  color: #fff;
+  font-size: 24px;
   font-weight: bold;
-  color: white; /* Example color */
+}
+
+a {
+  color: #fff;
+  text-decoration: none; /* Xóa gạch chân */
+}
+
+a:hover {
+  color: #1890ff;
+  text-decoration: none; /* Không có gạch chân khi hover */
 }
