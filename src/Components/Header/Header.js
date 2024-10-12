@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { Layout, Menu, Dropdown, Avatar, Space } from "antd";
-import { UserOutlined, ShoppingCartOutlined } from "@ant-design/icons";
-import "./Header.css"; 
+import { UserOutlined, ShoppingCartOutlined, LoginOutlined, UserAddOutlined } from "@ant-design/icons"; // Add icons for login/signup
+import "./Header.css";
+import logow from "./logow.jpg"
+
 import { Link } from "react-router-dom";
 const { Header } = Layout;
 
@@ -24,8 +26,8 @@ function AppHeader() {
     document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; samesite=strict; secure';
 
     // Clear localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    // localStorage.removeItem('token');
+    // localStorage.removeItem('user');
 
     // Redirect to the login page
     window.location.href = '/';
@@ -39,7 +41,7 @@ function AppHeader() {
   const userMenu = (
     <Menu>
       <Menu.Item key="profile">
-        <a href="#profile">Thông tin cá nhân</a>
+        <Link to="/profile">Thông tin cá nhân</Link>
       </Menu.Item>
       <Menu.Divider /> {/* Added divider for better visual separation */}
       <Menu.Item key="logout" onClick={handleLogout}>
@@ -50,8 +52,8 @@ function AppHeader() {
 
   const guestMenu = (
     <Menu>
-      <Menu.Item key="login" onClick={handleLogin}>
-       <Link to="/login">Đăng nhập</Link>
+      <Menu.Item key="login" onClick={handleLogin} icon={<LoginOutlined />}>
+        <Link to="/login">Đăng nhập</Link>
       </Menu.Item>
       <Menu.Divider /> {/* Added divider */}
       <Menu.Item key="signup">
@@ -61,36 +63,42 @@ function AppHeader() {
   );
 
   return (
-    <Header className="header-custom"> 
-      <div className="logo"> 
-        {/* Improved logo styling */}
-        <Link to="/"> 
-          <span className="logo-text">Gadget Galaxy</span>
-        </Link>
+    <Header className="header-custom">
+      <div className="header-content">
+        <div className="logo">
+          {/* Logo */}
+      
+          <Link to="/">
+            <img src={logow} alt="Logo" className="logo-image" style={{ width: "100px", height: "100px" }} />
+          </Link>
+        </div>
+        <div className="blank-space" /> {/* Phần trắng trống */}
+
+        {/* Các mục bắt đầu từ bên phải */}
+        <div className="right-menu">
+          <Menu mode="horizontal" className="menu-custom">
+            <Menu.Item key="home">
+              <Link to="/productlist">Sản Phẩm</Link>
+            </Menu.Item>
+
+            <Menu.Item key="cart" icon={<ShoppingCartOutlined />}>
+              <Link to="/cart">Giỏ hàng</Link>
+            </Menu.Item>
+            
+
+            <Menu.Item key="account">
+              <Dropdown overlay={isLoggedIn ? userMenu : guestMenu} placement="bottomRight">
+                <a onClick={(e) => e.preventDefault()}>
+                  <Space>
+                    <Avatar icon={<UserOutlined />} />
+                    {isLoggedIn ? "Hồ sơ" : "Tài Khoản"}
+                  </Space>
+                </a>
+              </Dropdown>
+            </Menu.Item>
+          </Menu>
+        </div>
       </div>
-      <Menu
-        theme="dark"
-        mode="horizontal"
-        defaultSelectedKeys={["home"]}
-        className="menu-custom"
-      >
-        <Menu.Item key="home">
-          <Link to="/productlist">Sản Phẩm</Link>
-        </Menu.Item>
-        <Menu.Item key="cart" icon={<ShoppingCartOutlined />}>
-         <Link to="/cart"> Giỏ hàng </Link>
-        </Menu.Item>
-        <Menu.Item key="account" style={{ marginLeft: "auto" }}>
-          <Dropdown overlay={isLoggedIn ? userMenu : guestMenu} placement="bottomRight">
-            <a onClick={(e) => e.preventDefault()}> {/* Prevent default link behavior */}
-              <Space>
-                <Avatar icon={<UserOutlined />} />
-                {isLoggedIn ? "Profile" : "Tài Khoản"}
-              </Space>
-            </a>
-          </Dropdown>
-        </Menu.Item>
-      </Menu>
     </Header>
   );
 }

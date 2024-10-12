@@ -1,330 +1,269 @@
-import Header from "../Components/Header/Header";
-import { Container, Navbar, Nav, Form, Button } from "react-bootstrap";
-import styled from "styled-components";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import React, { useState, useEffect } from 'react';
+import { Layout, Avatar, Card, Typography, Button, Form, Input, Table, Modal, message } from 'antd';
+import { UserOutlined, MailOutlined, PhoneOutlined, HomeOutlined, LockOutlined, EditOutlined } from '@ant-design/icons';
+import { supabase } from "../supabaseClient";
+import { useLocation } from "react-router-dom";
+import AppHeader from '../Components/Header/Header';
+import AppFooter from '../Components/Footer/Footer';
+
+const { Content } = Layout;
+const { Title } = Typography;
 
 export default function Profile() {
-  const notify = () =>
-    toast.success("Update success", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
+  const [profile, setProfile] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    address: "",
+  });
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [form] = Form.useForm();
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userId = user?.user_id;
+  const location = useLocation();
+
+  useEffect(() => {
+    if (userId) {
+      fetchProfile();
+      fetchOrders();
+    } else {
+      console.error("Không tìm thấy ID người dùng trong localStorage");
+      setLoading(false);
+    }
+  }, [userId]);
+
+  const fetchProfile = async () => {
+    const { data, error } = await supabase
+      .from("profileuser")
+      .select("name, email, phone, address")
+      .eq("user_id", userId)
+      .single();
+
+    if (error) {
+      console.error("Lỗi khi lấy thông tin hồ sơ: ", error);
+    } else if (data) {
+      const profileData = {
+        fullName: data.name,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+      };
+      setProfile(profileData);
+      form.setFieldsValue(profileData);
+    }
+    setLoading(false);
+  };
+
+  const fetchOrders = async () => {
+    const { data, error } = await supabase
+      .from("orders")
+      .select(`
+        id,
+        total_price,
+        status,
+        created_at,
+        quantity,
+        address_order,
+        products (
+          product_id,
+          name
+        )
+      `)
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Lỗi khi lấy lịch sử đơn hàng: ", error);
+    } else {
+      setOrders(data);
+    }
+    setLoading(false);
+  };
+
+  const updateProfile = async (values) => {
+    const { error } = await supabase
+      .from("profileuser")
+      .update({
+        name: values.fullName,
+        email: values.email,
+        phone: values.phone,
+        address: values.address,
+      })
+      .eq("user_id", userId);
+
+    if (error) {
+      message.error("Lỗi khi cập nhật hồ sơ");
+    } else {
+      message.success("Cập nhật hồ sơ thành công");
+      setProfile(values);
+      setIsEditing(false);
+    }
+  };
+
+  const updatePassword = async (values) => {
+    // Kiểm tra mật khẩu hiện tại
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: profile.email,
+      password: values.currentPassword,
     });
+
+    if (error) {
+      message.error("Mật khẩu hiện tại không chính xác");
+      return;
+    }
+
+    // Cập nhật mật khẩu mới
+    const { error: updateError } = await supabase.auth.updateUser({ 
+      password: values.newPassword 
+    });
+
+    if (updateError) {
+      message.error("Lỗi khi cập nhật mật khẩu");
+    } else {
+      message.success("Cập nhật mật khẩu thành công");
+      setIsPasswordModalVisible(false);
+    }
+  };
+
+  const columns = [
+    {
+      title: 'Mã đơn hàng',
+      dataIndex: 'id',
+      key: 'id',
+    },
+    {
+      title: 'Tổng giá',
+      dataIndex: 'total_price',
+      key: 'total_price',
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+    },
+    {
+      title: 'Ngày tạo',
+      dataIndex: 'created_at',
+      key: 'created_at',
+    },
+  ];
+
+  if (loading) {
+    return <div>Đang tải...</div>;
+  }
+
   return (
-    <>
-      <ToastContainer />
-      <NavWrapper>
-        <Navbar expand="lg" style={styles.navbar} className="bg-light">
-          <Container>
-            <Navbar.Brand href="#home">Shop Phụ Kiện VIP</Navbar.Brand>
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
-            <Navbar.Collapse id="basic-navbar-nav" className="nav_collapse">
-              <Nav className="ml-auto">
-                <Nav.Link href="#home">Home</Nav.Link>
-                <Nav.Link href="#shop">Shop</Nav.Link>
-                <Nav.Link href="#why">Why Us</Nav.Link>
-                <Nav.Link href="#testimonial">Testimonial</Nav.Link>
-                <Nav.Link href="#contact">Contact Us</Nav.Link>
-              </Nav>
-              <Form inline>
-                <Button variant="outline-success" className="mr-2">
-                  Login
-                </Button>
-                <Button variant="outline-success">Cart</Button>
-              </Form>
-            </Navbar.Collapse>
-          </Container>
-        </Navbar>
-      </NavWrapper>
-      <ProfileWrapper>
-        <div class="profile-container">
-          <div class="grid-container">
-            <div class="card-container left">
-              <div class="card profile-card">
-                <div class="card-header">
-                  <p class="header-text">Profile</p>
-                  <span class="badge">Active</span>
-                </div>
-                <div class="card-content profile-image">
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/User_icon_2.svg/640px-User_icon_2.svg.png"
-                    class="profile-img"
-                  />
-                </div>
+    <Layout style={{ minHeight: '100vh'}}>
+      <AppHeader />
+      <Layout style={{ padding: '0 24px 24px' }}>
+        <Content style={{ padding: '0 50px' }}>
+          <Card
+            style={{ marginTop: 24 }}
+            cover={
+              <div style={{ padding: '24px', textAlign: 'center', background: '#f0f2f5' }}>
+                <Avatar size={64} icon={<UserOutlined />} />
               </div>
-              <div class="card detail_card">
-                <div class="card-header">
-                  <p class="header-text text-center">About Me</p>
-                </div>
-                <div class="card-content">
-                  <p class="intro-text">
-                    Hi, I am a software engineer with 5 years of experience in
-                    web development. I have experience working with React,
-                    TypeScripts, Redux, Node.js, and ASP.Net Core Web API.
-                  </p>
-                </div>
-              </div>
-              <div class="card login_card">
-                <div class="card-header">
-                  <p class="header-text text-center">Last Login</p>
-                </div>
-                <div class="card-content text-center text_lastlogin">
-                  <p>
-                    Last login at :
-                    <span className="text_lastlogin"> 08:33 23/09/2024</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="card contact-info">
-              <div class="card-header">
-                <p class="header-text">Contact Information</p>
-              </div>
-              <div class="card-content grid">
-                <div>
-                  <p class="label">First Name</p>
-                  <p class="info">Nguyen</p>
-                </div>
-                <div>
-                  <p class="label">Last Name</p>
-                  <p class="info">Henry</p>
-                </div>
-                <div>
-                  <p class="label">Email</p>
-                  <p class="info">henrywork@gmail.com</p>
-                </div>
-                <div>
-                  <p class="label">Phone</p>
-                  <p class="info">+84 987654321</p>
-                </div>
-              </div>
-              <div class="card-footer">
-                <p class="change-info-text">Change Information</p>
-                <button class="update-btn" onClick={notify}>
-                  Update
-                </button>
-              </div>
-              <div class="card-content grid">
-                <div class="input-group">
-                  <label>First Name</label>
-                  <input type="text" placeholder="First Name" />
-                </div>
-                <div class="input-group">
-                  <label>Last Name</label>
-                  <input type="text" placeholder="Last Name" />
-                </div>
-                <div class="input-group">
-                  <label>About Me</label>
-                  <input type="text" placeholder="About Me" />
-                </div>
-                <div class="input-group">
-                  <label>Phone</label>
-                  <input type="text" placeholder="Phone" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ProfileWrapper>
-    </>
+            }
+            extra={
+              <Button 
+                icon={<EditOutlined />} 
+                onClick={() => setIsEditing(!isEditing)}
+              >
+                {isEditing ? 'Hủy' : 'Chỉnh sửa'}
+              </Button>
+            }
+          >
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={updateProfile}
+            >
+              <Form.Item name="fullName" label="Họ và tên" rules={[{ required: true, message: 'Vui lòng nhập họ và tên!' }]}>
+                <Input prefix={<UserOutlined />} readOnly={!isEditing} />
+              </Form.Item>
+              <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email', message: 'Vui lòng nhập email hợp lệ!' }]}>
+                <Input prefix={<MailOutlined />} readOnly={!isEditing} />
+              </Form.Item>
+              <Form.Item name="phone" label="Số điện thoại">
+                <Input prefix={<PhoneOutlined />} readOnly={!isEditing} />
+              </Form.Item>
+              <Form.Item name="address" label="Địa chỉ">
+                <Input prefix={<HomeOutlined />} readOnly={!isEditing} />
+              </Form.Item>
+              {isEditing && (
+                <Form.Item>
+                  <Button type="primary" htmlType="submit" style={{ marginRight: 8 }}>
+                    Cập nhật hồ sơ
+                  </Button>
+                </Form.Item>
+              )}
+            </Form>
+            <Button onClick={() => setIsPasswordModalVisible(true)}>
+              Đổi mật khẩu
+            </Button>
+          </Card>
+          
+          <Card style={{ marginTop: 24 }}>
+            <Title level={4}>Lịch sử đơn hàng</Title>
+            <Table columns={columns} dataSource={orders} rowKey="id" />
+          </Card>
+        </Content>
+      </Layout>
+
+      <Modal
+        title="Đổi mật khẩu"
+        visible={isPasswordModalVisible}
+        onCancel={() => setIsPasswordModalVisible(false)}
+        footer={null}
+      >
+        <Form
+          layout="vertical"
+          onFinish={updatePassword}
+        >
+          <Form.Item
+            name="currentPassword"
+            label="Mật khẩu hiện tại"
+            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu hiện tại!' }]}
+          >
+            <Input.Password prefix={<LockOutlined />} />
+          </Form.Item>
+          <Form.Item
+            name="newPassword"
+            label="Mật khẩu mới"
+            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu mới!' }]}
+          >
+            <Input.Password prefix={<LockOutlined />} />
+          </Form.Item>
+          <Form.Item
+            name="confirmPassword"
+            label="Xác nhận mật khẩu mới"
+            dependencies={['newPassword']}
+            rules={[
+              { required: true, message: 'Vui lòng xác nhận mật khẩu mới!' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('newPassword') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('Hai mật khẩu không khớp!'));
+                },
+              }),
+            ]}
+          >
+            <Input.Password prefix={<LockOutlined />} />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Đổi mật khẩu
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+      <AppFooter />
+    </Layout>
   );
 }
-
-const styles = {
-  body: {
-    fontFamily: "Arial, sans-serif",
-  },
-  navbar: {
-    width: "100%",
-    marginBottom: "20px",
-  },
-  carouselContainer: {
-    maxWidth: "600px",
-    margin: "0 auto",
-  },
-  carouselImage: {
-    height: "300px",
-    objectFit: "cover",
-  },
-  card: {
-    border: "none",
-  },
-  footer: {
-    backgroundColor: "#f8f9fa",
-  },
-};
-
-const NavWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  .nav_collapse {
-    display: flex;
-    justify-content: space-between;
-  }
-`;
-
-const ProfileWrapper = styled.div`
-  .profile-container {
-    height: 100%;
-    padding: 40px;
-    overflow-y: auto;
-  }
-
-  .grid-container {
-    display: flex;
-    gap: 24px;
-    height: 80% !important;
-
-    padding-top: 24px;
-    @media (max-width: 768px) {
-      flex-direction: column;
-    }
-  }
-  .left {
-    height: 80dvh;
-    .profile-card {
-      height: 40%;
-    }
-    .detail_card {
-      height: 40%;
-      overflow: auto;
-    }
-    .login_card {
-      height: 20%;
-    }
-  }
-  .card-container {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    width: 30%;
-    @media (max-width: 768px) {
-      width: 100%;
-    }
-  }
-
-  .card {
-    background-color: #f1f5f9;
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px,
-      rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
-    border-radius: 8px;
-    padding: 16px;
-  }
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    font-weight: bold;
-    padding-bottom: 8px;
-    border-radius: 8px;
-  }
-
-  .header-text {
-    font-size: 20px;
-  }
-
-  .badge {
-    background-color: #28a745;
-    color: white;
-    display: flex;
-    align-items: center;
-    height: 30px;
-    width: 60px;
-    justify-content: center;
-    border-radius: 4px;
-  }
-
-  .profile-image {
-    display: flex;
-    justify-content: center;
-  }
-
-  .profile-img {
-    width: 150px;
-    height: 150px;
-    border-radius: 40% 40%;
-  }
-
-  .card-content {
-    font-size: 14px;
-    padding: 12px;
-    .text_lastlogin {
-      font-weight: bold;
-      color: #28a745;
-    }
-  }
-
-  .text-center {
-    text-align: center;
-  }
-
-  .contact-info {
-    padding-bottom: 16px;
-    width: 70%;
-    height: 80dvh;
-    @media (max-width: 768px) {
-      width: 100%;
-    }
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-  }
-
-  .label {
-    font-weight: bold;
-    color: black;
-  }
-
-  .info {
-    color: grey;
-  }
-
-  .card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 8px;
-  }
-
-  .update-btn {
-    background-color: #28a745;
-    color: white;
-    padding: 8px 16px;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    width: 150px;
-    height: 100%;
-    border-radius: 8px;
-  }
-
-  .update-btn:hover {
-    background-color: #218838;
-  }
-
-  .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  input {
-    width: 80%;
-    padding: 8px;
-    border: 1px solid grey;
-    border-radius: 4px;
-    color: grey;
-  }
-`;

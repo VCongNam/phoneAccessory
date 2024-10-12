@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { Layout } from 'antd';
+import { Layout, Breadcrumb } from 'antd';
 import HeaderDash from '../Components/HeaderDash/HeaderDash';
 import Sidebar from '../Components/Sidebar/Sidebar';
 import OrderManagement from '../Components/OrderManagement/OrderManagement';
 import ProductManagement from '../Components/ProductManagement/ProductManagement';
 import UserManagement from '../Components/UserManagement/UserManagement';
 import AccountManagement from '../Components/UserManagement/UserManagement';
-import VoucherManagement  from '../Components/Voucher/Voucher';
+import VoucherManagement from '../Components/Voucher/Voucher';
 import ProfileManagement from '../Components/CustomerManagement/CustomerManage';
+import DashboardOverview from '../Components/GeneralDash/General';
 const { Content } = Layout;
 
 const DashboardPage = () => {
@@ -16,7 +17,7 @@ const DashboardPage = () => {
   const renderContent = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <div>Dashboard/Tổng quan</div>;
+        return <DashboardOverview />;
       case 'products':
         return <ProductManagement />;
       case 'orders':
@@ -28,19 +29,35 @@ const DashboardPage = () => {
       case 'reports':
         return <VoucherManagement />;
       default:
-        return <div>Dashboard/Tổng quan</div>;
+        return <DashboardOverview />;
     }
   };
 
+  // Mapping page keys to breadcrumb items
+  const breadcrumbItems = {
+    dashboard: ['Tổng quan'],
+    products: ['Quản lý sản phẩm'],
+    orders: ['Quản lý đơn hàng'],
+    customers: ['Quản lý khách hàng'],
+    accounts: ['Quản lý tài khoản'],
+    reports: ['Quản lý mã giảm giá'],
+  };
+
   return (
-    <Layout style={{ height: '100vh' }}>
+    <Layout >
       <HeaderDash /> {/* Thêm Header vào đây */}
       <Layout>
         <Sidebar onMenuClick={setCurrentPage} />
-        <Layout style={{ padding: '24px' }}>
-          <Content style={{ padding: '24px', backgroundColor: '#fff' }}>
-            {renderContent()}
-          </Content>
+        <Layout style={{ padding: '0 24px 24px' }}>
+          {/* Breadcrumb */}
+          <Breadcrumb style={{ margin: '16px 0' }}>
+          <Breadcrumb.Item>Dashboard</Breadcrumb.Item>  
+            {breadcrumbItems[currentPage].map((item, index) => (
+              <Breadcrumb.Item key={index}>{item}</Breadcrumb.Item>
+            ))}
+          </Breadcrumb>
+          {/* Page content */}
+          <Content>{renderContent()}</Content>
         </Layout>
       </Layout>
     </Layout>

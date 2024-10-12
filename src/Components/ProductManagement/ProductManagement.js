@@ -103,7 +103,14 @@ const ProductTable = () => {
 
   const addProduct = async (values) => {
     try {
-      const { error } = await supabase.from("products").insert([values]);
+      const productCode = await generateProductCode(values.cate_id, values.brand_id);
+
+      const newProduct = {
+        ...values,
+        product_code: productCode
+      };
+
+      const { error } = await supabase.from("products").insert([newProduct]);
       if (error) throw error;
       toast.success("Thêm sản phẩm thành công!");
       fetchProducts();
@@ -112,6 +119,45 @@ const ProductTable = () => {
       console.error("Error adding product:", error);
       toast.error("Không thể thêm sản phẩm");
     }
+  };
+  const generateProductCode = async (categoryId, brandId) => {
+    const category = categories.find(cat => cat.id === categoryId);
+    const brand = brands.find(b => b.brand_id === brandId);
+    const productCount = await getProductCount();
+
+    // Sử dụng mã viết tắt cho thể loại
+    const categoryCode = getCategoryCode(category.name);
+    const brandCode = brand.name.substring(0, 3).toUpperCase();
+
+    return `${categoryCode}-${brandCode}-${String(productCount + 1).padStart(4, '0')}`;
+  };
+
+  // Hàm để lấy mã viết tắt cho thể loại
+  const getCategoryCode = (categoryName) => {
+    const categoryCodeMap = {
+      'Ốp lưng': 'OP',
+      'Củ sạc': 'CS',
+      'Cáp sạc': 'DS',
+      'Tai nghe': 'TN',
+      'Sạc dự phòng pin': 'SDP',
+      'Giá đỡ điện thoại': 'GDT',
+      'Loa bluetooth' : 'LB'
+      // Thêm các thể loại khác tại đây
+    };
+    return categoryCodeMap[categoryName] || categoryName.substring(0, 2).toUpperCase();
+  };
+  // Hàm để lấy số lượng sản phẩm hiện tại
+  const getProductCount = async () => {
+    const { count, error } = await supabase
+      .from('products')
+      .select('*', { count: 'exact', head: true });
+
+    if (error) {
+      console.error('Error getting product count:', error);
+      return 0;
+    }
+
+    return count || 0;
   };
 
   const confirmDeleteProduct = async () => {
@@ -138,9 +184,22 @@ const ProductTable = () => {
 
   const editProduct = async (product_id, values) => {
     try {
+      // Tạo mã sản phẩm mới nếu thể loại hoặc nhãn hiệu thay đổi
+      const currentProduct = products.find(p => p.product_id === product_id);
+      let newProductCode = currentProduct.product_code;
+
+      if (currentProduct.cate_id !== values.cate_id || currentProduct.brand_id !== values.brand_id) {
+        newProductCode = await generateProductCode(values.cate_id, values.brand_id);
+      }
+
+      const updateValues = {
+        ...values,
+        product_code: newProductCode
+      };
+
       const { error } = await supabase
         .from("products")
-        .update(values)
+        .update(updateValues)
         .eq("product_id", product_id);
       if (error) throw error;
       toast.success("Sửa thông tin sản phẩm thành công!");
@@ -151,7 +210,6 @@ const ProductTable = () => {
       toast.error("Không thể sửa thông tin sản phẩm");
     }
   };
-
   const handleAddBrand = async () => {
     try {
       const { error } = await supabase
@@ -186,6 +244,11 @@ const ProductTable = () => {
 
   const columns = [
     { title: "Tên sản phẩm", dataIndex: "name", key: "name" },
+    {
+      title: "Mã sản phẩm",
+      dataIndex: "product_code",
+      key: "product_code",
+    },
     { title: "Giá nhập", dataIndex: "import_price", key: "import_price" },
     { title: "Giá bán", dataIndex: "sell_price", key: "sell_price" },
     { title: "Số lượng", dataIndex: "stock_quantity", key: "stock_quantity" },
@@ -278,14 +341,14 @@ const ProductTable = () => {
         </Select>
       </Space>
       <Table className="my-3"
-  columns={columns}
-  dataSource={products}
-  loading={loading}
-  rowKey="product_id"
-  pagination={{
-    pageSize: 10 // Hiển thị tổng số sản phẩm
-  }}
-/>
+        columns={columns}
+        dataSource={products}
+        loading={loading}
+        rowKey="product_id"
+        pagination={{
+          pageSize: 10 // Hiển thị tổng số sản phẩm
+        }}
+      />
 
       <Modal
         title="Thêm sản phẩm"
@@ -300,6 +363,12 @@ const ProductTable = () => {
             rules={[{ required: true, message: "Nhập tên sản phẩm" }]}
           >
             <Input />
+          </Form.Item>
+          <Form.Item
+            name="product_code"
+            label="Mã sản phẩm"
+          >
+            <Input disabled />
           </Form.Item>
           <Form.Item name="des" label="Mô tả">
             <Input />
