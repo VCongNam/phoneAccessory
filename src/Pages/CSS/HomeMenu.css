@@ -1,30 +1,18 @@
 .product-grid-container {
-  padding: 20px;
-}
-
-.product-card {
+  padding: 40px;
   border-radius: 10px;
-  overflow: hidden;
 }
 
-.product-image {
-  height: 150px;
+.card-img {
+  height: 100px;
   object-fit: contain;
+
+  padding: 10px;
 }
 
-.category-icon {
+.spinner-container {
   display: flex;
-  align-items: center;
   justify-content: center;
-  height: 150px;
-  background-color: #f0f0f0;
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  border-radius: 10px;
-}
-
-.icon-code {
-  font-size: 32px;
-  font-weight: 700;
+  align-items: center;
+  height: 100vh;
 }

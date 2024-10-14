@@ -5,7 +5,11 @@ import Footer from "../Components/Footer/Footer";
 import HomeBrand from "./HomeBrand"; // Import component ProductList
 
 import HomeMenu from "./HomeMenu";
-import opip15 from "./images/opip15.jpg";
+import bn1 from "./images/bn1.png";
+import bn2 from "./images/bn2.png";
+import bn4 from "./images/bn4.jpg"; 
+import bn5 from "./images/bn5.jpg";
+
 import "./CSS/Home.css";
 
 const { Content } = Layout;
@@ -20,7 +24,43 @@ const Home = () => {
         <Carousel autoplay style={{ marginBottom: "50px", maxWidth: "100%", overflow: "hidden" }}>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <img
-              src={opip15}
+              src={bn1}
+              alt="First slide"
+              style={{
+                width: "100%",
+                height: "400px",
+                borderRadius: "10px",
+                objectFit: "fill",
+              }}
+            />
+          </div>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <img
+              src={bn2}
+              alt="First slide"
+              style={{
+                width: "100%",
+                height: "400px",
+                borderRadius: "10px",
+                objectFit: "fill",
+              }}
+            />
+          </div>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <img
+              src={bn4}
+              alt="First slide"
+              style={{
+                width: "100%",
+                height: "400px",
+                borderRadius: "10px",
+                objectFit: "fill",
+              }}
+            />
+          </div>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <img
+              src={bn5}
               alt="First slide"
               style={{
                 width: "100%",

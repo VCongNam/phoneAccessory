@@ -1,20 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col, Card } from 'react-bootstrap';
+import { Row, Col, Card, Spin } from 'antd'; // Import Ant Design components
 import { supabase } from '../supabaseClient'; // Import Supabase client
-import './CSS/HomeMenu.css'; // Tạo file CSS riêng để tùy chỉnh
-import bn1 from './images/bn1.jpg';
-import opip15 from './images/opip15.jpg';
+import './CSS/HomeMenu.css'; // Custom CSS
+import capsac from './images/capsac.png';
+import cusac from './images/cusac.png';
+import giado from './images/giado.png';
+import loablu from './images/loablu.png';
+import phukien from './images/phukien.png';
+import oplung from './images/oplung.png';
+import sacduphong from './images/sacduphong.png';
+import tainghe from './images/tainghe.png';
+import { GrTextAlignLeft } from 'react-icons/gr';
+
+const { Meta } = Card;
 
 // Map danh mục với URL ảnh tương ứng
 const categoryCodeMap = {
-  'Ốp lưng': bn1,
-  'Củ sạc': opip15,
-  'Cáp sạc': 'https://example.com/images/capsac.png',
-  'Tai nghe': 'https://example.com/images/tainghe.png',
-  'Sạc dự phòng pin': 'https://example.com/images/sacdp.png',
-  'Giá đỡ điện thoại': 'https://example.com/images/giado.png',
-  'Loa bluetooth': 'https://example.com/images/loabluetooth.png',
-  // Thêm các thể loại khác tại đây
+  'Ốp lưng': oplung,
+  'Củ sạc': cusac,
+  'Cáp sạc': capsac,
+  'Tai nghe': tainghe,
+  'Sạc dự phòng': sacduphong,
+  'Giá đỡ': giado,
+  'Loa bluetooth': loablu,
+  'Linh kiện khác': phukien,
 };
 
 // Hàm lấy URL hình ảnh từ tên danh mục
@@ -29,9 +38,7 @@ const HomeMenu = () => {
   // Hàm để lấy danh mục từ Supabase
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase
-        .from('categories') // Thay thế 'categories' bằng tên bảng của bạn
-        .select('*');
+      const { data, error } = await supabase.from('categories').select('*');
       if (error) {
         console.error('Error fetching categories:', error);
       } else {
@@ -50,35 +57,44 @@ const HomeMenu = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>; // Hiển thị loading nếu dữ liệu đang được tải
+    return (
+      <div className="spinner-container">
+        <Spin size="large" />
+      </div>
+    ); // Hiển thị loading nếu dữ liệu đang được tải
   }
 
   return (
     <div className="product-grid-container">
       <h3 className="text-center mb-4">ĐÚNG HÀNG - ĐÚNG GIÁ - ĐÚNG CHẤT LƯỢNG</h3>
-      <Row>
-        {categories.map((category) => {
+
+      {/* Hàng 1: Hiển thị 8 danh mục trong cùng một hàng */}
+      <Row gutter={[16, 16]} justify="center">
+        {categories.slice(0, 8).map((category) => {
           const imageUrl = category.image_url || getCategoryImage(category.name);
           return (
-            <Col key={category.id} xs={6} md={4} lg={2} className="mb-4">
-              <Card className="text-center product-card">
-                {imageUrl ? (
-                  <Card.Img
-                    variant="top"
-                    src={imageUrl}
+            <Col
+              key={category.id}
+              xs={24}
+              sm={12}
+              md={6}
+              lg={3}
+              xl={3} // Ensure each card takes 1/8th of the row width
+              className="d-flex justify-content-center"
+            >
+              <Card
+                hoverable
+                style={{ width: '15rem', height: '15rem' }}
+                cover={
+                  <img
                     alt={category.name}
-                    className="product-image"
+                    src={imageUrl}
+                    className="card-img"
+                    style={{ height: '9rem', objectFit: 'contain', padding: '10px' }}
                   />
-                ) : (
-                  <div className="category-icon">
-                    <span className="icon-code">
-                      {category.name.substring(0, 2).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                <Card.Body>
-                  <Card.Title>{category.name}</Card.Title>
-                </Card.Body>
+                }
+              >
+                <Meta title={category.name} style={{ textAlign: 'center' }}  />
               </Card>
             </Col>
           );
