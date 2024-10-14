@@ -1,23 +1,18 @@
 .product-grid-container {
-    padding: 20px;
-  }
-  
-  .product-card {
-    background-color: #ffff66; /* Màu nền vàng nhạt */
-    border-radius: 10px; /* Bo tròn góc */
-    padding: 15px;
-  }
-  
-  .product-image {
-    width: 80px; /* Điều chỉnh kích thước ảnh */
-    height: 80px;
-    margin-bottom: 10px;
-    object-fit: contain;
-  }
-  
-  .card-title {
-    font-size: 14px;
-    font-weight: bold;
-    color: black;
-  }
-  
+  padding: 40px;
+  border-radius: 10px;
+}
+
+.card-img {
+  height: 100px;
+  object-fit: contain;
+
+  padding: 10px;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}

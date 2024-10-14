@@ -28,28 +28,24 @@ const AppFooter = () => {
           <Col xs={24} sm={12} md={6}>
             <Title level={4} style={{ color: 'white' }}>Liên hệ chúng tôi</Title>
             <Space direction="vertical">
-              <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Phone: +123 456 789</Text>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Email: info@company.com</Text>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Address: 123 Street, City, Country</Text>
+              <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Phone: 096 333 444</Text>
+              <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Email: demo@gmail.com</Text>
+              <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Address: Đại học FPT, Khu CNC Hòa Lạc</Text>
             </Space>
           </Col>
 
           {/* Cột Mạng xã hội */}
           <Col xs={24} sm={12} md={6}>
-            <Title level={4} style={{ color: 'white' }}>Follow Us</Title>
+            <Title level={4} style={{ color: 'white' }}>Theo dõi chúng tôi</Title>
             <Space size="middle">
               <a href="https://facebook.com" style={{ color: 'white' }}>
                 <FacebookOutlined style={{ fontSize: '24px' }} />
               </a>
-              <a href="https://twitter.com" style={{ color: 'white' }}>
-                <TwitterOutlined style={{ fontSize: '24px' }} />
-              </a>
+              
               <a href="https://instagram.com" style={{ color: 'white' }}>
                 <InstagramOutlined style={{ fontSize: '24px' }} />
               </a>
-              <a href="https://linkedin.com" style={{ color: 'white' }}>
-                <LinkedinOutlined style={{ fontSize: '24px' }} />
-              </a>
+              
             </Space>
           </Col>
 
@@ -74,7 +70,7 @@ const AppFooter = () => {
         <Row style={{ marginTop: '40px', textAlign: 'center' }}>
           <Col span={24}>
             <Text style={{ color: 'rgba(255, 255, 255, 0.65)' }}>
-              ©2024 Phụ Kiện VIP. Đã đăng ký Bản quyền. | Chính sách bảo mật | Điều khoản dịch vụ
+              ©2024 Gadget Galaxy. Đã đăng ký Bản quyền. 
             </Text>
           </Col>
         </Row>
