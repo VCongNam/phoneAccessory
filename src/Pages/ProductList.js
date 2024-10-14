@@ -14,6 +14,8 @@ const ProductList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [brand, setBrand] = useState([]);
+  const [selectedBrand, setSelectedBrand] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const navigate = useNavigate();
@@ -56,7 +58,21 @@ const ProductList = () => {
     }
   };
 
+  const fetchBrand = async () => {
+    const { data, error } = await supabase.from("brand").select("*");
+    if (error) {
+      console.error("Error fetching categories:", error);
+    } else {
+      setBrand(data);
+    }
+  };
+
+  const filtereBrand = selectedBrand
+    ? products.filter((product) => product.brand.id === selectedBrand)
+    : products;
+
   useEffect(() => {
+    fetchBrand();
     fetchProducts();
     fetchCategories();
   }, []);
@@ -72,6 +88,13 @@ const ProductList = () => {
   const handleProductClick = (id) => {
     navigate(`/ProductDetail/${id}`);
   };
+
+  const [selectedOption, setSelectedOption] = useState('');
+
+  const handleChange = (event) => {
+    setSelectedOption(event.target.value);
+  };
+
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -116,14 +139,28 @@ const ProductList = () => {
                 )}
               />
             </Card>
+            <Card>
+              <div>
+                <label htmlFor="comboBox">Chọn nhãn hàng: </label>
+                <select id="comboBox" value={selectedOption} onChange={handleChange}>
+                  <option value="" disabled>
+                    -- chọn nhãn hàng --
+                  </option>
+                  {brand.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </Card>
           </Col>
           {/* Product List */}
           <Col xs={24} sm={16}>
             <h2 className="text-center">
               {selectedCategory
-                ? `Sản phẩm của ${
-                    categories.find((cat) => cat.id === selectedCategory)?.name
-                  }`
+                ? `Sản phẩm của ${categories.find((cat) => cat.id === selectedCategory)?.name
+                }`
                 : "Tất cả sản phẩm"}
             </h2>
 
