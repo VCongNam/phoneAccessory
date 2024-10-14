@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { supabase } from "../supabaseClient"; // Import Supabase client
 import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
+import Rating from './Rating'; // Import the Rating component
 import "./CSS/ProductDetail.css";
 
 const { Content } = Layout;
@@ -56,11 +57,16 @@ function ProductDetail() {
         alert(`Added ${quantity} ${product.name}(s) to the cart.`);
     };
 
+    const handleRate = (rating) => {
+        console.log(`Rated ${product.name}: ${rating} stars`);
+        // Here you can send the rating to your backend (e.g., Supabase) to store it
+    };
+
     return (
         <div>
             <Header />
             <div>
-                
+
                 <div className="product-container">
                     <div className="product-image">
                         <img
@@ -71,10 +77,14 @@ function ProductDetail() {
                     </div>
                     <div className="product-details">
                         <h1>{product.name}</h1>
+                        {/* Rating Component */}
+                        <div className="product-rating">
+                            <Rating totalStars={5} onRate={handleRate} />
+                        </div>
                         <p className="product-price">{product.sell_price}VND</p>
                         <p className="product-description">{product.des}</p>
 
-                        <label htmlFor="quantity">Quantity:</label>
+                        <label htmlFor="quantity">Số lượng:</label>
 
                         <input
                             type="number"
@@ -83,10 +93,11 @@ function ProductDetail() {
                             min="1"
                             value={quantity}
                             onChange={handleQuantityChange} />
-                        <button onClick={handleAddToCart}>Add to Cart</button>
+                        <button onClick={handleAddToCart}>Thêm vào giỏ</button>
 
                     </div>
                 </div>
+                
             </div>
             <Footer></Footer>
         </div>
