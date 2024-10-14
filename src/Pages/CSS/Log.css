@@ -1,10 +1,15 @@
 .auth-container {
   max-width: 400px;
   margin: 50px auto;
-  padding: 20px;
+  /* padding: 20px; */
   background-color: #f0f2f5;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.container{
+  height: 500px;
+  padding: 0px;
 }
 
 .auth-form {
@@ -13,6 +18,7 @@
 
 .auth-button {
   width: 100%;
+
 }
 
 .toggle-button {
