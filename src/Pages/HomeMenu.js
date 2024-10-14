@@ -2,6 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col, Card } from 'react-bootstrap';
 import { supabase } from '../supabaseClient'; // Import Supabase client
 import './CSS/HomeMenu.css'; // Tạo file CSS riêng để tùy chỉnh
+import bn1 from './images/bn1.jpg';
+import opip15 from './images/opip15.jpg';
+
+// Map danh mục với URL ảnh tương ứng
+const categoryCodeMap = {
+  'Ốp lưng': bn1,
+  'Củ sạc': opip15,
+  'Cáp sạc': 'https://example.com/images/capsac.png',
+  'Tai nghe': 'https://example.com/images/tainghe.png',
+  'Sạc dự phòng pin': 'https://example.com/images/sacdp.png',
+  'Giá đỡ điện thoại': 'https://example.com/images/giado.png',
+  'Loa bluetooth': 'https://example.com/images/loabluetooth.png',
+  // Thêm các thể loại khác tại đây
+};
+
+// Hàm lấy URL hình ảnh từ tên danh mục
+const getCategoryImage = (categoryName) => {
+  return categoryCodeMap[categoryName] || null;
+};
 
 const HomeMenu = () => {
   const [categories, setCategories] = useState([]); // State để lưu trữ danh sách danh mục
@@ -38,16 +57,32 @@ const HomeMenu = () => {
     <div className="product-grid-container">
       <h3 className="text-center mb-4">ĐÚNG HÀNG - ĐÚNG GIÁ - ĐÚNG CHẤT LƯỢNG</h3>
       <Row>
-        {categories.map((category) => (
-          <Col key={category.id} xs={6} md={4} lg={2} className="mb-4">
-            <Card className="text-center product-card">
-              <Card.Img variant="top" src={category.image_url} alt={category.name} className="product-image" />
-              <Card.Body>
-                <Card.Title>{category.name}</Card.Title>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
+        {categories.map((category) => {
+          const imageUrl = category.image_url || getCategoryImage(category.name);
+          return (
+            <Col key={category.id} xs={6} md={4} lg={2} className="mb-4">
+              <Card className="text-center product-card">
+                {imageUrl ? (
+                  <Card.Img
+                    variant="top"
+                    src={imageUrl}
+                    alt={category.name}
+                    className="product-image"
+                  />
+                ) : (
+                  <div className="category-icon">
+                    <span className="icon-code">
+                      {category.name.substring(0, 2).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+                <Card.Body>
+                  <Card.Title>{category.name}</Card.Title>
+                </Card.Body>
+              </Card>
+            </Col>
+          );
+        })}
       </Row>
     </div>
   );

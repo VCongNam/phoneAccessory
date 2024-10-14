@@ -1,23 +1,30 @@
 .product-grid-container {
-    padding: 20px;
-  }
-  
-  .product-card {
-    background-color: #ffff66; /* Màu nền vàng nhạt */
-    border-radius: 10px; /* Bo tròn góc */
-    padding: 15px;
-  }
-  
-  .product-image {
-    width: 80px; /* Điều chỉnh kích thước ảnh */
-    height: 80px;
-    margin-bottom: 10px;
-    object-fit: contain;
-  }
-  
-  .card-title {
-    font-size: 14px;
-    font-weight: bold;
-    color: black;
-  }
-  
+  padding: 20px;
+}
+
+.product-card {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.product-image {
+  height: 150px;
+  object-fit: contain;
+}
+
+.category-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  background-color: #f0f0f0;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  border-radius: 10px;
+}
+
+.icon-code {
+  font-size: 32px;
+  font-weight: 700;
+}
