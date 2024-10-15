@@ -23,7 +23,6 @@ function ProductDetail() {
     const navigate = useNavigate();
 
 
-
     // Hàm lấy danh sách sản phẩm từ Supabase
     useEffect(() => {
         const fetchProduct = async () => {
@@ -70,34 +69,28 @@ function ProductDetail() {
         setQuantity(e.target.value);
     };
 
-    const handleLogin = () => {
-        navigate(`/login`);
-    };
-
 
     // Handle add to cart
     const handleAddToCart = async () => {
         // Fetch the logged-in user
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-        if (userError || !user) {
-            console.error('User not logged in:', userError);
-            
+        if (sessionError || !session) {
             // Show modal with two buttons: "OK" and "Login"
             Modal.confirm({
-                title: 'You need to log in',
-                content: 'Please log in to add products to your cart.',
+                title: 'Bạn chưa đăng nhập',
+                content: 'Đăng nhập trước khi thêm sản phẩm vào giỏ hàng.',
                 okText: 'OK', // First button to close the modal
-                cancelText: 'Login', // Second button to navigate to login page
+                cancelText: 'Đăng nhập', // Second button to navigate to login page
                 onCancel: () => {
                     navigate('/login'); // Redirect to login page if "Login" button is clicked
                 }
             });
-    
+
             return;
         }
-        
-        const user_id = user.id; // Get the logged-in user's ID
+
+        const user_id = session.user.id; // Get the logged-in user's ID
         const product_id = product.product_id; // Get the current product's ID
 
         // Step 1: Check if the user already has a cart
