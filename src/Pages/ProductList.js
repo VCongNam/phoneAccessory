@@ -68,7 +68,7 @@ const ProductList = () => {
   };
 
   const filtereBrand = selectedBrand
-    ? products.filter((product) => product.brand.id === selectedBrand)
+    ? products.filter((product) => product.brand_id === selectedBrand)
     : products;
 
   useEffect(() => {
@@ -143,7 +143,7 @@ const ProductList = () => {
               <div>
                 <label htmlFor="comboBox">Chọn nhãn hàng: </label>
                 <select id="comboBox" value={selectedOption} onChange={handleChange}>
-                  <option value="" disabled>
+                  <option value="" >
                     -- chọn nhãn hàng --
                   </option>
                   {brand.map((option) => (
