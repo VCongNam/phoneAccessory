@@ -16,36 +16,36 @@ import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 
 const AccountManagement = () => {
-const [accounts, setAccounts] = useState([]);
-const [loading, setLoading] = useState(true);
+  const [accounts, setAccounts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [roles, setRoles] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
 
-useEffect(() => {
-fetchAccounts();
+  useEffect(() => {
+    fetchAccounts();
     fetchRoles();
-}, []);
+  }, []);
 
   const fetchAccounts = async () => {
-try {
+    try {
       setLoading(true);
       // Fetch accounts and join with the role table to get role names
-const { data, error } = await supabase
-.from("account")
+      const { data, error } = await supabase
+        .from("account")
         .select(`*, role (*)`); // Remove .single() 
 
       if (error) throw error;
 
       // Handle cases with multiple rows or no rows
       if (data) {
-        setAccounts(data); 
-} else {
+        setAccounts(data);
+      } else {
         setAccounts([]); // Set an empty array if no accounts are found
-}
-  
-} catch (error) {
+      }
+
+    } catch (error) {
       message.error("Error fetching accounts: " + error.message);
     } finally {
       setLoading(false);
@@ -58,19 +58,19 @@ const { data, error } = await supabase
       setRoles(data);
     } catch (error) {
       message.error("Error fetching roles: " + error.message);
-}
-};
+    }
+  };
 
   const handleCreateAccount = async (values) => {
-try {
+    try {
       // Ensure role_id is a number
       const formattedValues = {
         ...values,
-        role_id: Number(values.role_id),
+        role_id: Number(values.role_id)
       };
 
       const { data, error } = await supabase
-.from("account")
+        .from("account")
         .insert([formattedValues])
         .select();
 
@@ -78,11 +78,12 @@ try {
 
       if (data && data.length > 0) {
         setAccounts((prevAccounts) => [...prevAccounts, data[0]]);
+        await fetchAccounts();
         toast.success("Tạo tài khoản thành công!");
         setIsModalVisible(false);
         form.resetFields();
-}
-} catch (error) {
+      }
+    } catch (error) {
       message.error("Error creating account: " + error.message);
     }
   };
@@ -113,29 +114,38 @@ try {
       setIsModalVisible(false);
     } catch (error) {
       message.error("Error updating account: " + error.message);
-}
-};
+    }
+  };
 
-const handleDeleteAccount = async (accountId) => {
-try {
-const { error } = await supabase
-.from("account")
-.delete()
-.eq("user_id", accountId);
+  const handleDeleteAccount = async (accountId, roleId) => {
+    try {
+      if (roleId === 2) { // Check role_id for admin
+        message.error("Không thể xóa tài khoản admin!");
+        return;
+      }
+
+      const { error } = await supabase
+        .from("account")
+        .delete()
+        .eq("user_id", accountId);
 
       if (error) throw error;
 
       toast.success("Xóa thành công!");
       setAccounts(accounts.filter((account) => account.user_id !== accountId));
-} catch (error) {
+    } catch (error) {
       message.error("Error deleting account: " + error.message);
-}
-};
+    }
+  };
 
   const showModal = (record = null) => {
     setIsEditing(!!record);
     if (record) {
-      form.setFieldsValue(record);
+      form.setFieldsValue({
+        ...record,
+        // Set role_name from the joined role data
+        role_name: record.role?.role_name || "Không rõ quyền",
+      });
     } else {
       form.resetFields();
     }
@@ -151,22 +161,42 @@ const { error } = await supabase
     form.resetFields();
   };
 
+
   const onFinish = (values) => {
     if (isEditing) {
       handleUpdateAccount(values);
     } else {
-      handleCreateAccount(values);
+      handleCreateAccount({
+        ...values,
+        role_id: 3,
+      });
     }
   };
 
   const columns = [
-    { title: "Mã tài khoản", dataIndex: "user_id", key: "user_id" },
+    { 
+      title: "Mã tài khoản", 
+      dataIndex: "user_id", 
+      key: "user_id",
+      defaultsortOrder: "ascend", // Sort in ascending order
+      sorter: (a, b) => a.user_id - b.user_id // Sort by user_id
+    },
     {
       title: "Quyền",
       dataIndex: ["role", "role_name"], // Access role_name from the joined role data
       key: "role_name",
+      filters: roles.map((role) => ({ 
+        text: role.role_name, 
+        value: role.role_name 
+      })), //Filter by role_name
+      onFilter: (value, record) => record.role.role_name === value, // Filter by role_name
+      sorter: (a, b) => a.role?.role_id - b.role?.role_id, // Sort by role_name
     },
-    { title: "Tài khoản", dataIndex: "user_name", key: "user_name" },
+    { 
+      title: "Tài khoản", 
+      dataIndex: "user_name", 
+      key: "user_name" 
+    },
     {
       title: "Mật khẩu",
       dataIndex: "password",
@@ -183,9 +213,9 @@ const { error } = await supabase
           </Button>
           <Popconfirm
             title="Bạn có chắc muốn xóa tài khoản này"
-            onConfirm={() => handleDeleteAccount(record.user_id)}
-            okText="Yes"
-            cancelText="No"
+            onConfirm={() => handleDeleteAccount(record.user_id, record.role_id)}
+            okText="Có"
+            cancelText="Không"
           >
             <Button icon={<DeleteOutlined />} danger>
               Xóa
@@ -196,7 +226,7 @@ const { error } = await supabase
     },
   ];
 
-return (
+  return (
     <div style={{ padding: "24px" }}>
       <h2>Quản lý tài khoản</h2>
       <Button
@@ -214,10 +244,12 @@ return (
         rowKey="user_id"
       />
       <Modal
-        title={isEditing ? "Edit Account" : "Create New Account"}
+        title={isEditing ? "Chỉnh sửa tài khoản" : "Tạo tài khoản"}
         open={isModalVisible}
         onOk={handleModalOk}
+        okText={isEditing ? "Lưu" : "Tạo"}
         onCancel={handleModalCancel}
+        cancelText="Hủy"
       >
         <Form form={form} onFinish={onFinish} layout="vertical">
           {isEditing && (
@@ -227,36 +259,46 @@ return (
           )}
           <Form.Item
             name="user_name"
-            label="User Name"
-            rules={[{ required: true, message: "Please input the user name!" }]}
+            label="Số điện thoại"
+            // rules={[{ required: true, message: "Please input the user name!" }]}
+            rules={[
+              { required: true, message: 'Nhập số điện thoại của bạn!' },
+              { pattern: /^0[0-9]{9}$/, message: 'Hãy nhập số điện thoại hợp lệ!' },
+            ]}
           >
             <Input />
           </Form.Item>
+
           <Form.Item
             name="password"
-            label="Password"
-            rules={[{ required: true, message: "Please input the password!" }]}
+            label="Mật khẩu"
+            // rules={[{ required: true, message: "Please input the password!" }]}
+            rules={[
+              { required: true, message: 'Hãy nhập mật khẩu!' },
+              {
+                pattern: /^(?=.*[A-Za-z])[A-Za-z\d@$!%*#?&]{8,}$/,
+                message: 'Hãy điền tối thiểu 8 ký tự bao gồm chữ cái, số và kí tự đặc biệt'
+              }
+            ]}
           >
             <Input.Password />
           </Form.Item>
-          <Form.Item
-            name="role_id"
-            label="Role"
-            rules={[{ required: true, message: "Please select a role!" }]}
-          >
-            <Select>
-              {roles.map((role) => (
-                <Select.Option key={role.role_id} value={role.role_id}>
-                  {role.role_name}{" "}
-                  {/* Assuming your role table has a role_name column */}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
+
+          {isEditing ? (
+            // Khi chỉnh sửa, hiển thị tên quyền role_name và disable nó
+            <Form.Item name="role_name" label="Quyền">
+              <Input disabled />
+            </Form.Item>
+          ) : (
+            // Khi tạo tài khoản, role_id sẽ tự động là 3 nên không cần chọn
+            <Form.Item name="role_id" hidden>
+              <Input defaultValue={3} />
+            </Form.Item>
+          )}
         </Form>
       </Modal>
-</div>
-);
+    </div>
+  );
 };
 
 export default AccountManagement;

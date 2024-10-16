@@ -1,25 +1,14 @@
 import { Outlet, Navigate } from 'react-router-dom';
 import { decoder64 } from './Components/Base64Encoder/Base64Encoder';
-
-function getToken(str) {
-  const array = document.cookie.split(';');
-  
-  for (let i = 0; i < array.length; i++) {
-    let cookie = array[i].trim();
-    if (cookie.startsWith(`${str}=`)) {
-      return cookie.substring(str.length + 1);
-    }
-  }
-  return null;
-}
+import { getToken }  from './Components/GetToken/GetToken';
 
 const PrivateRoutes = () => {
   const token = getToken('token');
-  
+
   console.log('Token before decoding:', token);
-  
+
   if (!token) return <Navigate to="/" />;
-  
+
   // Decode the Base64 token string
   const decodedToken = decoder64(token);
   console.log('Decoded token:', decodedToken); // Log the decoded token
