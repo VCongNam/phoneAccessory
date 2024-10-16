@@ -84,13 +84,15 @@ const CartDetail = () => {
         }
     };
 
-    const updateQuantity = async (cart_id, quantity) => {
+    const updateQuantity = async (cart_item, quantity) => {
         try {
             const { data, error } = await supabase
                 .from("cart_item")
                 .update({ quantity: quantity })
-                .eq('cart_id', cart_id)
-                .eq('product_id', cart_id.product_id);
+                .eq('cart_id', cart_item.cart_id)
+                .eq('product_id', cart_item.products.product_id);
+                console.log(cart_item);
+                console.log(cart_item.products.product_id);
     
             if (error) throw error;
             await fetchCartItems(user.user_id);
@@ -124,7 +126,7 @@ const CartDetail = () => {
                 <div className="site-layout-content" style={{ background: '#fff', padding: 24, minHeight: 380 }}>
                     <List
                         itemLayout="horizontal"
-                        dataSource={cartItems}
+                        dataSource={cartItems.sort((a, b) => a.products.product_id - b.products.product_id)} // sap xep cart_item theo product_id
                         loading={loading}
                         renderItem={item => (
                             <List.Item
@@ -145,7 +147,7 @@ const CartDetail = () => {
                                     <InputNumber 
                                         min={1} 
                                         value={item.quantity} 
-                                        onChange={(value) => updateQuantity(item.cart_id, value)}
+                                        onChange={(value) => updateQuantity(item, value)}
                                     />
                                 </div>
                             </List.Item>
