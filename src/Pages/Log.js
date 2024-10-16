@@ -22,7 +22,7 @@ const Auth = () => {
         message.error('Mật khẩu không trùng!');
         return;
       }
-      
+
       const { error: insertError } = await supabase.from('account').insert([
         {
           user_name: phone,
@@ -30,7 +30,7 @@ const Auth = () => {
           role_id: 1, // Default role (as 'User'),
         },
       ]);
-      
+
       if (insertError) {
         message.error(`Error inserting into account table: ${insertError.message}`);
       } else {
@@ -39,30 +39,42 @@ const Auth = () => {
       }
     } else {
       const { data, error: fetchError } = await supabase
-      .from('account')
-      .select('*')
-      .eq('user_name', phone)
-      .eq('password', password);
-      
+        .from('account')
+        .select('*')
+        .eq('user_name', phone)
+        .eq('password', password);
+
       if (fetchError) {
         message.error(`Error fetching user: ${fetchError.message}`);
         return;
       }
 
-      
+
       if (data.length > 0 && data[0].role_id === 1) {
         message.success('Đăng nhập thành công');
         const user = data[0];
         const tokenData = { user_id: user.user_id, role_id: user.role_id };
-
         const encodedToken = encoder64(JSON.stringify(tokenData));
+        localStorage.setItem('isLoggedIn', 'true'); // Store the logged-in status in localStorage
+
+        // const profile = supabase
+        //   .from('profileuser')
+        //   .select('name, address')
+        //   .eq('user_id', user.user_id)
+        //   .single();
+
+        // if (profile.data && profile.data.address === '') {
+        //   // If profile information is empty, redirect to user profile page
+        //   window.location.href = '/profile';
+        // } else {
+        //   // If profile information is not empty, redirect to homepage
+        //   window.location.href = '/';
+        // }
+
         // Set the user cookie
         document.cookie = `token=${encodedToken}; expires=${new Date(
           new Date().getTime() + 60 * 60 * 1000 // 1 hour expiry
         ).toUTCString()}; path=/; samesite=strict; secure`;
-
-        // Set the logged-in status to true
-        localStorage.setItem('isLoggedIn', 'true'); // Store the logged-in status in localStorage
 
         // Redirect based on the user role
         if (user.role_id === 2) {
@@ -107,7 +119,7 @@ const Auth = () => {
               name="password"
               rules={[
                 { required: true, message: 'Hãy nhập mật khẩu!' },
-                { pattern: /^(?=.*[A-Za-z])[A-Za-z\d@$!%*#?&]{8,}$/, message: 'Hãy điền tối thiểu 8 ký tự bao gồm chữ cái, số và kí tự đặc biệt'}
+                { pattern: /^(?=.*[A-Za-z])[A-Za-z\d@$!%*#?&]{8,}$/, message: 'Hãy điền tối thiểu 8 ký tự bao gồm chữ cái, số và kí tự đặc biệt' }
               ]}
             >
               <Input.Password prefix={<LockOutlined />} placeholder="Mật khẩu" />
