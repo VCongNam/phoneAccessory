@@ -1,13 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { Layout, Avatar, Card, Typography, Button, Form, Input, Table, Modal, message } from 'antd';
-import { UserOutlined, MailOutlined, PhoneOutlined, HomeOutlined, LockOutlined, EditOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from "react";
+import {
+  Layout,
+  Avatar,
+  Card,
+  Typography,
+  Button,
+  Form,
+  Input,
+  Table,
+  Modal,
+  message,
+} from "antd";
+import {
+  UserOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  HomeOutlined,
+  LockOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
 import { supabase } from "../supabaseClient";
 import { useLocation } from "react-router-dom";
-import AppHeader from '../Components/Header/Header';
-import AppFooter from '../Components/Footer/Footer';
-
+import AppHeader from "../Components/Header/Header";
+import AppFooter from "../Components/Footer/Footer";
+import { decoder64 } from "../Components/Base64Encoder/Base64Encoder";
 const { Content } = Layout;
 const { Title } = Typography;
+
+const getCookie = (name) => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(";").shift();
+};
+
+// Hàm để lấy và giải mã token
+const getDecodedToken = () => {
+  const token = getCookie("token");
+  if (!token) return null;
+
+  try {
+    const decodedToken = decoder64(token);
+    return JSON.parse(decodedToken);
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return null;
+  }
+};
 
 export default function Profile() {
   const [profile, setProfile] = useState({
@@ -22,7 +60,9 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = getDecodedToken();
+
+  console.log("user:", user);
   const userId = user?.user_id;
   const location = useLocation();
 
@@ -61,7 +101,8 @@ export default function Profile() {
   const fetchOrders = async () => {
     const { data, error } = await supabase
       .from("orders")
-      .select(`
+      .select(
+        `
         id,
         total_price,
         status,
@@ -72,7 +113,8 @@ export default function Profile() {
           product_id,
           name
         )
-      `)
+      `
+      )
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
@@ -105,22 +147,20 @@ export default function Profile() {
   };
 
   const updatePassword = async (values) => {
+    console.log("ojjj:", values);
     // Kiểm tra mật khẩu hiện tại
     const { data, error } = await supabase.auth.signInWithPassword({
       email: profile.email,
       password: values.currentPassword,
     });
-
     if (error) {
       message.error("Mật khẩu hiện tại không chính xác");
       return;
     }
-
     // Cập nhật mật khẩu mới
-    const { error: updateError } = await supabase.auth.updateUser({ 
-      password: values.newPassword 
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: values.newPassword,
     });
-
     if (updateError) {
       message.error("Lỗi khi cập nhật mật khẩu");
     } else {
@@ -129,26 +169,27 @@ export default function Profile() {
     }
   };
 
+  console.log("profile:", profile);
   const columns = [
     {
-      title: 'Mã đơn hàng',
-      dataIndex: 'id',
-      key: 'id',
+      title: "Mã đơn hàng",
+      dataIndex: "id",
+      key: "id",
     },
     {
-      title: 'Tổng giá',
-      dataIndex: 'total_price',
-      key: 'total_price',
+      title: "Tổng giá",
+      dataIndex: "total_price",
+      key: "total_price",
     },
     {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
     },
     {
-      title: 'Ngày tạo',
-      dataIndex: 'created_at',
-      key: 'created_at',
+      title: "Ngày tạo",
+      dataIndex: "created_at",
+      key: "created_at",
     },
   ];
 
@@ -157,46 +198,88 @@ export default function Profile() {
   }
 
   return (
-    <Layout style={{ minHeight: '100vh'}}>
+    <Layout style={{ minHeight: "100vh" }}>
       <AppHeader />
-      <Layout style={{ padding: '0 24px 24px' }}>
-        <Content style={{ padding: '0 50px' }}>
+      <Layout style={{ padding: "0 24px 24px" }}>
+        <Content style={{ padding: "0 50px" }}>
           <Card
             style={{ marginTop: 24 }}
             cover={
-              <div style={{ padding: '24px', textAlign: 'center', background: '#f0f2f5' }}>
+              <div
+                style={{
+                  padding: "24px",
+                  textAlign: "center",
+                  background: "#f0f2f5",
+                }}
+              >
                 <Avatar size={64} icon={<UserOutlined />} />
               </div>
             }
             extra={
-              <Button 
-                icon={<EditOutlined />} 
+              <Button
+                icon={<EditOutlined />}
                 onClick={() => setIsEditing(!isEditing)}
               >
-                {isEditing ? 'Hủy' : 'Chỉnh sửa'}
+                {isEditing ? "Hủy" : "Chỉnh sửa"}
               </Button>
             }
           >
-            <Form
-              form={form}
-              layout="vertical"
-              onFinish={updateProfile}
-            >
-              <Form.Item name="fullName" label="Họ và tên" rules={[{ required: true, message: 'Vui lòng nhập họ và tên!' }]}>
-                <Input prefix={<UserOutlined />} readOnly={!isEditing} />
+            <Form form={form} layout="vertical" onFinish={updateProfile}>
+              <Form.Item
+                name="fullName"
+                label="Họ và tên"
+                rules={[
+                  { required: true, message: "Vui lòng nhập họ và tên!" },
+                ]}
+              >
+                <Input
+                  prefix={<UserOutlined />}
+                  readOnly={isEditing}
+                  disabled={profile.fullName !== "Placeholder Name"}
+                />
               </Form.Item>
-              <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email', message: 'Vui lòng nhập email hợp lệ!' }]}>
-                <Input prefix={<MailOutlined />} readOnly={!isEditing} />
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  {
+                    required: true,
+                    type: "email",
+                    message: "Vui lòng nhập email hợp lệ!",
+                  },
+                ]}
+              >
+                <Input
+                  prefix={<MailOutlined />}
+                  readOnly={isEditing}
+                  disabled={profile.email !== "placeholder@example.com"}
+                />
               </Form.Item>
-              <Form.Item name="phone" label="Số điện thoại">
-                <Input prefix={<PhoneOutlined />} readOnly={!isEditing} />
+              <Form.Item
+                name="phone"
+                label="Số điện thoại"
+                readOnly={isEditing}
+                rules={[
+                  { required: true, message: "Vui lòng nhập số điện thoại!" },
+                  {
+                    pattern: /^0\d{9}$/,
+                    message:
+                      "Số điện thoại không hợp lệ! Vui lòng nhập 10 chữ số bắt đầu bằng số 0.",
+                  },
+                ]}
+              >
+                <Input prefix={<PhoneOutlined />} />
               </Form.Item>
               <Form.Item name="address" label="Địa chỉ">
-                <Input prefix={<HomeOutlined />} readOnly={!isEditing} />
+                <Input prefix={<HomeOutlined />} readOnly={isEditing} />
               </Form.Item>
               {isEditing && (
                 <Form.Item>
-                  <Button type="primary" htmlType="submit" style={{ marginRight: 8 }}>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    style={{ marginRight: 8 }}
+                  >
                     Cập nhật hồ sơ
                   </Button>
                 </Form.Item>
@@ -206,7 +289,7 @@ export default function Profile() {
               Đổi mật khẩu
             </Button>
           </Card>
-          
+
           <Card style={{ marginTop: 24 }}>
             <Title level={4}>Lịch sử đơn hàng</Title>
             <Table columns={columns} dataSource={orders} rowKey="id" />
@@ -220,36 +303,46 @@ export default function Profile() {
         onCancel={() => setIsPasswordModalVisible(false)}
         footer={null}
       >
-        <Form
-          layout="vertical"
-          onFinish={updatePassword}
-        >
+        <Form layout="vertical" onFinish={updatePassword}>
           <Form.Item
             name="currentPassword"
             label="Mật khẩu hiện tại"
-            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu hiện tại!' }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập mật khẩu hiện tại!" },
+            ]}
           >
             <Input.Password prefix={<LockOutlined />} />
           </Form.Item>
           <Form.Item
             name="newPassword"
             label="Mật khẩu mới"
-            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu mới!' }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập mật khẩu mới!" },
+              {
+                min: 8,
+                message: "Mật khẩu phải có ít nhất 8 ký tự!",
+              },
+              {
+                pattern: /^(?=.*[A-Za-z])[A-Za-z\d@$!%*#?&].+$/,
+                message:
+                  "Hãy điền tối thiểu 8 ký tự bao gồm chữ cái, số và kí tự đặc biệt",
+              },
+            ]}
           >
             <Input.Password prefix={<LockOutlined />} />
           </Form.Item>
           <Form.Item
             name="confirmPassword"
             label="Xác nhận mật khẩu mới"
-            dependencies={['newPassword']}
+            dependencies={["newPassword"]}
             rules={[
-              { required: true, message: 'Vui lòng xác nhận mật khẩu mới!' },
+              { required: true, message: "Vui lòng xác nhận mật khẩu mới!" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (!value || getFieldValue('newPassword') === value) {
+                  if (!value || getFieldValue("newPassword") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error('Hai mật khẩu không khớp!'));
+                  return Promise.reject(new Error("Hai mật khẩu không khớp!"));
                 },
               }),
             ]}
