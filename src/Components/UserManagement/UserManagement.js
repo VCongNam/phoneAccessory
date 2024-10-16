@@ -66,7 +66,7 @@ const AccountManagement = () => {
       // Ensure role_id is a number
       const formattedValues = {
         ...values,
-        role_id: Number(values.role_id),
+        role_id: Number(values.role_id)
       };
 
       const { data, error } = await supabase
@@ -78,6 +78,7 @@ const AccountManagement = () => {
 
       if (data && data.length > 0) {
         setAccounts((prevAccounts) => [...prevAccounts, data[0]]);
+        await fetchAccounts();
         toast.success("Tạo tài khoản thành công!");
         setIsModalVisible(false);
         form.resetFields();
@@ -135,7 +136,11 @@ const AccountManagement = () => {
   const showModal = (record = null) => {
     setIsEditing(!!record);
     if (record) {
-      form.setFieldsValue(record);
+      form.setFieldsValue({
+        ...record,
+        // Set role_name from the joined role data
+        role_name: record.role?.role_name || "Không rõ quyền",
+      });
     } else {
       form.resetFields();
     }
@@ -156,18 +161,37 @@ const AccountManagement = () => {
     if (isEditing) {
       handleUpdateAccount(values);
     } else {
-      handleCreateAccount(values);
+      handleCreateAccount({
+        ...values,
+        role_id: 3,
+      });
     }
   };
 
   const columns = [
-    { title: "Mã tài khoản", dataIndex: "user_id", key: "user_id" },
+    { 
+      title: "Mã tài khoản", 
+      dataIndex: "user_id", 
+      key: "user_id",
+      defaultsortOrder: "ascend", // Sort in ascending order
+      sorter: (a, b) => a.user_id - b.user_id // Sort by user_id
+    },
     {
       title: "Quyền",
       dataIndex: ["role", "role_name"], // Access role_name from the joined role data
       key: "role_name",
+      filters: roles.map((role) => ({ 
+        text: role.role_name, 
+        value: role.role_name 
+      })), //Filter by role_name
+      onFilter: (value, record) => record.role.role_name === value, // Filter by role_name
+      sorter: (a, b) => a.role?.role_id - b.role?.role_id, // Sort by role_name
     },
-    { title: "Tài khoản", dataIndex: "user_name", key: "user_name" },
+    { 
+      title: "Tài khoản", 
+      dataIndex: "user_name", 
+      key: "user_name" 
+    },
     {
       title: "Mật khẩu",
       dataIndex: "password",
@@ -237,30 +261,33 @@ const AccountManagement = () => {
           >
             <Input />
           </Form.Item>
+
           <Form.Item
             name="password"
             label="Mật khẩu"
             // rules={[{ required: true, message: "Please input the password!" }]}
             rules={[
               { required: true, message: 'Hãy nhập mật khẩu!' },
-              { pattern: /^(?=.*[A-Za-z])[A-Za-z\d@$!%*#?&]{8,}$/, message: 'Hãy điền tối thiểu 8 ký tự bao gồm chữ cái, số và kí tự đặc biệt' }
+              {
+                pattern: /^(?=.*[A-Za-z])[A-Za-z\d@$!%*#?&]{8,}$/,
+                message: 'Hãy điền tối thiểu 8 ký tự bao gồm chữ cái, số và kí tự đặc biệt'
+              }
             ]}
           >
             <Input.Password />
           </Form.Item>
-          <Form.Item
-            name="role_id"
-            label="Quyền"
-            rules={[{ required: true, message: "Hãy chọn quyền" }]}
-          >
-            <Select defaultValue={3}>
-              {roles.filter((role) => role.role_id === 3).map((role) => (
-                <Select.Option key={role.role_id} value={role.role_id}>
-                  {role.role_name}{" "}
-                </Select.Option>
-              ))}
-            </Select>   
-          </Form.Item>
+
+          {isEditing ? (
+            // Khi chỉnh sửa, hiển thị tên quyền role_name và disable nó
+            <Form.Item name="role_name" label="Quyền">
+              <Input disabled />
+            </Form.Item>
+          ) : (
+            // Khi tạo tài khoản, role_id sẽ tự động là 3 nên không cần chọn
+            <Form.Item name="role_id" hidden>
+              <Input defaultValue={3} />
+            </Form.Item>
+          )}
         </Form>
       </Modal>
     </div>
