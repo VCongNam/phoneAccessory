@@ -57,19 +57,19 @@ const Auth = () => {
         const encodedToken = encoder64(JSON.stringify(tokenData));
         localStorage.setItem('isLoggedIn', 'true'); // Store the logged-in status in localStorage
 
-        // const profile = supabase
-        //   .from('profileuser')
-        //   .select('name, address')
-        //   .eq('user_id', user.user_id)
-        //   .single();
+        const profile = supabase
+          .from('profileuser')
+          .select('name, address')
+          .eq('user_id', user.user_id)
+          .single();
 
-        // if (profile.data && profile.data.address === '') {
-        //   // If profile information is empty, redirect to user profile page
-        //   window.location.href = '/profile';
-        // } else {
-        //   // If profile information is not empty, redirect to homepage
-        //   window.location.href = '/';
-        // }
+        if (profile.data && profile.data.address === '') {
+          // If profile information is empty, redirect to user profile page
+          window.location.href = '/profile';
+        } else {
+          // If profile information is not empty, redirect to homepage
+          window.location.href = '/';
+        }
 
         // Set the user cookie
         document.cookie = `token=${encodedToken}; expires=${new Date(
