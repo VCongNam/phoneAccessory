@@ -5,10 +5,16 @@ import { ShoppingCartOutlined, DeleteOutlined, HomeOutlined, UserOutlined } from
 import "./CSS/CartDetail.css";
 import  Header  from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
+import { decoder64 } from '../Components/Base64Encoder/Base64Encoder';
+
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
-
+const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+};
 const CartDetail = () => {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -17,33 +23,46 @@ const CartDetail = () => {
     useEffect(() => {
         const fetchUserAndCart = async () => {
             try {
-                const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-                if (userInfo) {
-                    setUser(userInfo);
-                    await fetchCartItems(userInfo.id);
+                const userInfoCookie = getCookie('token');
+                if (userInfoCookie) {
+                    const decodedUserInfo = JSON.parse(decoder64(userInfoCookie));
+                    setUser(decodedUserInfo); // Cập nhật state user
                 }
             } catch (error) {
+                console.error("Error fetching user info:", error);
                 alert("Error fetching user info: " + error.message);
             } finally {
                 setLoading(false);
             }
         };
-
+    
         fetchUserAndCart();
     }, []);
-
-    const fetchCartItems = async (userId) => {
+    useEffect(() => {
+        // useEffect này sẽ chạy mỗi khi user thay đổi
+        const fetchCart = async () => {
+            if (user) { // Kiểm tra user đã có giá trị chưa
+                try {
+                    await fetchCartItems(user.user_id); 
+                } catch (error) {
+                    console.error("Error fetching cart items:", error);
+                    alert("Error fetching cart items: " + error.message);
+                }
+            }
+        };
+    
+        fetchCart();
+    }, [user]);
+    const fetchCartItems = async (user_id) => {
         try {
-            // Đầu tiên, lấy cart_id của người dùng
             const { data: cartData, error: cartError } = await supabase
                 .from("cart")
                 .select("id")
-                .eq('user_id', userId)
+                .eq('user_id', user_id)
                 .single();
 
             if (cartError) throw cartError;
 
-            // Sau đó, lấy các items trong cart
             const { data: itemsData, error: itemsError } = await supabase
                 .from("cart_item")
                 .select(`
@@ -65,31 +84,31 @@ const CartDetail = () => {
         }
     };
 
-    const updateQuantity = async (cartItemId, newQuantity) => {
+    const updateQuantity = async (cart_id, quantity) => {
         try {
             const { data, error } = await supabase
                 .from("cart_item")
-                .update({ quantity: newQuantity })
-                .eq('cart_id', cartItemId)
-                .eq('product_id', cartItemId.product_id);
-
+                .update({ quantity: quantity })
+                .eq('cart_id', cart_id)
+                .eq('product_id', cart_id.product_id);
+    
             if (error) throw error;
-            await fetchCartItems(user.id); // Refresh cart items
+            await fetchCartItems(user.user_id);
         } catch (error) {
             alert("Error updating cart: " + error.message);
         }
     };
 
-    const removeProduct = async (cartItemId, productId) => {
+    const removeProduct = async (cart_id, product_id) => {
         try {
             const { error } = await supabase
                 .from("cart_item")
                 .delete()
-                .eq('cart_id', cartItemId)
-                .eq('product_id', productId);
+                .eq('cart_id', cart_id)
+                .eq('product_id', product_id);
 
             if (error) throw error;
-            await fetchCartItems(user.id); // Refresh cart items
+            await fetchCartItems(user.user_id);
         } catch (error) {
             alert("Error removing product from cart: " + error.message);
         }
@@ -103,7 +122,6 @@ const CartDetail = () => {
             <Header/>
             <Content style={{ padding: '0 50px', marginTop: 64 }}>
                 <div className="site-layout-content" style={{ background: '#fff', padding: 24, minHeight: 380 }}>
-                    <Title level={2}>{user ? `${user.name}'s Shopping Cart` : 'Your Shopping Cart'}</Title>
                     <List
                         itemLayout="horizontal"
                         dataSource={cartItems}
