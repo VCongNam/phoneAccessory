@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Carousel, Card, Spin, Button, Row } from "antd";
 import { supabase } from "../supabaseClient"; // Import Supabase client
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import "./CSS/HomeBrand.css";
 
 const { Meta } = Card;
@@ -11,10 +12,15 @@ const HomeBrand = ({ brandName }) => {
   const [loading, setLoading] = useState(true); // Trạng thái tải dữ liệu
   const carouselRef = useRef(); // Dùng để điều khiển Carousel
 
+  const navigate = useNavigate();
+
+  const handleProductClick = (id) => {
+    navigate(`/ProductDetail/${id}`);
+  };
   // Hàm lấy sản phẩm theo tên thương hiệu
   const fetchProductsByBrandName = async () => {
     setLoading(true); // Bắt đầu tải dữ liệu
-
+  
     try {
       // Lấy thông tin thương hiệu theo tên
       const { data: brand, error: brandError } = await supabase
@@ -22,19 +28,22 @@ const HomeBrand = ({ brandName }) => {
         .select("brand_id, name")
         .eq("name", brandName)
         .single(); // Lấy thương hiệu duy nhất
-
+  
       if (brandError) throw brandError;
-
+  
       const brandId = brand.brand_id; // Lấy id của thương hiệu
-
-      // Lấy tất cả sản phẩm thuộc brand_id
+  
+      // Lấy tất cả sản phẩm thuộc brand_id, đồng thời lấy image_url từ bảng images
       const { data: products, error: productError } = await supabase
         .from("products")
-        .select("*")
+        .select(`
+          *,
+          images(image_url)  // Join with the images table to get the image_url
+        `)
         .eq("brand_id", brandId);
-
+  
       if (productError) throw productError;
-
+  
       setProducts(products); // Lưu sản phẩm vào state
     } catch (error) {
       console.error("Lỗi khi lấy sản phẩm:", error);
@@ -42,6 +51,7 @@ const HomeBrand = ({ brandName }) => {
       setLoading(false); // Dừng trạng thái tải
     }
   };
+  
 
   // Gọi API khi component render lần đầu
   useEffect(() => {
@@ -72,23 +82,25 @@ const HomeBrand = ({ brandName }) => {
       >
         {products.map((product) => (
           <div key={product.id} className="product-card-container">
-            <Card
-              hoverable
-              cover={
-                <img
-                  alt={product.name}
-                  src={product.img}
-                  style={{ height: "200px", objectFit: "cover" }}
-                />
-              }
-              className="product-card"
-            >
-              <Meta
-                title={product.name}
-                description={`Giá: ${product.sell_price} VNĐ`}
+          <Card
+            hoverable
+            cover={
+              <img
+                alt={product.name}
+                src={product.img}
+                style={{ height: "350px", objectFit: "cover", cursor: "pointer" }}
+                onClick={() => handleProductClick(product.product_id)} // Thêm sự kiện onClick
               />
-            </Card>
-          </div>
+            }
+            className="product-card"
+          >
+            <Meta
+              title={product.name}
+              description={`Giá: ${product.sell_price} VNĐ`}
+            />
+            
+          </Card>
+        </div>
         ))}
       </Carousel>
 
