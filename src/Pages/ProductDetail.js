@@ -49,21 +49,7 @@ function ProductDetail() {
         }
     };
 
-    const fetchCart = async () => {
-        const { data: cart, error } = await supabase
-            .from('cart')
-            .select('*')
-            .eq('user_id', user.id) // Lấy sản phẩm có id tương ứng
-            .single();
-        if (error) {
-            console.error("cart error:", error);
-            alert("cart error:" + error.message);
-        } else {
-            setcart(cart);
-        }
-        setLoading(false);
-    };
-
+    
     // Hàm lấy danh sách sản phẩm từ Supabase
     useEffect(() => {
         const fetchProduct = async () => {
@@ -95,7 +81,6 @@ function ProductDetail() {
         };
         fetchUserAndCart();
         fetchProduct();
-        //fetchCart(); chưa lấy đc userid
     }, [id, user]);
 
     if (loading) {
@@ -111,18 +96,10 @@ function ProductDetail() {
         setQuantity(e.target.value);
     };
 
-    const checklogin = () => {
-        const userInfoCookie = getCookie('token');
-        if (userInfoCookie != null) {
-            return true;
-        } else {
-            return false;
-        }
-    };
 
     // Handle add to cart
     const handleAddToCart = async () => {
-        if (!checklogin) {
+        if (getCookie('token') == null) {
             // Show modal with two buttons: "OK" and "Login"
             Modal.confirm({
                 title: 'Bạn chưa đăng nhập',
@@ -135,10 +112,59 @@ function ProductDetail() {
             });
             return;
         }
-        const userid = user;
-        const cart_id = cart;
+        const userid = user.user_id;
+        const fetchCart = async () => {
+            const { data: cart, error } = await supabase
+                .from('cart')
+                .select('*')
+                .eq('user_id', userid) // Lấy sản phẩm có id tương ứng
+                .single();
+            if (error) {
+                console.error("cart error:", error);
+                alert("cart error:" + error.message);
+            } else {
+                setcart(cart);
+            }
+            setLoading(false);
+        };
+    
+        const user_id = user.user_id; // Get the logged-in user's ID
         const product_id = product.product_id;
-        alert(user);
+
+        const { data: cartDetail, error: cartDetailError } = await supabase
+            .from('cartdetail')
+            .select('*')
+            .eq('cart_id', cart.cart_id)
+            .eq('product_id', product_id)
+            .single();
+
+        if (cartDetail) {
+            // If product is in the cart, update the quantity
+            const newQuantity = cartDetail.quantity + parseInt(quantity);
+            const { error: updateError } = await supabase
+                .from('cartdetail')
+                .update({ quantity: newQuantity })
+                .eq('cart_id', cart.cart_id)
+                .eq('product_id', product_id);
+
+            if (updateError) {
+                console.error('Error updating cart detail:', updateError);
+            } else {
+                alert(`Updated quantity for ${product.name} to ${newQuantity}.`);
+            }
+        } else {
+            // If product is not in the cart, add it with the initial quantity
+            const { error: insertError } = await supabase
+                .from('cartdetail')
+                .insert([{ cart_id:cart.cart_id, product_id, quantity: parseInt(quantity) }]);
+
+            if (insertError) {
+                console.error('Error adding product to cart:', insertError);
+            } else {
+                alert(`Added ${quantity} ${product.name}(s) to the cart.`);
+            }
+        }
+
     };
 
     const handleRate = (rating) => {

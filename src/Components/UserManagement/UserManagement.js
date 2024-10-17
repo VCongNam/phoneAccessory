@@ -266,7 +266,7 @@ const AccountManagement = () => {
               { pattern: /^0[0-9]{9}$/, message: 'Hãy nhập số điện thoại hợp lệ!' },
             ]}
           >
-            <Input />
+            <Input disabled={isEditing} />
           </Form.Item>
 
           <Form.Item
