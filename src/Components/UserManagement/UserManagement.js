@@ -88,13 +88,41 @@ const AccountManagement = () => {
     }
   };
 
+  //   try {
+  //     // Ensure role_id is a number
+  //     const formattedValues = {
+  //       ...values,
+  //       role_id: Number(values.role_id),
+  //     };
+
+  //     const { error } = await supabase
+  //       .from("account")
+  //       .update(formattedValues)
+  //       .eq("user_id", formattedValues.user_id);
+
+  //     if (error) throw error;
+
+  //     toast.success("Cập nhập thành công!");
+  //     setAccounts(
+  //       accounts.map((account) =>
+  //         account.user_id === formattedValues.user_id
+  //           ? { ...account, ...formattedValues }
+  //           : account
+  //       )
+  //     );
+  //     setIsModalVisible(false);
+  //   } catch (error) {
+  //     message.error("Error updating account: " + error.message);
+  //   }
+  // };
   const handleUpdateAccount = async (values) => {
     try {
-      // Ensure role_id is a number
-      const formattedValues = {
+      // Đảm bảo role_id được xử lý đúng
+      const { role_name, ...formattedValues } = {
         ...values,
-        role_id: Number(values.role_id),
+        role_id: Number(values.role_id),  // Convert role_id thành số
       };
+      console.log('Updating with values:', formattedValues);  // Log kiểm tra giá trị đang được gửi
 
       const { error } = await supabase
         .from("account")
@@ -117,6 +145,9 @@ const AccountManagement = () => {
     }
   };
 
+
+
+
   const handleDeleteAccount = async (accountId, roleId) => {
     try {
       if (roleId === 2) { // Check role_id for admin
@@ -137,20 +168,38 @@ const AccountManagement = () => {
       message.error("Error deleting account: " + error.message);
     }
   };
+  //   setIsEditing(!!record);
+  //   if (record) {
+  //     form.setFieldsValue({
+  //       ...record,
+  //       // Set role_name from the joined role data
+  //       role_name: record.role?.role_name || "Không rõ quyền",
+  //       role_id: record.role?.role_id,
+  //     });
+  //   } else {
+  //     form.resetFields();
+  //   }
+  //   setIsModalVisible(true);
+  // };
 
   const showModal = (record = null) => {
+    console.log("Record being edited: ", record);  // Log kiểm tra
     setIsEditing(!!record);
     if (record) {
       form.setFieldsValue({
-        ...record,
-        // Set role_name from the joined role data
-        role_name: record.role?.role_name || "Không rõ quyền",
+        user_id: record.user_id,
+        user_name: record.user_name,
+        password: record.password,
+        role_id: record.role?.role_id || 3,  // Set role_id để lưu đúng
+        role_name: record.role?.role_name || "Không rõ quyền",  // Hiển thị tên quyền
       });
     } else {
       form.resetFields();
     }
     setIsModalVisible(true);
   };
+
+
 
   const handleModalOk = () => {
     form.submit();
@@ -163,20 +212,22 @@ const AccountManagement = () => {
 
 
   const onFinish = (values) => {
+    console.log("Form values on submit: ", values);  // Log để kiểm tra role_id
     if (isEditing) {
       handleUpdateAccount(values);
     } else {
       handleCreateAccount({
         ...values,
-        role_id: 3,
+        role_id: 3,  // Set giá trị role_id mặc định là 3 khi tạo tài khoản
       });
     }
   };
 
+
   const columns = [
-    { 
-      title: "Mã tài khoản", 
-      dataIndex: "user_id", 
+    {
+      title: "Mã tài khoản",
+      dataIndex: "user_id",
       key: "user_id",
       defaultsortOrder: "ascend", // Sort in ascending order
       sorter: (a, b) => a.user_id - b.user_id // Sort by user_id
@@ -185,17 +236,17 @@ const AccountManagement = () => {
       title: "Quyền",
       dataIndex: ["role", "role_name"], // Access role_name from the joined role data
       key: "role_name",
-      filters: roles.map((role) => ({ 
-        text: role.role_name, 
-        value: role.role_name 
+      filters: roles.map((role) => ({
+        text: role.role_name,
+        value: role.role_name
       })), //Filter by role_name
       onFilter: (value, record) => record.role.role_name === value, // Filter by role_name
       sorter: (a, b) => a.role?.role_id - b.role?.role_id, // Sort by role_name
     },
-    { 
-      title: "Tài khoản", 
-      dataIndex: "user_name", 
-      key: "user_name" 
+    {
+      title: "Tài khoản",
+      dataIndex: "user_name",
+      key: "user_name"
     },
     {
       title: "Mật khẩu",
@@ -260,19 +311,17 @@ const AccountManagement = () => {
           <Form.Item
             name="user_name"
             label="Số điện thoại"
-            // rules={[{ required: true, message: "Please input the user name!" }]}
             rules={[
               { required: true, message: 'Nhập số điện thoại của bạn!' },
               { pattern: /^0[0-9]{9}$/, message: 'Hãy nhập số điện thoại hợp lệ!' },
             ]}
           >
-            <Input />
+            <Input disabled={isEditing} />
           </Form.Item>
 
           <Form.Item
             name="password"
             label="Mật khẩu"
-            // rules={[{ required: true, message: "Please input the password!" }]}
             rules={[
               { required: true, message: 'Hãy nhập mật khẩu!' },
               {
@@ -285,16 +334,22 @@ const AccountManagement = () => {
           </Form.Item>
 
           {isEditing ? (
-            // Khi chỉnh sửa, hiển thị tên quyền role_name và disable nó
-            <Form.Item name="role_name" label="Quyền">
-              <Input disabled />
-            </Form.Item>
+            // Khi chỉnh sửa, hiển thị tên quyền role_name và set hidden input cho role_id
+            <>
+              <Form.Item name="role_name" label="Quyền">
+                <Input disabled />
+              </Form.Item>
+              <Form.Item name="role_id" hidden>
+                <Input />
+              </Form.Item>
+            </>
           ) : (
-            // Khi tạo tài khoản, role_id sẽ tự động là 3 nên không cần chọn
+            // Khi tạo tài khoản, role_id sẽ tự động là 3
             <Form.Item name="role_id" hidden>
               <Input defaultValue={3} />
             </Form.Item>
           )}
+
         </Form>
       </Modal>
     </div>
