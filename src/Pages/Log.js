@@ -12,11 +12,13 @@ const { Content } = Layout;
 
 const SlidingAuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [form] = Form.useForm();
+  const [loginForm] = Form.useForm();
+  const [registerForm] = Form.useForm();
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
-    form.resetFields();
+    loginForm.resetFields();
+    registerForm.resetFields();
   };
 
   const handleSubmit = async (values) => {
@@ -54,20 +56,24 @@ const SlidingAuthForm = () => {
         return;
       }
 
-      if (data.length > 0 && data[0].role_id === 1) {
+      if (data && data.length > 0 && data[0].role_id === 1) {
         message.success('Đăng nhập thành công');
         const user = data[0];
         const tokenData = { user_id: user.user_id, role_id: user.role_id };
         const encodedToken = encoder64(JSON.stringify(tokenData));
         localStorage.setItem('isLoggedIn', 'true');
 
-        const profile = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from('profileuser')
           .select('name, address')
           .eq('user_id', user.user_id)
           .single();
 
-        if (profile.data && profile.data.address === '') {
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+        }
+
+        if (profileData && profileData.address === '') {
           window.location.href = '/profile';
         } else {
           window.location.href = '/';
@@ -98,7 +104,7 @@ const SlidingAuthForm = () => {
               <div>
                 <Title level={2}>Đăng ký</Title>
                 <Form
-                  form={form}
+                  form={registerForm}
                   name="register-form"
                   onFinish={handleSubmit}
                   layout="vertical"
@@ -150,7 +156,7 @@ const SlidingAuthForm = () => {
               <div>
                 <Title level={2}>Đăng nhập</Title>
                 <Form
-                  form={form}
+                  form={loginForm}
                   name="login-form"
                   onFinish={handleSubmit}
                   layout="vertical"
