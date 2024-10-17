@@ -8,8 +8,9 @@ import Footer from "../Components/Footer/Footer";
 import Rating from './Rating'; // Import the Rating component
 import { useNavigate } from "react-router-dom";
 import { getToken } from "../Components/GetToken/GetToken";
-import CartDetail from "./CartDetail";
+import { decoder64 } from '../Components/Base64Encoder/Base64Encoder';
 import "./CSS/ProductDetail.css";
+import { set } from "@ant-design/plots/es/core/utils";
 
 const { Content } = Layout;
 const { Meta } = Card;
@@ -22,8 +23,46 @@ function ProductDetail() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const carouselRef = useRef(); // Dùng để điều khiển Carousel
+    const [user, setUser] = useState(null);
+    const [cartItems, setCartItems] = useState([]);
+    const [cart, setcart] = useState(null);
     const navigate = useNavigate();
 
+    const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    };
+
+    const fetchUserAndCart = async () => {
+        try {
+            const userInfoCookie = getCookie('token');
+            if (userInfoCookie) {
+                const decodedUserInfo = JSON.parse(decoder64(userInfoCookie));
+                setUser(decodedUserInfo); // Cập nhật state user
+            }
+        } catch (error) {
+            console.error("Error fetching user info:", error);
+            alert("Error fetching user info: " + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchCart = async () => {
+        const { data: cart, error } = await supabase
+            .from('cart')
+            .select('*')
+            .eq('user_id', user.id) // Lấy sản phẩm có id tương ứng
+            .single();
+        if (error) {
+            console.error("cart error:", error);
+            alert("cart error:" + error.message);
+        } else {
+            setcart(cart);
+        }
+        setLoading(false);
+    };
 
     // Hàm lấy danh sách sản phẩm từ Supabase
     useEffect(() => {
@@ -54,8 +93,10 @@ function ProductDetail() {
 
             setLoading(false);
         };
+        fetchUserAndCart();
         fetchProduct();
-    }, [id]);
+        //fetchCart(); chưa lấy đc userid
+    }, [id, user]);
 
     if (loading) {
         return <p>Loading product details...</p>;
@@ -71,14 +112,13 @@ function ProductDetail() {
     };
 
     const checklogin = () => {
-        const token = getToken();
-        if (token != null) {
+        const userInfoCookie = getCookie('token');
+        if (userInfoCookie != null) {
             return true;
         } else {
             return false;
         }
     };
-
 
     // Handle add to cart
     const handleAddToCart = async () => {
@@ -95,10 +135,10 @@ function ProductDetail() {
             });
             return;
         }
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        const userid = user.id;
+        const userid = user;
+        const cart_id = cart;
         const product_id = product.product_id;
-        alert(userid);
+        alert(user);
     };
 
     const handleRate = (rating) => {
