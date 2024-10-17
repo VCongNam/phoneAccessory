@@ -7,10 +7,9 @@ import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
 import Rating from './Rating'; // Import the Rating component
 import { useNavigate } from "react-router-dom";
-import { getToken } from "../Components/GetToken/GetToken";
 import { decoder64 } from '../Components/Base64Encoder/Base64Encoder';
 import "./CSS/ProductDetail.css";
-import { set } from "@ant-design/plots/es/core/utils";
+
 
 const { Content } = Layout;
 const { Meta } = Card;
@@ -24,8 +23,7 @@ function ProductDetail() {
     const [loading, setLoading] = useState(true);
     const carouselRef = useRef(); // Dùng để điều khiển Carousel
     const [user, setUser] = useState(null);
-    const [cartItems, setCartItems] = useState([]);
-    const [cart, setcart] = useState(null);
+    const [cart, setCart] = useState(null);
     const navigate = useNavigate();
 
     const getCookie = (name) => {
@@ -49,7 +47,8 @@ function ProductDetail() {
         }
     };
 
-    
+
+
     // Hàm lấy danh sách sản phẩm từ Supabase
     useEffect(() => {
         const fetchProduct = async () => {
@@ -81,7 +80,7 @@ function ProductDetail() {
         };
         fetchUserAndCart();
         fetchProduct();
-    }, [id, user]);
+    }, [id]);
 
     if (loading) {
         return <p>Loading product details...</p>;
@@ -123,45 +122,46 @@ function ProductDetail() {
                 console.error("cart error:", error);
                 alert("cart error:" + error.message);
             } else {
-                setcart(cart);
+                setCart(cart);
             }
             setLoading(false);
         };
-    
-        const user_id = user.user_id; // Get the logged-in user's ID
-        const product_id = product.product_id;
+        fetchCart();
 
-        const { data: cartDetail, error: cartDetailError } = await supabase
-            .from('cartdetail')
-            .select('*')
-            .eq('cart_id', cart.cart_id)
-            .eq('product_id', product_id)
-            .single();
+        if (cart) {
+            const product_id = product.product_id;
+            try {
+                const { data: cart_item, error: cartDetailError } = await supabase
+                    .from('cart_item')
+                    .select('*')
+                    .eq('cart_id', cart.id)
+                    .eq('product_id', product_id)
+                    .single();
 
-        if (cartDetail) {
-            // If product is in the cart, update the quantity
-            const newQuantity = cartDetail.quantity + parseInt(quantity);
-            const { error: updateError } = await supabase
-                .from('cartdetail')
-                .update({ quantity: newQuantity })
-                .eq('cart_id', cart.cart_id)
-                .eq('product_id', product_id);
-
-            if (updateError) {
-                console.error('Error updating cart detail:', updateError);
-            } else {
-                alert(`Updated quantity for ${product.name} to ${newQuantity}.`);
-            }
-        } else {
-            // If product is not in the cart, add it with the initial quantity
-            const { error: insertError } = await supabase
-                .from('cartdetail')
-                .insert([{ cart_id:cart.cart_id, product_id, quantity: parseInt(quantity) }]);
-
-            if (insertError) {
-                console.error('Error adding product to cart:', insertError);
-            } else {
-                alert(`Added ${quantity} ${product.name}(s) to the cart.`);
+                if (cart_item) {
+                    const newQuantity = cart_item.quantity + quantity;
+                    const { error: updateError } = await supabase
+                        .from('cart_item')
+                        .update({ quantity: newQuantity })
+                        .eq('cart_id', cart.id)
+                        .eq('product_id', product_id);
+                    if (updateError) {
+                        console.error('Error updating cart detail:', updateError);
+                    } else {
+                        alert(`Updated quantity for ${product.name} to ${newQuantity}.`);
+                    }
+                } else {
+                    const { error: insertError } = await supabase
+                        .from('cart_item')
+                        .insert({ cart_id: cart.id, product_id: product_id, quantity: quantity });
+                    if (insertError) {
+                        console.error('Error adding product to cart:', insertError);
+                    } else {
+                        alert(`Added ${quantity} ${product.name}(s) to the cart.`);
+                    }
+                }
+            } catch (error) {
+                console.error('Error adding to cart:', error);
             }
         }
 
