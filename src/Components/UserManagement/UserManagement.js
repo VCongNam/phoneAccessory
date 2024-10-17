@@ -117,8 +117,13 @@ const AccountManagement = () => {
     }
   };
 
-  const handleDeleteAccount = async (accountId) => {
+  const handleDeleteAccount = async (accountId, roleId) => {
     try {
+      if (roleId === 2) { // Check role_id for admin
+        message.error("Không thể xóa tài khoản admin!");
+        return;
+      }
+
       const { error } = await supabase
         .from("account")
         .delete()
@@ -208,7 +213,7 @@ const AccountManagement = () => {
           </Button>
           <Popconfirm
             title="Bạn có chắc muốn xóa tài khoản này"
-            onConfirm={() => handleDeleteAccount(record.user_id)}
+            onConfirm={() => handleDeleteAccount(record.user_id, record.role_id)}
             okText="Có"
             cancelText="Không"
           >
@@ -242,7 +247,9 @@ const AccountManagement = () => {
         title={isEditing ? "Chỉnh sửa tài khoản" : "Tạo tài khoản"}
         open={isModalVisible}
         onOk={handleModalOk}
+        okText={isEditing ? "Lưu" : "Tạo"}
         onCancel={handleModalCancel}
+        cancelText="Hủy"
       >
         <Form form={form} onFinish={onFinish} layout="vertical">
           {isEditing && (

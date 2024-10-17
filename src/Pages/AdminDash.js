@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Layout, Breadcrumb } from 'antd';
-import HeaderDash from '../Components/HeaderDash/HeaderDash';
+import AppHeader from '../Components/Header/Header';
 import Sidebar from '../Components/Sidebar/Sidebar';
 import OrderManagement from '../Components/OrderManagement/OrderManagement';
 import ProductManagement from '../Components/ProductManagement/ProductManagement';
@@ -45,7 +45,7 @@ const DashboardPage = () => {
 
   return (
     <Layout >
-      <HeaderDash /> {/* Thêm Header vào đây */}
+      <AppHeader />
       <Layout>
         <Sidebar onMenuClick={setCurrentPage} />
         <Layout style={{ padding: '0 24px 24px' }}>
