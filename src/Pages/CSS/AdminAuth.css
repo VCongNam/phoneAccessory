@@ -1,6 +1,6 @@
 /* Container styling for centering the form */
 .auth-container {
-    background: linear-gradient(135deg, #1c1c1c, #000000);
+    background: linear-gradient(135deg, #141b44, #5b5c5e);
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -9,10 +9,10 @@
 
 /* Box styling for the form */
 .auth-box {
-    background-color: #2a2a2a;
+    background-color: #f0f0f0e0;
     padding: 40px;
     border-radius: 10px;
-    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 4px 20px rgba(255, 255, 255, 0.3);
     max-width: 400px;
     width: 100%;
 }
@@ -27,9 +27,9 @@
 
 /* Input field styling */
 .auth-input {
-    background-color: #333030;
-    color: #ffffff;
-    border: none;
+    background-color: #e6e6e6;
+    color: #000000;
+    border: 1px solid #595959;
     border-radius: 5px;
     padding: 10px;
     transition: all 0.3s ease;
@@ -42,18 +42,18 @@
 
 /* Input icon styling */
 .auth-icon {
-    color: #b3b3b3;
+    color: #444444;
 }
 
 /* Button styling */
 .auth-button {
     width: 100%;
-    background-color: #1f1f1f;
+    background-color:  #1f1f1f;
     border: none;
     border-radius: 8px;
     color: #ffffff;
     padding: 12px;
-    font-weight: bold;
+    /* font-weight: bold; */
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
