@@ -3,7 +3,7 @@ import { Form, Input, Button, Typography, message, Layout } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { supabase } from '../supabaseClient';
 import { encoder64 } from '../Components/Base64Encoder/Base64Encoder';
-import './CSS/Log.css';
+import './CSS/AdminAuth.css';
 
 const { Title } = Typography;
 
@@ -45,7 +45,8 @@ const AdminAuth = () => {
 
     return (
         <div className="auth-container">
-            <Title level={2}>Đăng nhập</Title>
+        <div className="auth-box">
+            <Title level={2} className="auth-title">Đăng nhập</Title>
             <Form
                 form={form}
                 name="auth-form"
@@ -60,13 +61,21 @@ const AdminAuth = () => {
                         { pattern: /^0[0-9]{9}$/, message: 'Hãy nhập số điện thoại hợp lệ!' },
                     ]}
                 >
-                    <Input prefix={<UserOutlined />} placeholder="Số điện thoại" />
+                    <Input
+                        prefix={<UserOutlined className="auth-icon" />}
+                        placeholder="Số điện thoại"
+                        className="auth-input"
+                    />
                 </Form.Item>
                 <Form.Item
                     name="password"
                     rules={[{ required: true, message: 'Hãy nhập mật khẩu!' }]}
                 >
-                    <Input.Password prefix={<LockOutlined />} placeholder="Mật khẩu" />
+                    <Input.Password
+                        prefix={<LockOutlined className="auth-icon" />}
+                        placeholder="Mật khẩu"
+                        className="auth-input"
+                    />
                 </Form.Item>
                 <Form.Item>
                     <Button type="primary" htmlType="submit" className="auth-button">
@@ -75,6 +84,7 @@ const AdminAuth = () => {
                 </Form.Item>
             </Form>
         </div>
+    </div>
     );
 };
 

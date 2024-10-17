@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
-import { Layout, Menu, List, Card, Button, InputNumber, Typography, Badge, Avatar } from 'antd';
+import { Layout, Menu, List, Card, Button, InputNumber, Typography, Badge, Avatar, Popconfirm } from 'antd';
 import { ShoppingCartOutlined, DeleteOutlined, HomeOutlined, UserOutlined } from '@ant-design/icons';
 import "./CSS/CartDetail.css";
-import  Header  from "../Components/Header/Header";
+import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
 import { decoder64 } from '../Components/Base64Encoder/Base64Encoder';
 
@@ -35,7 +35,7 @@ const CartDetail = () => {
                 setLoading(false);
             }
         };
-    
+
         fetchUserAndCart();
     }, []);
     useEffect(() => {
@@ -43,14 +43,14 @@ const CartDetail = () => {
         const fetchCart = async () => {
             if (user) { // Kiểm tra user đã có giá trị chưa
                 try {
-                    await fetchCartItems(user.user_id); 
+                    await fetchCartItems(user.user_id);
                 } catch (error) {
                     console.error("Error fetching cart items:", error);
                     alert("Error fetching cart items: " + error.message);
                 }
             }
         };
-    
+
         fetchCart();
     }, [user]);
     const fetchCartItems = async (user_id) => {
@@ -84,14 +84,16 @@ const CartDetail = () => {
         }
     };
 
-    const updateQuantity = async (cart_id, quantity) => {
+    const updateQuantity = async (cart_item, quantity) => {
         try {
             const { data, error } = await supabase
                 .from("cart_item")
                 .update({ quantity: quantity })
-                .eq('cart_id', cart_id)
-                .eq('product_id', cart_id.product_id);
-    
+                .eq('cart_id', cart_item.cart_id)
+                .eq('product_id', cart_item.products.product_id);
+            console.log(cart_item);
+            console.log(cart_item.products.product_id);
+
             if (error) throw error;
             await fetchCartItems(user.user_id);
         } catch (error) {
@@ -119,21 +121,28 @@ const CartDetail = () => {
 
     return (
         <Layout className="layout" style={{ minHeight: "100vh" }}>
-            <Header/>
+            <Header />
             <Content style={{ padding: '0 50px', marginTop: 64 }}>
                 <div className="site-layout-content" style={{ background: '#fff', padding: 24, minHeight: 380 }}>
                     <List
                         itemLayout="horizontal"
-                        dataSource={cartItems}
+                        dataSource={cartItems.sort((a, b) => a.products.product_id - b.products.product_id)} // sap xep cart_item theo product_id
                         loading={loading}
                         renderItem={item => (
                             <List.Item
                                 actions={[
-                                    <Button 
-                                        icon={<DeleteOutlined />} 
-                                        onClick={() => removeProduct(item.cart_id, item.products.product_id)}
-                                        danger
-                                    />
+
+                                    <Popconfirm
+                                        title="Bạn có chắc muốn xóa tài khoản này"
+                                        onConfirm={() => removeProduct(item.cart_id, item.products.product_id)}
+                                        okText="Có"
+                                        cancelText="Không"
+                                    >
+                                        <Button
+                                            icon={<DeleteOutlined />}
+                                            danger
+                                        />
+                                    </Popconfirm>
                                 ]}
                             >
                                 <List.Item.Meta
@@ -142,10 +151,10 @@ const CartDetail = () => {
                                     description={`Price: $${item.products.sell_price.toFixed(2)}`}
                                 />
                                 <div>
-                                    <InputNumber 
-                                        min={1} 
-                                        value={item.quantity} 
-                                        onChange={(value) => updateQuantity(item.cart_id, value)}
+                                    <InputNumber
+                                        min={1}
+                                        value={item.quantity}
+                                        onChange={(value) => updateQuantity(item, value)}
                                     />
                                 </div>
                             </List.Item>
@@ -159,7 +168,7 @@ const CartDetail = () => {
                     </Card>
                 </div>
             </Content>
-            <Footer/>
+            <Footer />
         </Layout>
     );
 };

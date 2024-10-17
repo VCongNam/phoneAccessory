@@ -34,8 +34,8 @@ function AppHeader() {
   };
 
   const handleLogin = () => {
-    setIsLoggedIn(true);
-    localStorage.setItem("isLoggedIn", "true");
+    // setIsLoggedIn(true);
+    // localStorage.setItem("isLoggedIn", "true");
   };
 
   const userMenu = (
