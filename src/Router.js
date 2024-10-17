@@ -9,6 +9,7 @@ import CartDetail from './Pages/CartDetail';
 import Profile from './Pages/Profile';
 import AdminAuth from './Pages/AdminLogin';
 import SellerAuth from './Pages/SellerLogin';
+import SellerProductList from './Pages/SellerProductList';
 
 const AppRouter = () => {
     return (
@@ -26,6 +27,7 @@ const AppRouter = () => {
                     <Route path="/login" element={<Auth />} />
                     <Route path="/cart" element={<CartDetail />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/sellerproductlist" element={<SellerProductList />} />
                 </Routes>
             </div>
         </Router>
