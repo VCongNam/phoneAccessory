@@ -64,6 +64,7 @@ export default function Profile() {
 
   console.log("user:", user);
   const userId = user?.user_id;
+  console.log("userId:", userId);
   const location = useLocation();
 
   useEffect(() => {
@@ -149,19 +150,23 @@ export default function Profile() {
   const updatePassword = async (values) => {
     console.log("ojjj:", values);
     // Kiểm tra mật khẩu hiện tại
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: profile.email,
-      password: values.currentPassword,
-    });
-    if (error) {
+    const { data, error } = await supabase
+      .from("account")
+      .select("*")
+      .eq("user_id", userId, "password", values.currentPassword)
+      .single();
+    console.log("data:", data);
+    if (!data || error) {
       message.error("Mật khẩu hiện tại không chính xác");
       return;
     }
     // Cập nhật mật khẩu mới
-    const { error: updateError } = await supabase.auth.updateUser({
-      password: values.newPassword,
-    });
+    const { error: updateError, data: updateData } = await supabase
+      .from("account")
+      .update({ password: values.newPassword })
+      .eq("user_id", userId);
     if (updateError) {
+      console.error("Error updating password:", updateError);
       message.error("Lỗi khi cập nhật mật khẩu");
     } else {
       message.success("Cập nhật mật khẩu thành công");
@@ -169,7 +174,6 @@ export default function Profile() {
     }
   };
 
-  console.log("profile:", profile);
   const columns = [
     {
       title: "Mã đơn hàng",
@@ -268,7 +272,11 @@ export default function Profile() {
                   },
                 ]}
               >
-                <Input prefix={<PhoneOutlined />} />
+                <Input
+                  prefix={<PhoneOutlined />}
+                  readOnly={isEditing}
+                  disabled={profile.phone && profile.phone.length === 10}
+                />
               </Form.Item>
               <Form.Item name="address" label="Địa chỉ">
                 <Input prefix={<HomeOutlined />} readOnly={isEditing} />
@@ -323,9 +331,9 @@ export default function Profile() {
                 message: "Mật khẩu phải có ít nhất 8 ký tự!",
               },
               {
-                pattern: /^(?=.*[A-Za-z])[A-Za-z\d@$!%*#?&].+$/,
+                pattern: /^(?=.*[A-Z])(?=.*\d).+$/,
                 message:
-                  "Hãy điền tối thiểu 8 ký tự bao gồm chữ cái, số và kí tự đặc biệt",
+                  "Mật khẩu phải chứa ít nhất một chữ hoa và một chữ số!",
               },
             ]}
           >
