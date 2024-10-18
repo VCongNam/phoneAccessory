@@ -148,7 +148,7 @@ const CartDetail = () => {
                                 <List.Item.Meta
                                     avatar={<Avatar src={item.products.img} shape="square" size={64} />}
                                     title={item.products.name}
-                                    description={`Price: $${item.products.sell_price.toFixed(2)}`}
+                                    description={`Giá: ${item.products.sell_price.toLocaleString('vi-VN')} VND`}
                                 />
                                 <div>
                                     <InputNumber
@@ -161,9 +161,9 @@ const CartDetail = () => {
                         )}
                     />
                     <Card style={{ marginTop: 16 }}>
-                        <Text strong>Subtotal ({itemCount} items): ${total.toFixed(2)}</Text>
+                        <Text strong>Tổng giá trị ({itemCount} items): {total.toLocaleString('vi-VN')} VND</Text>
                         <Button type="primary" size="large" style={{ width: '100%', marginTop: 16 }}>
-                            Proceed to Checkout
+                            Tiếp tục thanh toán
                         </Button>
                     </Card>
                 </div>
@@ -174,3 +174,4 @@ const CartDetail = () => {
 };
 
 export default CartDetail;
+
