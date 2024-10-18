@@ -397,6 +397,11 @@ const ProductTable = () => {
                 title="Thêm sản phẩm"
                 visible={isModalVisible}
                 onCancel={() => setIsModalVisible(false)}
+                style={{
+                    borderRadius: "10px",
+                    padding: "20px",
+                    backgroundColor: "#2bd414", // Màu nền xanh lá nhạt cho modal
+                }}
                 footer={null}
             >
                 <Form onFinish={addProduct}>
