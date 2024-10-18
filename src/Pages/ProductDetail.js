@@ -8,6 +8,8 @@ import Footer from "../Components/Footer/Footer";
 import Rating from './Rating'; // Import the Rating component
 import { useNavigate } from "react-router-dom";
 import { decoder64 } from '../Components/Base64Encoder/Base64Encoder';
+import { toast, ToastContainer } from 'react-toastify'; // Import Toast from react-toastify
+import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
 import "./CSS/ProductDetail.css";
 
 
@@ -41,7 +43,7 @@ function ProductDetail() {
             }
         } catch (error) {
             console.error("Error fetching user info:", error);
-            alert("Error fetching user info: " + error.message);
+            toast.error("Error fetching user info: " + error.message);
         } finally {
             setLoading(false);
         }
@@ -120,7 +122,7 @@ function ProductDetail() {
                 .single();
             if (error) {
                 console.error("cart error:", error);
-                alert("cart error:" + error.message);
+                toast.error("cart error:" + error.message);
             } else {
                 setCart(cart);
             }
@@ -148,7 +150,7 @@ function ProductDetail() {
                     if (updateError) {
                         console.error('Error updating cart detail:', updateError);
                     } else {
-                        alert(`Updated quantity for ${product.name} to ${newQuantity}.`);
+                        toast.success(`Updated quantity for ${product.name} to ${newQuantity}.`);
                     }
                 } else {
                     const { error: insertError } = await supabase
@@ -157,7 +159,7 @@ function ProductDetail() {
                     if (insertError) {
                         console.error('Error adding product to cart:', insertError);
                     } else {
-                        alert(`Added ${quantity} ${product.name}(s) to the cart.`);
+                        toast.success(`Added ${quantity} ${product.name}(s) to the cart.`);
                     }
                 }
             } catch (error) {
@@ -182,13 +184,18 @@ function ProductDetail() {
             <div>
 
                 <div className="product-container">
-                    <div className="product-image">
-                        <img
-                            alt={product.name}
-                            src={product.img}
-                            style={{ height: "200px", objectFit: "cover" }}
-                        />
-                    </div>
+                    <Card
+                        hoverable
+                        cover={
+                            <img
+                                alt={product.name}
+                                src={product.img}
+                                style={{ height: "auto", objectFit: "cover" }}
+                            />
+                        }
+                    >
+                    </Card>
+                    
                     <div className="product-details">
                         <h1>{product.name}</h1>
                         {/* Rating Component */}
@@ -229,7 +236,7 @@ function ProductDetail() {
                                         <img
                                             alt={product.name}
                                             src={product.img}
-                                            style={{ height: "200px", objectFit: "cover" }}
+                                            style={{ height: "auto", objectFit: "cover" }}
                                         />
                                     }
                                     className="product-card"
@@ -245,7 +252,7 @@ function ProductDetail() {
                 </div>
             </div>
             <Footer></Footer>
-        </div>
+        </div >
 
     );
 };
