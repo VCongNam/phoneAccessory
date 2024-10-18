@@ -8,12 +8,12 @@ import Footer from "../Components/Footer/Footer";
 import Rating from './Rating'; // Import the Rating component
 import { useNavigate } from "react-router-dom";
 import { decoder64 } from '../Components/Base64Encoder/Base64Encoder';
+import { toast, ToastContainer } from 'react-toastify'; // Import Toast from react-toastify
+import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
 import "./CSS/ProductDetail.css";
-
 
 const { Content } = Layout;
 const { Meta } = Card;
-
 
 function ProductDetail() {
     const [quantity, setQuantity] = useState(1);
@@ -41,39 +41,36 @@ function ProductDetail() {
             }
         } catch (error) {
             console.error("Error fetching user info:", error);
-            alert("Error fetching user info: " + error.message);
+            toast.error("Lỗi lấy thông tin người dùng: " + error.message); // Toast in Vietnamese
         } finally {
             setLoading(false);
         }
     };
 
-
-
-    // Hàm lấy danh sách sản phẩm từ Supabase
     useEffect(() => {
         const fetchProduct = async () => {
             const { data: product, proerror } = await supabase
                 .from('products')
                 .select('*')
-                .eq('product_id', id) // Lấy sản phẩm có id tương ứng
+                .eq('product_id', id)
                 .single();
 
             if (proerror) {
                 console.error('Error fetching product:', error);
             } else {
-                setProduct(product); // Cập nhật chi tiết sản phẩm
+                setProduct(product);
             }
 
             const cateid = product.cate_id;
             const { data: products, error } = await supabase
                 .from('products')
                 .select('*')
-                .eq('cate_id', cateid) // Lấy sản phẩm có id tương ứng
+                .eq('cate_id', cateid);
 
             if (error) {
                 console.error('Error fetching product:', error);
             } else {
-                setProducts(products); // Cập nhật chi tiết sản phẩm
+                setProducts(products);
             }
 
             setLoading(false);
@@ -83,30 +80,26 @@ function ProductDetail() {
     }, [id]);
 
     if (loading) {
-        return <p>Loading product details...</p>;
+        return <p>Đang tải thông tin sản phẩm...</p>; // Vietnamese for "Loading product details..."
     }
 
     if (!product) {
-        return <p>Product not found.</p>;
+        return <p>Không tìm thấy sản phẩm.</p>; // Vietnamese for "Product not found."
     }
 
-    // Handle quantity change
     const handleQuantityChange = (e) => {
         setQuantity(e.target.value);
     };
 
-
-    // Handle add to cart
     const handleAddToCart = async () => {
         if (getCookie('token') == null) {
-            // Show modal with two buttons: "OK" and "Login"
             Modal.confirm({
                 title: 'Bạn chưa đăng nhập',
                 content: 'Đăng nhập trước khi thêm sản phẩm vào giỏ hàng.',
-                okText: 'OK', // First button to close the modal
-                cancelText: 'Đăng nhập', // Second button to navigate to login page
+                okText: 'OK',
+                cancelText: 'Đăng nhập',
                 onCancel: () => {
-                    navigate('/login'); // Redirect to login page if "Login" button is clicked
+                    navigate('/login');
                 }
             });
             return;
@@ -116,11 +109,11 @@ function ProductDetail() {
             const { data: cart, error } = await supabase
                 .from('cart')
                 .select('*')
-                .eq('user_id', userid) // Lấy sản phẩm có id tương ứng
+                .eq('user_id', userid)
                 .single();
             if (error) {
                 console.error("cart error:", error);
-                alert("cart error:" + error.message);
+                toast.error("Lỗi giỏ hàng: " + error.message); // Toast in Vietnamese
             } else {
                 setCart(cart);
             }
@@ -147,8 +140,13 @@ function ProductDetail() {
                         .eq('product_id', product_id);
                     if (updateError) {
                         console.error('Error updating cart detail:', updateError);
+                        toast.error('Lỗi cập nhật giỏ hàng: ' + updateError.message, {
+                            style: { backgroundColor: '#f5222d', color: '#fff' } // Custom error style
+                        });
                     } else {
-                        alert(`Updated quantity for ${product.name} to ${newQuantity}.`);
+                        toast.success(`Cập nhật số lượng sản phẩm ${product.name} lên ${newQuantity}.`, {
+                            style: { backgroundColor: '#52c41a', color: '#fff' } // Custom success style
+                        });
                     }
                 } else {
                     const { error: insertError } = await supabase
@@ -156,20 +154,26 @@ function ProductDetail() {
                         .insert({ cart_id: cart.id, product_id: product_id, quantity: quantity });
                     if (insertError) {
                         console.error('Error adding product to cart:', insertError);
+                        toast.error('Lỗi thêm sản phẩm vào giỏ hàng: ' + insertError.message, {
+                            style: { backgroundColor: '#f5222d', color: '#fff' }
+                        });
                     } else {
-                        alert(`Added ${quantity} ${product.name}(s) to the cart.`);
+                        toast.success(`Đã thêm ${quantity} ${product.name} vào giỏ hàng.`, {
+                            style: { backgroundColor: '#52c41a', color: '#fff' }
+                        });
                     }
                 }
             } catch (error) {
                 console.error('Error adding to cart:', error);
+                toast.error('Lỗi thêm vào giỏ hàng: ' + error.message, {
+                    style: { backgroundColor: '#f5222d', color: '#fff' }
+                });
             }
         }
-
     };
 
     const handleRate = (rating) => {
         console.log(`Rated ${product.name}: ${rating} stars`);
-        // Here you can send the rating to your backend (e.g., Supabase) to store it
     };
 
     const formatPrice = (price) => {
@@ -180,18 +184,20 @@ function ProductDetail() {
         <div>
             <Header />
             <div>
-
+                <ToastContainer /> {/* Toast container to show toasts */}
                 <div className="product-container">
-                    <div className="product-image">
-                        <img
-                            alt={product.name}
-                            src={product.img}
-                            style={{ height: "200px", objectFit: "cover" }}
-                        />
-                    </div>
+                    <Card
+                        hoverable
+                        cover={
+                            <img
+                                alt={product.name}
+                                src={product.img}
+                                style={{ height: "auto", objectFit: "cover", cursor: "pointer" }}
+                            />
+                        }
+                    />
                     <div className="product-details">
                         <h1>{product.name}</h1>
-                        {/* Rating Component */}
                         <div className="product-rating">
                             <Rating totalStars={5} onRate={handleRate} />
                         </div>
@@ -208,7 +214,6 @@ function ProductDetail() {
                             value={quantity}
                             onChange={handleQuantityChange} />
                         <button onClick={handleAddToCart}>Thêm vào giỏ</button>
-
                     </div>
                 </div>
                 <div className="product-carousel">
@@ -229,7 +234,7 @@ function ProductDetail() {
                                         <img
                                             alt={product.name}
                                             src={product.img}
-                                            style={{ height: "200px", objectFit: "cover" }}
+                                            style={{ height: "auto", objectFit: "cover" }}
                                         />
                                     }
                                     className="product-card"
@@ -244,9 +249,8 @@ function ProductDetail() {
                     </Carousel>
                 </div>
             </div>
-            <Footer></Footer>
+            <Footer />
         </div>
-
     );
 };
 
