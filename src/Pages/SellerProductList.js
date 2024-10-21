@@ -335,7 +335,9 @@ const ProductTable = () => {
                 <Button type="primary" onClick={() => setIsModalVisible(true)}>
                     Thêm sản phẩm
                 </Button>
-
+                <Button onClick={() => setIsAddBrandModalVisible(true)}>
+                    Thêm nhãn hiệu
+                </Button>
                 <Button onClick={() => setIsAddCategoryModalVisible(true)}>
                     Thêm thể loại
                 </Button>
