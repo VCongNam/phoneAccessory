@@ -15,13 +15,19 @@ import {
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 
+
 const AccountManagement = () => {
+
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [roles, setRoles] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [sortOption, setSortOption] = useState("user_id"); // Default sort by user_id
+  const [sortOrder, setSortOrder] = useState("ascend"); // Default to ascending
+
+
 
   useEffect(() => {
     fetchAccounts();
@@ -210,6 +216,32 @@ const AccountManagement = () => {
     form.resetFields();
   };
 
+  const handleSortAndFilter = () => {
+    let sortedAccounts = [...accounts];
+
+    if (sortOption === "user_id") {
+      sortedAccounts.sort((a, b) =>
+        sortOrder === "ascend" ? a.user_id - b.user_id : b.user_id - a.user_id
+      );
+    } else if (sortOption === "role") {
+      sortedAccounts.sort((a, b) =>
+        sortOrder === "ascend"
+          ? a.role?.role_name.localeCompare(b.role?.role_name)
+          : b.role?.role_name.localeCompare(a.role?.role_name)
+      );
+    } else if (sortOption === "user_name") {
+      sortedAccounts.sort((a, b) =>
+        sortOrder === "ascend"
+          ? a.user_name.localeCompare(b.user_name)
+          : b.user_name.localeCompare(a.user_name)
+      );
+    }
+
+    return sortedAccounts;
+  };
+
+
+
 
   const onFinish = (values) => {
     console.log("Form values on submit: ", values);  // Log để kiểm tra role_id
@@ -244,7 +276,7 @@ const AccountManagement = () => {
       sorter: (a, b) => a.role?.role_id - b.role?.role_id, // Sort by role_name
     },
     {
-      title: "Tài khoản",
+      title: "Số điện thoại",
       dataIndex: "user_name",
       key: "user_name"
     },
@@ -280,17 +312,38 @@ const AccountManagement = () => {
   return (
     <div style={{ padding: "24px" }}>
       <h2>Quản lý tài khoản</h2>
-      <Button
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={() => showModal()}
-        style={{ marginBottom: "16px" }}
-      >
-        Tạo tài khoản
-      </Button>
+      <Space style={{ marginBottom: "16px" }}>
+        <Select
+          defaultValue="user_id"
+          style={{ width: 180 }}
+          onChange={(value) => setSortOption(value)}
+        >
+          <Select.Option value="user_id">Lọc theo Mã tài khoản</Select.Option>
+          <Select.Option value="role">Lọc theo Quyên</Select.Option>
+          <Select.Option value="user_name">Lọc theo SDT</Select.Option>
+        </Select>
+
+        <Select
+          defaultValue="ascend"
+          style={{ width: 180 }}
+          onChange={(value) => setSortOrder(value)}
+        >
+          <Select.Option value="ascend">Tăng dần</Select.Option>
+          <Select.Option value="descend">Giảm dần</Select.Option>
+        </Select>
+
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => showModal()}
+        >
+          Tạo tài khoản
+        </Button>
+      </Space>
+
       <Table
         columns={columns}
-        dataSource={accounts}
+        dataSource={handleSortAndFilter()}
         loading={loading}
         rowKey="user_id"
       />
@@ -349,7 +402,6 @@ const AccountManagement = () => {
               <Input defaultValue={3} />
             </Form.Item>
           )}
-
         </Form>
       </Modal>
     </div>
