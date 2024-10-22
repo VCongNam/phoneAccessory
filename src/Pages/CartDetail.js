@@ -146,7 +146,7 @@ const CartDetail = () => {
                                 ]}
                             >
                                 <List.Item.Meta
-                                    avatar={<Avatar src={item.products.img} shape="square" size={64} />}
+                                    avatar={<Avatar src={item.products.img[0]} shape="square" size={64} />}
                                     title={item.products.name}
                                     description={`Giá: ${item.products.sell_price.toLocaleString('vi-VN')} VND`}
                                 />
