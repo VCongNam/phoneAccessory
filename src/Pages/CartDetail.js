@@ -133,7 +133,7 @@ const CartDetail = () => {
                                 actions={[
 
                                     <Popconfirm
-                                        title="Bạn có chắc muốn xóa sản phẩm này này"
+                                        title="Bạn có chắc muốn xóa sản phẩm này"
                                         onConfirm={() => removeProduct(item.cart_id, item.products.product_id)}
                                         okText="Có"
                                         cancelText="Không"
