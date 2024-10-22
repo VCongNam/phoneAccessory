@@ -177,7 +177,7 @@ const ProductList = () => {
                       cover={
                         <img
                           alt={product.name}
-                          src={product.img}
+                          src={product.img[0]}
                           style={{ height: "auto", objectFit: "cover" }}
                         />
                       }
