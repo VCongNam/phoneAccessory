@@ -232,7 +232,6 @@ function ProductDetail() {
                             <Rating totalStars={5} onRate={handleRate} />
                         </div>
                         <p className="product-price">{formatPrice(product.sell_price)} VND</p>
-                        <p className="product-description">{product.des}</p>
 
                         <label htmlFor="quantity">Số lượng:</label>
                         <input
@@ -244,8 +243,14 @@ function ProductDetail() {
                             onChange={handleQuantityChange}
                         />
                         <button onClick={handleAddToCart}>Thêm vào giỏ</button>
+                        <div
+                            className="product-description"
+                            dangerouslySetInnerHTML={{ __html: product.des }} // Inject HTML content safely
+                        />
                     </div>
+
                 </div>
+
             </div>
             <div className="product-carousel">
                 <h2 className="carousel-title">Sản phẩm cùng thể loại</h2>
