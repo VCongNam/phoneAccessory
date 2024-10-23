@@ -56,9 +56,7 @@ function AppHeader() {
         <Link to="/login">Đăng nhập</Link>
       </Menu.Item>
       <Menu.Divider /> {/* Added divider */}
-      <Menu.Item key="signup">
-        <Link to={"/signup"}>Đăng kí</Link>
-      </Menu.Item>
+      
     </Menu>
   );
 

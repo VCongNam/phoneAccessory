@@ -3,6 +3,7 @@ import { Layout, Carousel } from "antd";
 import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
 import HomeBrand from "./HomeBrand"; // Import component ProductList
+import { Link } from 'react-router-dom';
 
 import HomeMenu from "./HomeMenu";
 import bn1 from "./images/bn1.png";
@@ -22,19 +23,22 @@ const Home = () => {
       <Content style={{ padding: "50px" }}>
         {/* Slider */}
         <Carousel autoplay style={{ marginBottom: "50px", maxWidth: "100%", overflow: "hidden" }}>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+  <Link to="/ProductDetail/43">
+    <img
+      src={bn1}
+      alt="First slide"
+      style={{
+        width: "100%",
+        height: "400px",
+        borderRadius: "10px",
+        objectFit: "fill",
+      }}
+    />
+  </Link>
+</div>
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <img
-              src={bn1}
-              alt="First slide"
-              style={{
-                width: "100%",
-                height: "400px",
-                borderRadius: "10px",
-                objectFit: "fill",
-              }}
-            />
-          </div>
-          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Link to="/ProductDetail/46">
             <img
               src={bn2}
               alt="First slide"
@@ -45,8 +49,10 @@ const Home = () => {
                 objectFit: "fill",
               }}
             />
+            </Link>
           </div>
           <div style={{ display: "flex", justifyContent: "center" }}>
+            <Link to="/ProductDetail/47">
             <img
               src={bn4}
               alt="First slide"
@@ -57,8 +63,10 @@ const Home = () => {
                 objectFit: "fill",
               }}
             />
+            </Link>
           </div>
           <div style={{ display: "flex", justifyContent: "center" }}>
+            <Link to="/ProductDetail/41">
             <img
               src={bn5}
               alt="First slide"
@@ -69,6 +77,7 @@ const Home = () => {
                 objectFit: "fill",
               }}
             />
+            </Link>
           </div>
         </Carousel>
         <HomeMenu />

@@ -37,8 +37,7 @@ const HomeBrand = ({ brandName }) => {
       const { data: products, error: productError } = await supabase
         .from("products")
         .select(`
-          *,
-          images(image_url)  // Join with the images table to get the image_url
+          *
         `)
         .eq("brand_id", brandId);
   
@@ -87,7 +86,7 @@ const HomeBrand = ({ brandName }) => {
             cover={
               <img
                 alt={product.name}
-                src={product.img}
+                src={product.img[0]}
                 style={{ height: "350px", objectFit: "cover", cursor: "pointer" }}
                 onClick={() => handleProductClick(product.product_id)} // Thêm sự kiện onClick
               />

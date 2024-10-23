@@ -29,8 +29,8 @@ const CartDetail = () => {
                     setUser(decodedUserInfo); // Cập nhật state user
                 }
             } catch (error) {
-                console.error("Error fetching user info:", error);
-                alert("Error fetching user info: " + error.message);
+                console.error("Lỗi lấy thông tin người dùng:", error);
+                alert("Lỗi lấy thông tin người dùng: " + error.message);
             } finally {
                 setLoading(false);
             }
@@ -45,8 +45,8 @@ const CartDetail = () => {
                 try {
                     await fetchCartItems(user.user_id);
                 } catch (error) {
-                    console.error("Error fetching cart items:", error);
-                    alert("Error fetching cart items: " + error.message);
+                    console.error("Lỗi lấy sản phẩm trong giỏ hàng:", error);
+                    alert("Lỗi lấy sản phẩm trong giỏ hàng: " + error.message);
                 }
             }
         };
@@ -80,7 +80,7 @@ const CartDetail = () => {
             if (itemsError) throw itemsError;
             setCartItems(itemsData);
         } catch (error) {
-            alert("Error fetching cart items: " + error.message);
+            alert("Lỗi lấy sản phẩm trong giỏ hàng: " + error.message);
         }
     };
 
@@ -97,7 +97,7 @@ const CartDetail = () => {
             if (error) throw error;
             await fetchCartItems(user.user_id);
         } catch (error) {
-            alert("Error updating cart: " + error.message);
+            alert("Lỗi khi cập nhật số lượng: " + error.message);
         }
     };
 
@@ -112,7 +112,7 @@ const CartDetail = () => {
             if (error) throw error;
             await fetchCartItems(user.user_id);
         } catch (error) {
-            alert("Error removing product from cart: " + error.message);
+            alert("Lỗi khi xóa sản phẩm: " + error.message);
         }
     };
 
@@ -133,7 +133,7 @@ const CartDetail = () => {
                                 actions={[
 
                                     <Popconfirm
-                                        title="Bạn có chắc muốn xóa tài khoản này"
+                                        title="Bạn có chắc muốn xóa sản phẩm này"
                                         onConfirm={() => removeProduct(item.cart_id, item.products.product_id)}
                                         okText="Có"
                                         cancelText="Không"
@@ -146,9 +146,9 @@ const CartDetail = () => {
                                 ]}
                             >
                                 <List.Item.Meta
-                                    avatar={<Avatar src={item.products.img} shape="square" size={64} />}
+                                    avatar={<Avatar src={item.products.img[0]} shape="square" size={64} />}
                                     title={item.products.name}
-                                    description={`Price: $${item.products.sell_price.toFixed(2)}`}
+                                    description={`Giá: ${item.products.sell_price.toLocaleString('vi-VN')} VND`}
                                 />
                                 <div>
                                     <InputNumber
@@ -161,9 +161,9 @@ const CartDetail = () => {
                         )}
                     />
                     <Card style={{ marginTop: 16 }}>
-                        <Text strong>Subtotal ({itemCount} items): ${total.toFixed(2)}</Text>
+                        <Text strong>Tổng giá trị ({itemCount} items): {total.toLocaleString('vi-VN')} VND</Text>
                         <Button type="primary" size="large" style={{ width: '100%', marginTop: 16 }}>
-                            Proceed to Checkout
+                            Tiếp tục thanh toán
                         </Button>
                     </Card>
                 </div>
@@ -174,3 +174,4 @@ const CartDetail = () => {
 };
 
 export default CartDetail;
+
