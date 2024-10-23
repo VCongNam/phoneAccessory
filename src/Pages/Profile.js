@@ -59,6 +59,7 @@ export default function Profile() {
   const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
+  const [formPassword] = Form.useForm();
 
   const user = getDecodedToken();
 
@@ -165,11 +166,14 @@ export default function Profile() {
       .from("account")
       .update({ password: values.newPassword })
       .eq("user_id", userId);
+
+    console.log("updateData:", updateData);
     if (updateError) {
       console.error("Error updating password:", updateError);
       message.error("Lỗi khi cập nhật mật khẩu");
     } else {
       message.success("Cập nhật mật khẩu thành công");
+      formPassword.resetFields();
       setIsPasswordModalVisible(false);
     }
   };
@@ -224,7 +228,7 @@ export default function Profile() {
                 icon={<EditOutlined />}
                 onClick={() => setIsEditing(!isEditing)}
               >
-                {isEditing ? "Hủy" : "Chỉnh sửa"}
+                {isEditing ? "Chỉnh sửa" : "Hủy"}
               </Button>
             }
           >
@@ -311,7 +315,7 @@ export default function Profile() {
         onCancel={() => setIsPasswordModalVisible(false)}
         footer={null}
       >
-        <Form layout="vertical" onFinish={updatePassword}>
+        <Form layout="vertical" form={formPassword} onFinish={updatePassword}>
           <Form.Item
             name="currentPassword"
             label="Mật khẩu hiện tại"
