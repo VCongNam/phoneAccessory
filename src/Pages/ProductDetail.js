@@ -24,6 +24,7 @@ function ProductDetail() {
     const carouselRef = useRef(); // Dùng để điều khiển Carousel
     const [user, setUser] = useState(null);
     const [cart, setCart] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null); // Thêm state cho ảnh chính
     const navigate = useNavigate();
 
     const getCookie = (name) => {
@@ -56,9 +57,10 @@ function ProductDetail() {
                 .single();
 
             if (proerror) {
-                console.error('Error fetching product:', error);
+                console.error('Error fetching product:', proerror);
             } else {
                 setProduct(product);
+                setSelectedImage(product.img[0]); // Đặt ảnh đầu tiên làm ảnh chính
             }
 
             const cateid = product.cate_id;
@@ -132,7 +134,7 @@ function ProductDetail() {
                     .single();
 
                 if (cart_item) {
-                    const newQuantity = cart_item.quantity + quantity;
+                    const newQuantity = cart_item.quantity + +quantity;
                     const { error: updateError } = await supabase
                         .from('cart_item')
                         .update({ quantity: newQuantity })
@@ -172,6 +174,7 @@ function ProductDetail() {
         }
     };
 
+
     const handleRate = (rating) => {
         console.log(`Rated ${product.name}: ${rating} stars`);
     };
@@ -180,75 +183,108 @@ function ProductDetail() {
         return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     };
 
+    // Thay đổi ảnh chính khi người dùng bấm vào ảnh nhỏ
+    const handleImageClick = (imgUrl) => {
+        setSelectedImage(imgUrl);
+    };
+
     return (
         <div>
             <Header />
             <div>
                 <ToastContainer /> {/* Toast container to show toasts */}
                 <div className="product-container">
-                    <Card
-                        hoverable
-                        cover={
-                            <img
-                                alt={product.name}
-                                src={product.img}
-                                style={{ height: "auto", objectFit: "cover", cursor: "pointer" }}
-                            />
-                        }
-                    />
+                    <div className="product-image-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <Card
+                            hoverable
+                            cover={
+                                <img
+                                    alt={product.name}
+                                    src={selectedImage} // Hiển thị ảnh chính được chọn
+                                    style={{ cursor: "pointer", width: '100%', maxHeight: '400px', objectFit: 'cover' }} // Giảm maxHeight và giữ tỉ lệ
+                                />
+                            }
+                            style={{ width: '400px', marginBottom: '20px' }} // Đặt chiều rộng cho Card và giảm margin bên dưới
+                        />
+                        <div className="product-thumbnails" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                            {/* Hiển thị tất cả ảnh nhỏ */}
+                            {product.img.map((imgUrl, index) => (
+                                <img
+                                    key={index}
+                                    src={imgUrl}
+                                    alt={`Thumbnail ${index}`}
+                                    className={`thumbnail ${selectedImage === imgUrl ? 'selected' : ''}`} // Đánh dấu ảnh được chọn
+                                    onClick={() => handleImageClick(imgUrl)}
+                                    style={{
+                                        cursor: 'pointer',
+                                        width: '70px',
+                                        height: '70px',
+                                        objectFit: 'cover', // Đảm bảo ảnh nhỏ cũng giữ tỉ lệ
+                                        border: selectedImage === imgUrl ? '2px solid #1890ff' : '1px solid #d9d9d9'
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    </div>
                     <div className="product-details">
                         <h1>{product.name}</h1>
                         <div className="product-rating">
                             <Rating totalStars={5} onRate={handleRate} />
                         </div>
                         <p className="product-price">{formatPrice(product.sell_price)} VND</p>
-                        <p className="product-description">{product.des}</p>
 
                         <label htmlFor="quantity">Số lượng:</label>
-
                         <input
                             type="number"
                             id="quantity"
                             name="quantity"
                             min="1"
                             value={quantity}
-                            onChange={handleQuantityChange} />
+                            onChange={handleQuantityChange}
+                        />
                         <button onClick={handleAddToCart}>Thêm vào giỏ</button>
+                        <div
+                            className="product-description"
+                            dangerouslySetInnerHTML={{ __html: product.des }} // Inject HTML content safely
+                        />
                     </div>
+
                 </div>
-                <div className="product-carousel">
-                    <h2 className="carousel-title">Sản phẩm cùng thể loại</h2>
-                    <Carousel
-                        ref={carouselRef}
-                        dots={false}
-                        slidesToShow={4}
-                        slidesToScroll={1}
-                        arrows={false}
-                        className="product-slider"
-                    >
-                        {products.map((product) => (
-                            <div key={product.id} className="product-card-container">
-                                <Card
-                                    hoverable
-                                    cover={
-                                        <img
-                                            alt={product.name}
-                                            src={product.img}
-                                            style={{ height: "auto", objectFit: "cover" }}
-                                        />
-                                    }
-                                    className="product-card"
-                                >
-                                    <Meta
-                                        title={product.name}
-                                        description={`Giá: ${formatPrice(product.sell_price)} VNĐ`}
-                                    />
-                                </Card>
-                            </div>
-                        ))}
-                    </Carousel>
-                </div>
+
             </div>
+            <div className="product-carousel">
+                <h2 className="carousel-title">Sản phẩm cùng thể loại</h2>
+                <Carousel
+                    ref={carouselRef}
+                    dots={false}
+                    slidesToShow={4}
+                    slidesToScroll={1}
+                    arrows={false}
+                    className="product-slider"
+                >
+                    {products.map((product) => (
+                        <div key={product.id} className="product-card-container">
+                            <Card
+                                hoverable
+                                cover={
+                                    <img
+                                        alt={product.name}
+                                        src={product.img[0]}
+                                        style={{ height: "auto", objectFit: "cover" }}
+                                    />
+                                }
+                                className="product-card"
+                            >
+                                <Meta
+                                    title={product.name}
+                                    description={`Giá: ${formatPrice(product.sell_price)} VNĐ`}
+                                />
+                            </Card>
+                        </div>
+                    ))}
+                </Carousel>
+            </div>
+
             <Footer />
         </div>
     );
