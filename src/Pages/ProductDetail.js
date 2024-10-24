@@ -134,7 +134,7 @@ function ProductDetail() {
                     .single();
 
                 if (cart_item) {
-                    const newQuantity = cart_item.quantity + quantity;
+                    const newQuantity = cart_item.quantity + +quantity;
                     const { error: updateError } = await supabase
                         .from('cart_item')
                         .update({ quantity: newQuantity })
