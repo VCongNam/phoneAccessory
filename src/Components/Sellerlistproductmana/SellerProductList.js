@@ -6,22 +6,19 @@ import {
   Form,
   Input,
   InputNumber,
-  message,
   Select,
-  Row,
   Space,
   Badge,
   List,
   Upload,
 } from "antd";
 import { supabase } from "../supabaseClient";
-
+import "./SellerProductList.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { BellOutlined, UploadOutlined } from "@ant-design/icons";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-
 
 const { Option } = Select;
 
@@ -35,56 +32,74 @@ const ProductTable = () => {
   const [productToDelete, setProductToDelete] = useState(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [isAddBrandModalVisible, setIsAddBrandModalVisible] = useState(false);
-  const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] =
-    useState(false);
+  const [isAddCategoryModalVisible, setIsAddCategoryModalVisible] =    useState(false);
   const [newBrandName, setNewBrandName] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
-  const [isNotificationModalVisible, setIsNotificationModalVisible] =
-    useState(false);
+  const [isNotificationModalVisible, setIsNotificationModalVisible] =    useState(false);
   const [under10, setUnder10] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [fileList, setFileList] = useState([]);
   const quillRef = useRef(null);
+  const [quillContent, setQuillContent] = useState("");
   const [form] = Form.useForm();
+
+
   useEffect(() => {
     fetchProducts();
     fetchCategories();
     fetchBrands();
   }, [selectedCategory, selectedBrand]);
-
+  useEffect(() => {
+    if (editingProduct) {
+      form.setFieldsValue(editingProduct);
+      setQuillContent(editingProduct.des || ""); 
+    } else {
+      form.resetFields(); 
+      setQuillContent(""); 
+    }
+  }, [editingProduct, form]);
+  useEffect(() => {
+    // Clear Quill editor when "Add Product" modal is open
+    if (isModalVisible && quillRef.current) {
+      quillRef.current.getEditor().setText("");
+    }
+  }, [isModalVisible]); 
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      let query = supabase.from("products").select("*");
+        let query = supabase.from("products").select("*");
 
-      // Apply category filter
-      if (selectedCategory) {
-        query = query.eq("cate_id", selectedCategory);
-      }
+        // Apply category filter
+        if (selectedCategory) {
+            query = query.eq("cate_id", selectedCategory);
+        }
 
-      // Apply brand filter
-      if (selectedBrand) {
-        query = query.eq("brand_id", selectedBrand);
-      }
+        // Apply brand filter
+        if (selectedBrand) {
+            query = query.eq("brand_id", selectedBrand);
+        }
 
-      const { data, error } = await query;
-      if (error) throw error;
-      setProducts(data);
+        const { data, error } = await query;
+        if (error) throw error;
 
-      const lowStockProducts = data.filter(
-        (product) => product.stock_quantity < 10
-      );
-      lowStockProducts.forEach((product) => {
-        toast.warn(`Sản phẩm "${product.name}" sắp hết hàng!`);
-      });
+        // Sort products to prioritize hot products
+        const sortedProducts = data.sort((a, b) => b.isHot - a.isHot); // Sắp xếp sản phẩm hot lên đầu
 
+        setProducts(sortedProducts);
+
+        const lowStockProducts = sortedProducts.filter(
+            (product) => product.stock_quantity < 10
+        );
+        lowStockProducts.forEach((product) => {
+            toast.warn(`Sản phẩm "${product.name}" sắp hết hàng!`);
+        });
     } catch (error) {
-      console.error("Error fetching products:", error);
-      toast.error("Không thể tải dữ liệu sản phẩm");
+        console.error("Error fetching products:", error);
+        toast.error("Không thể tải dữ liệu sản phẩm");
     }
     setLoading(false);
-  };
+};
 
   const fetchCategories = async () => {
     try {
@@ -111,13 +126,11 @@ const ProductTable = () => {
   const handleImageUpload = async () => {
     const input = document.createElement("input");
     input.setAttribute("type", "file");
-    input.setAttribute("accept",
-      "image/*");
+    input.setAttribute("accept", "image/*");
 
     input.onchange = async () => {
       const file = input.files[0];
-      if (!file)
-        return;
+      if (!file) return;
 
       // ... (file type and size validation) ...
 
@@ -154,7 +167,12 @@ const ProductTable = () => {
 
     input.click();
   };
-
+  useEffect(() => {
+    if (editingProduct && quillRef.current) {
+      const editor = quillRef.current.getEditor();
+      editor.root.innerHTML = editingProduct.des || "";
+    }
+  }, [editingProduct]);
   const handleUploadChange = ({ fileList: newFileList }) => {
     setFileList(newFileList);
   };
@@ -165,14 +183,14 @@ const ProductTable = () => {
         values.brand_id
       );
 
-      const quillEditor = quillRef.current.getEditor(); // Get Quill editor instance
-      const des = JSON.stringify(quillEditor.getContents()); // Get contents as JSON string
+      const quillEditor = quillRef.current.getEditor();
+      const des = quillEditor.root.innerHTML; // Get HTML content instead of JSON
 
       const newProduct = {
         ...values,
         product_code: productCode,
-        des: des, // Store the JSON string of Quill contents
-        img: [], // Initialize with an empty array
+        des: des, // Store the HTML content
+        img: [],
       };
 
       const { data: productData, error: productError } = await supabase
@@ -181,13 +199,13 @@ const ProductTable = () => {
         .select();
       if (productError) throw productError;
 
-      // Assuming 'values.img' now holds an array of image files
+      // Image handling remains the same
       const imageUrls = await Promise.all(
         values.img.map(async (file) => {
           const fileName = `${productData[0].product_id}-${file.name}`;
           const { error: uploadError } = await supabase.storage
-            .from("product-images")
-            .upload(fileName, file.originFileObj); // Upload image
+            .from("Image")
+            .upload(fileName, file.originFileObj);
 
           if (uploadError) {
             console.error("Error uploading image:", uploadError);
@@ -195,7 +213,7 @@ const ProductTable = () => {
           }
 
           const { data: urlData, error: urlError } = supabase.storage
-            .from("product-images")
+            .from("Image")
             .getPublicUrl(fileName);
 
           if (urlError) {
@@ -216,22 +234,23 @@ const ProductTable = () => {
           .eq("product_id", productData[0].product_id);
 
         if (updateError) {
-          console.error(
-            "Error updating product with image URLs:",
-            updateError
-          );
+          console.error("Error updating product with image URLs:", updateError);
         }
       }
+          // Reset form trước khi đóng modal
+    form.resetFields(); // Reset toàn bộ các trường form
+    setIsModalVisible(false); // Đóng modal sau khi reset form
 
       toast.success("Thêm sản phẩm thành công!");
       fetchProducts();
+      form.resetFields();
       setIsModalVisible(false);
     } catch (error) {
       console.error("Error adding product:", error);
       toast.error("Có lỗi xảy ra khi thêm sản phẩm. Vui lòng thử lại.");
     }
   };
-
+  
   const generateProductCode = async (categoryId, brandId) => {
     const category = categories.find((cat) => cat.id === categoryId);
     const brand = brands.find((b) => b.brand_id === brandId);
@@ -315,13 +334,13 @@ const ProductTable = () => {
         );
       }
 
-      const quillEditor = quillRef.current.getEditor(); // Get Quill editor instance
-      const des = JSON.stringify(quillEditor.getContents()); // Get contents as JSON string
+      const quillEditor = quillRef.current.getEditor();
+      const des = quillEditor.root.innerHTML;
 
       const updateValues = {
         ...values,
         product_code: newProductCode,
-        des: des, // Store the JSON string of Quill contents
+        des: des,
       };
 
       const { error } = await supabase
@@ -329,7 +348,6 @@ const ProductTable = () => {
         .update(updateValues)
         .eq("product_id", product_id);
       if (error) throw error;
-
       toast.success("Sửa thông tin sản phẩm thành công!");
       fetchProducts();
       setEditingProduct(null);
@@ -339,6 +357,9 @@ const ProductTable = () => {
     }
   };
 
+  const handleEditClick = (product) => {
+    setEditingProduct(product); // Set the product to edit
+  };
   const handleAddBrand = async () => {
     try {
       const { error } = await supabase
@@ -370,6 +391,24 @@ const ProductTable = () => {
       toast.error("Không thể thêm thể loại");
     }
   };
+  const toggleHotStatus = async (product) => {
+    const newStatus = product.isHot === 1 ? 0 : 1;
+
+    try {
+        const { error } = await supabase
+            .from("products")
+            .update({ isHot: newStatus })
+            .eq("product_id", product.product_id);
+
+        if (error) throw error;
+
+        toast.success(`Cập nhật trạng thái "Hot" cho sản phẩm "${product.name}" thành công!`);
+        fetchProducts(); // Tải lại danh sách sản phẩm sau khi cập nhật
+    } catch (error) {
+        console.error("Error updating hot status:", error);
+        toast.error("Không thể cập nhật trạng thái Hot");
+    }
+};
 
 
   const columns = [
@@ -387,11 +426,7 @@ const ProductTable = () => {
       dataIndex: "img",
       key: "img",
       render: (img) =>
-        img && img.length > 0 ? (
-          <img src={img[0]} alt="Product" width="50" />
-        ) : (
-          "Trống"
-        ),
+        img ? <img src={img[0]} alt="Product" width="50" /> : "Trống",
     },
     {
       title: "Thể loại",
@@ -408,11 +443,23 @@ const ProductTable = () => {
         brands.find((brand) => brand.brand_id === brand_id)?.name || "Trống",
     },
     {
+      title: "Trạng thái Hot",
+      key: "isHot",
+      render: (_, record) => (
+          <Button
+              onClick={() => toggleHotStatus(record)}
+              type={record.isHot === 1 ? "primary" : "default"}
+          >
+              {record.isHot === 1 ? "Hot" : "Không Hot"}
+          </Button>
+      ),
+  },
+    {
       title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <Space>
-          <Button onClick={() => setEditingProduct(record)}>Sửa</Button>
+          <Button onClick={() => handleEditClick(record)}>Sửa</Button>
           <Button onClick={() => handleDeleteProduct(record)} danger>
             Xóa
           </Button>
@@ -427,12 +474,6 @@ const ProductTable = () => {
       <Space>
         <Button type="primary" onClick={() => setIsModalVisible(true)}>
           Thêm sản phẩm
-        </Button>
-        <Button onClick={() => setIsAddBrandModalVisible(true)}>
-          Thêm nhãn hiệu
-        </Button>
-        <Button onClick={() => setIsAddCategoryModalVisible(true)}>
-          Thêm thể loại
         </Button>
         <Button
           onClick={() => {
@@ -485,120 +526,143 @@ const ProductTable = () => {
         }}
       />
 
-      <Modal
-        title="Thêm sản phẩm"
-        visible={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
-        footer={null}
-      >
-        <Form onFinish={addProduct}>
-          <Form.Item
-            name="name"
-            label="Tên sản phẩm"
-            rules={[{ required: true, message: "Nhập tên sản phẩm" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item name="product_code" label="Mã sản phẩm">
-            <Input disabled />
-          </Form.Item>
-          <Form.Item
-            name="import_price"
-            label="Giá nhập"
-            rules={[{ required: true, message: "Nhập giá nhập" }]}
-          >
-            <InputNumber min={0} />
-          </Form.Item>
-          <Form.Item
-            name="sell_price"
-            label="Giá bán"
-            rules={[{ required: true, message: "Nhập giá bán" }]}
-          >
-            <InputNumber min={0} />
-          </Form.Item>
-          <Form.Item
-            name="stock_quantity"
-            label="Số lượng"
-            rules={[{ required: true, message: "Nhập số lượng" }]}
-          >
-            <InputNumber min={0} />
-          </Form.Item>
-          <Form.Item
+<Modal
+  title="Thêm sản phẩm"
+  open={isModalVisible}
+  onCancel={() => {
+    setIsModalVisible(false); // Đóng modal
+    setQuillContent(""); // Reset nội dung của Quill Editor
+    form.resetFields(); // Reset các trường trong form
+  }}
+  footer={null}
+  zIndex={1000} // Đặt zIndex thấp nhất
+>
+  <Form   form={form} onFinish={addProduct}> {/* Bind the form here */}
+    <Form.Item
+      name="name"
+      label="Tên sản phẩm"
+      rules={[{ required: true, message: "Nhập tên sản phẩm" }]}
+    >
+      <Input />
+    </Form.Item>
+    <Form.Item name="product_code" label="Mã sản phẩm">
+      <Input disabled />
+    </Form.Item>
+    <Form.Item
+      name="import_price"
+      label="Giá nhập"
+      rules={[{ required: true, message: "Nhập giá nhập" }]}
+    >
+      <InputNumber min={0} />
+    </Form.Item>
+    <Form.Item
+      name="sell_price"
+      label="Giá bán"
+      rules={[{ required: true, message: "Nhập giá bán" }]}
+    >
+      <InputNumber min={0} />
+    </Form.Item>
+    <Form.Item
+      name="stock_quantity"
+      label="Số lượng"
+      rules={[{ required: true, message: "Nhập số lượng" }]}
+    >
+      <InputNumber min={0} />
+    </Form.Item>
+    <Form.Item
             name="cate_id"
             label="Thể loại"
             rules={[{ required: true, message: "Chọn thể loại" }]}
           >
-            <Select>
+            <Select
+              dropdownRender={(menu) => (
+                <>
+                  {menu}
+                  <Button type="link" onClick={() => setIsAddCategoryModalVisible(true)}>
+                    + Thêm thể loại mới
+                  </Button>
+                </>
+              )}
+            >
               {categories.map((category) => (
-                <Option key={category.id} value={category.id}>
+                <Select.Option key={category.id} value={category.id}>
                   {category.name}
-                </Option>
+                </Select.Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item
+    <Form.Item
             name="brand_id"
             label="Nhãn hiệu"
             rules={[{ required: true, message: "Chọn nhãn hiệu" }]}
           >
-            <Select>
+            <Select
+              dropdownRender={(menu) => (
+                <>
+                  {menu}
+                  <Button type="link" onClick={() => setIsAddBrandModalVisible(true)}>
+                    + Thêm nhãn hiệu mới
+                  </Button>
+                </>
+              )}
+            >
               {brands.map((brand) => (
-                <Option key={brand.brand_id} value={brand.brand_id}>
+                <Select.Option key={brand.brand_id} value={brand.brand_id}>
                   {brand.name}
-                </Option>
+                </Select.Option>
               ))}
             </Select>
           </Form.Item>
-          <Form.Item
-            name="img"
-            label="Ảnh sản phẩm"
-            valuePropName="fileList" // Important for Ant Design Upload
-            getValueFromEvent={(e) => e.fileList} // Get fileList from event
-          >
-            <Upload beforeUpload={() => false} multiple={true} listType="picture">
-              <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
-            </Upload>
-          </Form.Item>
-          <Form.Item
-            name="des"
-            label="Mô tả"
-            rules={[{ required: true, message: "Nhập mô tả sản phẩm" }]}
-          >
-            <ReactQuill
-              ref={quillRef}
-              theme="snow"
-              placeholder="Product Description"
-              style={{ height: "200px" }}
-            />
-          </Form.Item>
-          <Button type="primary" htmlType="submit">
-            Thêm sản phẩm
-          </Button>
-        </Form>
-      </Modal>
+    <Form.Item name="isHot" label="Trạng thái Hot">
+      <Select>
+        <Option value={1}>Hot</Option>
+        <Option value={0}>Không Hot</Option>
+      </Select>
+    </Form.Item>
+    <Form.Item
+      name="img"
+      label="Ảnh sản phẩm"
+      valuePropName="fileList" // Important for Ant Design Upload
+      getValueFromEvent={(e) => e.fileList} // Get fileList from event
+    >
+      <Upload beforeUpload={() => false} multiple={true} listType="picture">
+        <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+      </Upload>
+    </Form.Item>
+    <Form.Item
+      name="des"
+      label="Mô tả"
+      rules={[{ required: true, message: "Nhập mô tả sản phẩm" }]}
+    >
+      <ReactQuill
+        ref={quillRef}
+        theme="snow"
+        placeholder="Mô tả sản phẩm"
+        style={{ height: "200px", marginBottom: "20px", width: "100%" }}
+      />
+    </Form.Item>
+    <Button type="primary" htmlType="submit" className="mt-5">
+      Thêm sản phẩm
+    </Button>
+  </Form>
+</Modal>
 
       <Modal
         title="Chỉnh sửa thông tin sản phẩm"
         open={!!editingProduct}
         onCancel={() => {
           setEditingProduct(null);
-          window.location.reload();
-        }}
-        style={{
-          borderRadius: "10px",
-          padding: "20px",
-          backgroundColor: "#2bd414", // Màu nền xanh lá nhạt cho modal
+          setQuillContent("");
+          form.resetFields();
         }}
         footer={null}
       >
         <Form
+          form={form}
           initialValues={{
-            ...editingProduct // Giữ nguyên giá trị 'des' mà không cần chuyển đổi
+            ...editingProduct,
           }}
-          onFinish={(values) => {
-            // Kiểm tra và chuyển đổi giá trị 'des' về định dạng mong muốn nếu cần
-            editProduct(editingProduct.product_id, values);
-          }}
+          onFinish={(values) => editProduct(editingProduct.product_id, values)}
         >
           <Form.Item
             name="name"
@@ -654,6 +718,7 @@ const ProductTable = () => {
               ))}
             </Select>
           </Form.Item>
+          
           <Form.Item name="img" label="Ảnh sản phẩm">
             <Upload
               beforeUpload={() => false}
@@ -670,7 +735,12 @@ const ProductTable = () => {
             label="Mô tả"
             rules={[{ required: true, message: "Nhập mô tả sản phẩm" }]}
           >
-            <ReactQuill theme="snow" />
+            <ReactQuill
+              ref={quillRef}
+              theme="snow"
+              value={quillContent} // Use state to control content
+              onChange={setQuillContent} // Update state on content change
+            />
           </Form.Item>
           <Button type="primary" htmlType="submit">
             Cập nhật thông tin
@@ -680,7 +750,7 @@ const ProductTable = () => {
 
       <Modal
         title="Xóa sản phẩm"
-        visible={deleteModalVisible}
+        open={deleteModalVisible}
         onOk={confirmDeleteProduct}
         onCancel={() => setDeleteModalVisible(false)}
       >
@@ -688,40 +758,50 @@ const ProductTable = () => {
       </Modal>
 
       <Modal
-        title="Thêm nhãn hiệu mới"
-        visible={isAddBrandModalVisible}
-        onCancel={() => setIsAddBrandModalVisible(false)}
-        onOk={handleAddBrand}
-      >
-        <Form>
-          <Form.Item label="Tên nhãn hiệu">
-            <Input
-              value={newBrandName}
-              onChange={(e) => setNewBrandName(e.target.value)}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
+  title="Thêm nhãn hiệu mới"
+  open={isAddBrandModalVisible}
+  onCancel={() => {
+    setIsAddBrandModalVisible(false); // Đóng modal
+    setNewBrandName(""); // Xóa tên nhãn hiệu sau khi đóng modal
+  }}
+  onOk={handleAddBrand}
+  zIndex={1100} 
+>
+  <Form>
+    <Form.Item label="Tên nhãn hiệu">
+      <Input
+        value={newBrandName}
+        required
+        onChange={(e) => setNewBrandName(e.target.value)}
+      />
+    </Form.Item>
+  </Form>
+</Modal>
 
-      <Modal
-        title="Thêm thể loại mới"
-        visible={isAddCategoryModalVisible}
-        onCancel={() => setIsAddCategoryModalVisible(false)}
-        onOk={handleAddCategory}
-      >
-        <Form>
-          <Form.Item label="Tên thể loại">
-            <Input
-              value={newCategoryName}
-              onChange={(e) => setNewCategoryName(e.target.value)}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
+<Modal
+  title="Thêm thể loại mới"
+  open={isAddCategoryModalVisible}
+  onCancel={() => {
+    setIsAddCategoryModalVisible(false); // Đóng modal
+    setNewCategoryName(""); // Xóa tên thể loại sau khi đóng modal
+  }}
+  onOk={handleAddCategory}
+  zIndex={1100} 
+>
+  <Form>
+    <Form.Item label="Tên thể loại">
+      <Input
+        value={newCategoryName}
+        required
+        onChange={(e) => setNewCategoryName(e.target.value)}
+      />
+    </Form.Item>
+  </Form>
+</Modal>
 
       <Modal
         title="Sản phẩm sắp hết hàng"
-        visible={isNotificationModalVisible}
+        open={isNotificationModalVisible}
         onOk={() => setIsNotificationModalVisible(false)}
         onCancel={() => setIsNotificationModalVisible(false)}
       >
@@ -745,3 +825,4 @@ const ProductTable = () => {
 };
 
 export default ProductTable;
+
