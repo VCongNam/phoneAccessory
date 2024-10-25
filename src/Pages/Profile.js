@@ -228,7 +228,7 @@ export default function Profile() {
                 icon={<EditOutlined />}
                 onClick={() => setIsEditing(!isEditing)}
               >
-                {isEditing ? "Chỉnh sửa" : "Hủy"}
+                {isEditing ? "Hủy" : "Chỉnh sửa"}
               </Button>
             }
           >
@@ -242,7 +242,7 @@ export default function Profile() {
               >
                 <Input
                   prefix={<UserOutlined />}
-                  readOnly={isEditing}
+                  readOnly={!isEditing}
                   disabled={profile.fullName !== "Placeholder Name"}
                 />
               </Form.Item>
@@ -259,14 +259,14 @@ export default function Profile() {
               >
                 <Input
                   prefix={<MailOutlined />}
-                  readOnly={isEditing}
+                  readOnly={!isEditing}
                   disabled={profile.email !== "placeholder@example.com"}
                 />
               </Form.Item>
               <Form.Item
                 name="phone"
                 label="Số điện thoại"
-                readOnly={isEditing}
+                readOnly={!isEditing}
                 rules={[
                   { required: true, message: "Vui lòng nhập số điện thoại!" },
                   {
@@ -278,12 +278,12 @@ export default function Profile() {
               >
                 <Input
                   prefix={<PhoneOutlined />}
-                  readOnly={isEditing}
+                  readOnly={!isEditing}
                   disabled={profile.phone && profile.phone.length === 10}
                 />
               </Form.Item>
               <Form.Item name="address" label="Địa chỉ">
-                <Input prefix={<HomeOutlined />} readOnly={isEditing} />
+                <Input prefix={<HomeOutlined />} readOnly={!isEditing} />
               </Form.Item>
               {isEditing && (
                 <Form.Item>
