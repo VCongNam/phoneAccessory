@@ -4,6 +4,7 @@ import { supabase } from "../supabaseClient";
 import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
 import { useNavigate } from "react-router-dom";
+import { useParams } from 'react-router-dom';
 import "./CSS/ProductList.css";
 
 const { Content } = Layout;
@@ -18,6 +19,7 @@ const ProductList = () => {
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const { id } = useParams(); // Lấy id từ URL
   const navigate = useNavigate();
 
   // Search products by name
@@ -67,23 +69,39 @@ const ProductList = () => {
     }
   };
 
-  const filtereBrand = selectedBrand
-    ? products.filter((product) => product.brand_id === selectedBrand)
-    : products;
-
   useEffect(() => {
     fetchBrand();
     fetchProducts();
     fetchCategories();
   }, []);
 
-  const filteredProducts = selectedCategory
-    ? products.filter((product) => product.cate_id === selectedCategory)
-    : products;
+  useEffect(() => {
+    console.log("Category ID:", id); // In ra id của dự án hien tai
+    if (id) {
+      const fetchProductByCate = async () => {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('cate_id', id);
+
+        if (error) {
+          console.error('Error fetching product:', error);
+        } else {
+          setProducts(data);
+        }
+        setLoading(false);
+      };
+      fetchProductByCate();
+    }
+  }, [id]);
+
 
   const handleCategoryClick = (categoryId) => {
-    setSelectedCategory(selectedCategory === categoryId ? null : categoryId);
+    setSelectedCategory(categoryId);
+    navigate(`/productlist/${categoryId}`);
   };
+  
 
   const handleProductClick = (id) => {
     navigate(`/ProductDetail/${id}`);
@@ -103,7 +121,7 @@ const ProductList = () => {
       <Content style={{ padding: "50px" }}>
         <Row
           justify="center" // Căn giữa theo trục ngang
-          align="middle" // Căn giữa theo trục dọc
+          // align="middle" // Căn giữa theo trục dọc
           gutter={[16, 16]}
         >
           {/* Categories and Search */}
@@ -158,9 +176,8 @@ const ProductList = () => {
           {/* Product List */}
           <Col xs={24} sm={16}>
             <h2 className="text-center">
-              {selectedCategory
-                ? `Sản phẩm của ${categories.find((cat) => cat.id === selectedCategory)?.name
-                }`
+              {id
+                ? `Sản phẩm của ${categories.find((cat) => cat.id === parseInt(id))?.name}`
                 : "Tất cả sản phẩm"}
             </h2>
 
@@ -170,7 +187,7 @@ const ProductList = () => {
               </div>
             ) : (
               <Row gutter={[16, 16]}>
-                {filteredProducts.map((product) => (
+                {products.map((product) => (
                   <Col key={product.id} xs={24} sm={12} md={8} lg={6}>
                     <Card
                       hoverable
