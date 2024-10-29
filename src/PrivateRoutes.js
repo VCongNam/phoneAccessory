@@ -2,7 +2,7 @@ import { Outlet, Navigate } from 'react-router-dom';
 import { decoder64 } from './Components/Base64Encoder/Base64Encoder';
 import { getToken }  from './Components/GetToken/GetToken';
 
-const PrivateRoutes = () => {
+const PrivateRoutes = ({ requiredRole }) => {
   const token = getToken('token');
 
   console.log('Token before decoding:', token);
@@ -30,13 +30,10 @@ const PrivateRoutes = () => {
   console.log('Parsed Token:', parsedToken); // Log the parsed token
 
   // Check for role_id in the parsed token
-  if (parsedToken.role_id === 2) {
+  if (parsedToken.role_id === requiredRole) {
     return <Outlet />;
-  }else if(parsedToken.role_id === 3){
-    console.log('Seller logged in, redirecting to seller dashboard');
-    return <Outlet/>;
-  }else{
-    console.error('Access denied. User role is not authorized.', parsedToken.role_id);
+  } else {
+    console.error('Access denied. User role is not authorized.');
     return <Navigate to="/" />;
   }
 };

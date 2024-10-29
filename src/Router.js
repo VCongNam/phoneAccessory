@@ -16,12 +16,15 @@ const AppRouter = () => {
         <Router>
             <div>
                 <Routes>
-                    <Route element={<PrivateRoutes />}>
+                    <Route element={<PrivateRoutes requiredRole={2} />}>
                         <Route path="/dashboard" element={<DashboardPage />} />
-                        <Route path="/SellerDashboard" element={<DashboardPage1 />} /> 
                     </Route>
-                    <Route path="/adminlogin" element={<AdminAuth />}/>
-                    <Route path="/sellerlogin" element={<SellerAuth />}/>
+
+                    <Route element={<PrivateRoutes requiredRole={3} />}>
+                        <Route path="/SellerDashboard" element={<DashboardPage1 />} />
+                    </Route>
+                    <Route path="/adminlogin" element={<AdminAuth />} />
+                    <Route path="/sellerlogin" element={<SellerAuth />} />
                     <Route path="/" element={<Home />} exact />
                     <Route path="/productlist" element={<ProductList />} />
                     <Route path="/productdetail/:id" element={<ProductDetail />} />
