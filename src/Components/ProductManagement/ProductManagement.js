@@ -12,8 +12,6 @@ const PRODUCT_STATUS = {
   1: { color: "warning", text: "Chờ duyệt" },
   2: { color: "success", text: "Đã duyệt" },
   3: { color: "error", text: "Từ chối" },
-  4: { color: "default", text: "Tạm ẩn" },
-  5: { color: "processing", text: "Hết hàng" },
   default: { color: "default", text: "Không xác định" }
 };
 
