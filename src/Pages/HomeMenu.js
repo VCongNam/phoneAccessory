@@ -128,7 +128,7 @@ const HomeMenu = () => {
             {searchResults.map((product) => (
               <Link 
                 key={product?.product_id} 
-                to={`/ProductDetail/${product?.product_id}`}
+                to={`/ProductDetail/productlist/${product?.product_id}`}
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 <div className="search-result-item" style={{
@@ -172,10 +172,11 @@ const HomeMenu = () => {
       <h3 className="text-center mb-4">ĐÚNG HÀNG - ĐÚNG GIÁ - ĐÚNG CHẤT LƯỢNG</h3>
       
       <Row gutter={[16, 16]} justify="center">
-        {categories.map((category) => {
+      {categories.map((category) => {
           const imageUrl = category?.image_url || getCategoryImage(category?.name);
           return (
             <Col
+            span={4}
               xs={24}
               sm={12}
               md={6}
@@ -184,24 +185,27 @@ const HomeMenu = () => {
               className="d-flex justify-content-center"
               key={category?.id}
             >
-              <Card
-                hoverable
-                style={{ width: '15rem', height: '15rem' }}
-                cover={
-                  <img
-                    alt={category?.name || 'Danh mục'}
-                    src={imageUrl}
-                    className="card-img"
-                    style={{ height: '9rem', objectFit: 'contain', padding: '10px' }}
-                  />
-                }
-              >
-                <Meta title={category?.name || 'Danh mục'} style={{ textAlign: 'center' }} />
-              </Card>
+              <Link to={`/productlist/${category.id}`}>
+                <Card
+                  hoverable
+                  style={{ width: '15rem', height: '15rem' }}
+                  cover={
+                    <img
+                      alt={category?.name || 'Danh mục'}
+                      src={imageUrl}
+                      className="card-img"
+                      style={{ height: '9rem', objectFit: 'contain', padding: '10px' }}
+                    />
+                  }
+                >
+                  <Meta title={category?.name || 'Danh mục'} style={{ textAlign: 'center' }} />
+                </Card>
+              </Link>
             </Col>
           );
         })}
       </Row>
+
     </div>
   );
 };
