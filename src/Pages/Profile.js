@@ -89,8 +89,8 @@ export default function Profile() {
       console.error("Lỗi khi lấy thông tin hồ sơ: ", error);
     } else if (data) {
       const profileData = {
-        fullName: data.name,
-        email: data.email,
+        fullName: data.name === "Placeholder Name" ? "" : data.name,
+        email: data.email === "placeholder@example.com" ? "" : data.email,
         phone: data.phone,
         address: data.address,
       };
@@ -233,48 +233,25 @@ export default function Profile() {
             }
           >
             <Form form={form} layout="vertical" onFinish={updateProfile}>
-              <Form.Item
-                name="fullName"
-                label="Họ và tên"
-                rules={[
-                  { required: true, message: "Vui lòng nhập họ và tên!" },
-                ]}
-              >
-                <Input
-                  prefix={<UserOutlined />}
-                  readOnly={!isEditing}
-                  disabled={profile.fullName !== "Placeholder Name"}
-                />
+              <Form.Item name="fullName" label="Họ và tên">
+                <Input prefix={<UserOutlined />} readOnly={!isEditing} />
               </Form.Item>
               <Form.Item
                 name="email"
                 label="Email"
                 rules={[
                   {
-                    required: true,
                     type: "email",
                     message: "Vui lòng nhập email hợp lệ!",
                   },
                 ]}
               >
-                <Input
-                  prefix={<MailOutlined />}
-                  readOnly={!isEditing}
-                  disabled={profile.email !== "placeholder@example.com"}
-                />
+                <Input prefix={<MailOutlined />} readOnly={!isEditing} />
               </Form.Item>
               <Form.Item
                 name="phone"
                 label="Số điện thoại"
                 readOnly={!isEditing}
-                rules={[
-                  { required: true, message: "Vui lòng nhập số điện thoại!" },
-                  {
-                    pattern: /^0\d{9}$/,
-                    message:
-                      "Số điện thoại không hợp lệ! Vui lòng nhập 10 chữ số bắt đầu bằng số 0.",
-                  },
-                ]}
               >
                 <Input
                   prefix={<PhoneOutlined />}
