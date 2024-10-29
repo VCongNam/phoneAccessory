@@ -9,7 +9,7 @@ import CartDetail from './Pages/CartDetail';
 import Profile from './Pages/Profile';
 import AdminAuth from './Pages/AdminLogin';
 import SellerAuth from './Pages/SellerLogin';
-import SellerDashborard from './Pages/SellerDashboard';
+import DashboardPage1 from './Pages/SellerDashboard';
 
 const AppRouter = () => {
     return (
@@ -18,7 +18,7 @@ const AppRouter = () => {
                 <Routes>
                     <Route element={<PrivateRoutes />}>
                         <Route path="/dashboard" element={<DashboardPage />} />
-                        <Route path="/SellerDashboard" element={<SellerDashborard />} /> 
+                        <Route path="/SellerDashboard" element={<DashboardPage1 />} /> 
                     </Route>
                     <Route path="/adminlogin" element={<AdminAuth />}/>
                     <Route path="/sellerlogin" element={<SellerAuth />}/>
