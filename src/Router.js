@@ -18,7 +18,7 @@ const AppRouter = () => {
                 <Routes>
                     <Route element={<PrivateRoutes />}>
                         <Route path="/dashboard" element={<DashboardPage />} />
-                        <Route path="/SellerDashboard" element={<SellerDashborard />} />
+                        <Route path="/SellerDashboard" element={<SellerDashborard />} /> 
                     </Route>
                     <Route path="/adminlogin" element={<AdminAuth />}/>
                     <Route path="/sellerlogin" element={<SellerAuth />}/>
