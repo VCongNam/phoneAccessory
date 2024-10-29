@@ -11,16 +11,18 @@ const HomeBrand = ({ brandName }) => {
   const [products, setProducts] = useState([]); // Danh sách sản phẩm
   const [loading, setLoading] = useState(true); // Trạng thái tải dữ liệu
   const carouselRef = useRef(); // Dùng để điều khiển Carousel
+  const [brandId, setBrandId] = useState(null); // Trạng thái id của thương hiệu
 
   const navigate = useNavigate();
 
   const handleProductClick = (id) => {
     navigate(`/ProductDetail/${id}`);
   };
+
   // Hàm lấy sản phẩm theo tên thương hiệu
   const fetchProductsByBrandName = async () => {
     setLoading(true); // Bắt đầu tải dữ liệu
-  
+
     try {
       // Lấy thông tin thương hiệu theo tên
       const { data: brand, error: brandError } = await supabase
@@ -28,21 +30,20 @@ const HomeBrand = ({ brandName }) => {
         .select("brand_id, name")
         .eq("name", brandName)
         .single(); // Lấy thương hiệu duy nhất
-  
+
       if (brandError) throw brandError;
-  
+
       const brandId = brand.brand_id; // Lấy id của thương hiệu
-  
+      setBrandId(brandId); // Lưu id vào state
+
       // Lấy tất cả sản phẩm thuộc brand_id, đồng thời lấy image_url từ bảng images
       const { data: products, error: productError } = await supabase
         .from("products")
-        .select(`
-          *
-        `)
+        .select(`*`)
         .eq("brand_id", brandId);
-  
+
       if (productError) throw productError;
-  
+
       setProducts(products); // Lưu sản phẩm vào state
     } catch (error) {
       console.error("Lỗi khi lấy sản phẩm:", error);
@@ -50,7 +51,6 @@ const HomeBrand = ({ brandName }) => {
       setLoading(false); // Dừng trạng thái tải
     }
   };
-  
 
   // Gọi API khi component render lần đầu
   useEffect(() => {
@@ -68,6 +68,12 @@ const HomeBrand = ({ brandName }) => {
     );
   }
 
+  const handleViewMore = () => {
+    if (brandId) {
+      navigate(`/BrandProducts/${brandId}`); // Chuyển hướng đến trang chi tiết sản phẩm theo brand_id
+    }
+  };
+
   return (
     <div className="product-carousel">
       <h2 className="carousel-title">Sản Phẩm Của Thương Hiệu {brandName}</h2>
@@ -81,25 +87,24 @@ const HomeBrand = ({ brandName }) => {
       >
         {products.map((product) => (
           <div key={product.id} className="product-card-container">
-          <Card
-            hoverable
-            cover={
-              <img
-                alt={product.name}
-                src={product.img[0]}
-                style={{ height: "350px", objectFit: "cover", cursor: "pointer" }}
-                onClick={() => handleProductClick(product.product_id)} // Thêm sự kiện onClick
+            <Card
+              hoverable
+              cover={
+                <img
+                  alt={product.name}
+                  src={product.img[0]}
+                  style={{ height: "350px", objectFit: "cover", cursor: "pointer" }}
+                  onClick={() => handleProductClick(product.product_id)} // Thêm sự kiện onClick
+                />
+              }
+              className="product-card"
+            >
+              <Meta
+                title={product.name}
+                description={`Giá: ${product.sell_price} VNĐ`}
               />
-            }
-            className="product-card"
-          >
-            <Meta
-              title={product.name}
-              description={`Giá: ${product.sell_price} VNĐ`}
-            />
-            
-          </Card>
-        </div>
+            </Card>
+          </div>
         ))}
       </Carousel>
 
@@ -116,6 +121,13 @@ const HomeBrand = ({ brandName }) => {
         onClick={next}
         className="carousel-arrow right-arrow"
       />
+
+      {/* Nút Xem thêm */}
+      <div style={{ textAlign: "center" }}>
+      <Button type="primary" onClick={handleViewMore} className="view-more-button">
+        Xem thêm
+      </Button>
+    </div>
     </div>
   );
 };
