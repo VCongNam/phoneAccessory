@@ -29,7 +29,6 @@ const AppRouter = () => {
                     <Route path="/login" element={<Auth />} />
                     <Route path="/cart" element={<CartDetail />} />
                     <Route path="/profile" element={<Profile />} />
-                    <Route path="/SellerDashboard" element={<SellerDashborard />} />
                 </Routes>
             </div>
         </Router>
