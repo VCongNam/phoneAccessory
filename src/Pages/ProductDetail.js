@@ -204,7 +204,7 @@ function ProductDetail() {
                                     style={{ cursor: "pointer", width: '100%', maxHeight: '400px', objectFit: 'cover' }} // Giảm maxHeight và giữ tỉ lệ
                                 />
                             }
-                            style={{ width: '400px', marginBottom: '20px' }} // Đặt chiều rộng cho Card và giảm margin bên dưới
+                            style={{ width: '400px' }} // Đặt chiều rộng cho Card và giảm margin bên dưới
                         />
                         <div className="product-thumbnails" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px' }}>
                             {/* Hiển thị tất cả ảnh nhỏ */}
