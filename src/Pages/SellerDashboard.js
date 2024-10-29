@@ -6,7 +6,7 @@ import SellerProductList from '../Components/Sellerlistproductmana/SellerProduct
 import DashboardOverview from '../Components/GeneralDash/General';
 const { Content } = Layout;
 
-const DashboardPage = () => {
+const DashboardPage1 = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
 
   const renderContent = () => {
@@ -49,4 +49,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+export default DashboardPage1;

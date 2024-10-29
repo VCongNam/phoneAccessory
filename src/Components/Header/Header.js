@@ -44,7 +44,7 @@ function AppHeader() {
     window.location.href = '/';
   };
 
-  const handleLogin = () => {};
+  const handleLogin = () => { };
 
   const userMenu = (
     <Menu>
@@ -72,29 +72,34 @@ function AppHeader() {
       <div className="header-content">
         <div className="logo">
           <Link to="/">
-            <img src={logow} alt="Logo" className="logo-image" style={{ width: "100px", height: "100px" }} />
+            <img src={logow} alt="Logo" className="logo-image" style={{ width: "100px", height: "auto" }} />
           </Link>
         </div>
-        
+        <div className="menu-custom">
+          <Link to="/">
+            Trang Chủ
+          </Link>
+        </div>
+
         <div className="blank-space" />
 
         <div className="right-menu">
           <Menu mode="horizontal" className="menu-custom">
             {/* SubMenu for Product Categories from Supabase */}
             <Menu.Item key="products">
-              
-            
-            <SubMenu
-              key="products"
-              title={<Link to="/productlist">Sản Phẩm</Link>} // Custom CSS class for "Sản Phẩm"
-            >
-              {categories.map((category) => (
-                <Menu.Item key={category.id} className="menu-item-custom">
-                  <Link to={`/productlist/${category.id}`}>{category.name}</Link>
-                </Menu.Item>
-              ))}
-            </SubMenu>
-</Menu.Item>
+
+
+              <SubMenu
+                key="products"
+                title={<Link to="/productlist">Sản Phẩm</Link>} // Custom CSS class for "Sản Phẩm"
+              >
+                {categories.map((category) => (
+                  <Menu.Item key={category.id} className="menu-item-custom">
+                    <Link to={`/productlist/${category.id}`}>{category.name}</Link>
+                  </Menu.Item>
+                ))}
+              </SubMenu>
+            </Menu.Item>
             <Menu.Item key="cart" icon={<ShoppingCartOutlined />}>
               <Link to="/cart">Giỏ hàng</Link>
             </Menu.Item>

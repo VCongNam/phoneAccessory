@@ -23,7 +23,7 @@ import { render } from "@testing-library/react";
 
 const { Option } = Select;
 
-const ProductTable = () => {
+const ProductTable1 = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
@@ -870,4 +870,4 @@ const ProductTable = () => {
   );
 };
 
-export default ProductTable;
+export default ProductTable1;

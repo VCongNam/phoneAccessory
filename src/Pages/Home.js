@@ -85,8 +85,8 @@ const Home = () => {
         <HomeBrand brandName="Apple" /> {/* Truyền tên thương hiệu vào BrandName */}
         {/* Danh sách sản phẩm của thương hiệu "Samsung" */}
         <HomeBrand brandName="Samsung" /> {/* Truyền tên thương hiệu vào BrandName */}
-        {/* Danh sách sản phẩm của thương hiệu "Wekome" */}
-        <HomeBrand brandName="Wekome" /> {/* Truyền tên thương hiệu vào BrandName */}
+        {/* Danh sách sản phẩm của thương hiệu "Marshall" */}
+        <HomeBrand brandName="Marshall" /> {/* Truyền tên thương hiệu vào BrandName */}
       </Content>
 
       <Footer />

@@ -1,9 +1,10 @@
 .header-custom {
   display: flex;
+  height: 100px;
   align-items: center;
   justify-content: space-between; /* Phân chia không gian đều */
   padding: 0 20px;
-  background-color: #001529; /* Màu nền */
+  background-color: rgb(48, 47, 47); /* Màu nền */
 }
 
 .header-content {
@@ -11,9 +12,9 @@
   width: 100%;
   align-items: center;
 }
-
 .logo {
   flex-shrink: 0;
+  padding-right: 20px;
 }
 
 .blank-space {
@@ -26,6 +27,7 @@
 }
 
 .menu-custom {
+  font-size: 15px;
   display: flex;
   align-items: center;
   background-color: transparent;
@@ -43,7 +45,7 @@
 
 .logo-text {
   color: #fff;
-  font-size: 24px;
+  font-size: 30px;
   font-weight: bold;
 }
 

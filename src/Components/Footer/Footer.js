@@ -14,7 +14,7 @@ const { Title, Text } = Typography;
 const AppFooter = () => {
   return (
     <Layout>
-      <Footer style={{ backgroundColor: '#001529', color: 'white', padding: '40px 50px' }}>
+      <Footer style={{ backgroundColor: 'rgb(48, 47, 47)', color: 'white', padding: '40px 50px' }}>
         <Row gutter={[16, 16]}>
           {/* Cột Thông tin công ty */}
           <Col xs={24} sm={12} md={6}>
