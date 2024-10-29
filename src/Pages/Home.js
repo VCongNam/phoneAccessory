@@ -24,7 +24,7 @@ const Home = () => {
         {/* Slider */}
         <Carousel autoplay style={{ marginBottom: "50px", maxWidth: "100%", overflow: "hidden" }}>
         <div style={{ display: "flex", justifyContent: "center" }}>
-  <Link to="/ProductDetail/43">
+  <Link to="/ProductDetail/129">
     <img
       src={bn1}
       alt="First slide"
@@ -38,7 +38,7 @@ const Home = () => {
   </Link>
 </div>
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <Link to="/ProductDetail/46">
+            <Link to="/ProductDetail/129">
             <img
               src={bn2}
               alt="First slide"
@@ -52,7 +52,7 @@ const Home = () => {
             </Link>
           </div>
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <Link to="/ProductDetail/47">
+            <Link to="/ProductDetail/116">
             <img
               src={bn4}
               alt="First slide"
@@ -66,7 +66,7 @@ const Home = () => {
             </Link>
           </div>
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <Link to="/ProductDetail/41">
+            <Link to="/ProductDetail/134">
             <img
               src={bn5}
               alt="First slide"

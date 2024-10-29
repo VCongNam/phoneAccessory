@@ -32,7 +32,10 @@ const PrivateRoutes = () => {
   // Check for role_id in the parsed token
   if (parsedToken.role_id === 2) {
     return <Outlet />;
-  } else {
+  }else if(parsedToken.role_id === 3){
+    console.log('Seller logged in, redirecting to seller dashboard');
+    return <Navigate to="/SellerDashboard"/>;
+  }else{
     console.error('Access denied. User role is not authorized.', parsedToken.role_id);
     return <Navigate to="/" />;
   }
