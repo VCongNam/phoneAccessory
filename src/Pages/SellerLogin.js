@@ -75,7 +75,10 @@ const SellerAuth = () => {
                     </Form.Item>
                     <Form.Item
                         name="password"
-                        rules={[{ required: true, message: 'Hãy nhập mật khẩu!' }]}
+                        rules=
+                        {[{ required: true, message: 'Hãy nhập mật khẩu!' },
+                        { pattern: /^(?=.*[A-Za-z])[A-Za-z\d@$!%*#?&]{8,}$/, message: 'Hãy điền tối thiểu 8 ký tự bao gồm chữ cái, số và kí tự đặc biệt' }
+                        ]}
                     >
                         <Input.Password
                             prefix={<LockOutlined className="auth-icon" />}
