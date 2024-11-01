@@ -16,10 +16,11 @@ const AppRouter = () => {
         <Router>
             <div>
                 <Routes>
+                    {/*Check điều kiện role_id*/}
                     <Route element={<PrivateRoutes requiredRole={2} />}>
                         <Route path="/dashboard" element={<DashboardPage />} />
                     </Route>
-
+                    {/*Check điều kiện role_id*/}
                     <Route element={<PrivateRoutes requiredRole={3} />}>
                         <Route path="/SellerDashboard" element={<DashboardPage1 />} />
                     </Route>

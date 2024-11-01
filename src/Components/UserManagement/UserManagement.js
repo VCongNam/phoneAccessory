@@ -24,8 +24,8 @@ const AccountManagement = () => {
   const [form] = Form.useForm();
   const [roles, setRoles] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [sortOption, setSortOption] = useState("user_id"); // Default sort by user_id
-  const [sortOrder, setSortOrder] = useState("ascend"); // Default to ascending
+  const [sortOption, setSortOption] = useState("user_id"); // Sort mặc định theo user_id
+  const [sortOrder, setSortOrder] = useState("ascend"); // Sort theo chiều tăng dần
 
 
 
@@ -37,18 +37,18 @@ const AccountManagement = () => {
   const fetchAccounts = async () => {
     try {
       setLoading(true);
-      // Fetch accounts and join with the role table to get role names
+      // Truy vấn bảng account và join vs bảng role để lấy dữ liệu
       const { data, error } = await supabase
         .from("account")
-        .select(`*, role (*)`); // Remove .single() 
+        .select(`*, role (*)`); 
 
       if (error) throw error;
 
-      // Handle cases with multiple rows or no rows
+      // Check xem có data hay k
       if (data) {
-        setAccounts(data);
+        setAccounts(data); // Có thì set state của account là data
       } else {
-        setAccounts([]); // Set an empty array if no accounts are found
+        setAccounts([]); // Set state là 1 array rỗng nếu như k có data
       }
 
     } catch (error) {
@@ -69,7 +69,7 @@ const AccountManagement = () => {
 
   const handleCreateAccount = async (values) => {
     try {
-      // Ensure role_id is a number
+      // Đảm bảo role_id là 1 số
       const formattedValues = {
         ...values,
         role_id: Number(values.role_id)
@@ -156,7 +156,7 @@ const AccountManagement = () => {
 
   const handleDeleteAccount = async (accountId, roleId) => {
     try {
-      if (roleId === 2) { // Check role_id for admin
+      if (roleId === 2) { // Check role_id cho admin
         message.error("Không thể xóa tài khoản admin!");
         return;
       }
@@ -261,19 +261,19 @@ const AccountManagement = () => {
       title: "Mã tài khoản",
       dataIndex: "user_id",
       key: "user_id",
-      defaultsortOrder: "ascend", // Sort in ascending order
-      sorter: (a, b) => a.user_id - b.user_id // Sort by user_id
+      defaultsortOrder: "ascend", // Sort theo thứ tự tăng dần
+      sorter: (a, b) => a.user_id - b.user_id // Sort theo user_id
     },
     {
       title: "Quyền",
-      dataIndex: ["role", "role_name"], // Access role_name from the joined role data
+      dataIndex: ["role", "role_name"], // Lấy ra role_name
       key: "role_name",
       filters: roles.map((role) => ({
         text: role.role_name,
         value: role.role_name
-      })), //Filter by role_name
-      onFilter: (value, record) => record.role.role_name === value, // Filter by role_name
-      sorter: (a, b) => a.role?.role_id - b.role?.role_id, // Sort by role_name
+      })), 
+      onFilter: (value, record) => record.role.role_name === value, //Lọc theo role_name
+      sorter: (a, b) => a.role?.role_id - b.role?.role_id, // Sort theo role_name
     },
     {
       title: "Số điện thoại",

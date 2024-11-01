@@ -53,6 +53,8 @@ const CartDetail = () => {
 
         fetchCart();
     }, [user]);
+
+    // Lấy items trong cart
     const fetchCartItems = async (user_id) => {
         try {
             const { data: cartData, error: cartError } = await supabase
@@ -84,6 +86,7 @@ const CartDetail = () => {
         }
     };
 
+    // Hàm update số lượng
     const updateQuantity = async (cart_item, quantity) => {
         try {
             const { data, error } = await supabase
@@ -101,6 +104,7 @@ const CartDetail = () => {
         }
     };
 
+    // Hàm xóa sản phẩm
     const removeProduct = async (cart_id, product_id) => {
         try {
             const { error } = await supabase
@@ -116,7 +120,9 @@ const CartDetail = () => {
         }
     };
 
+    // Tính tổng tiền
     const total = cartItems.reduce((sum, item) => sum + item.products.sell_price * item.quantity, 0);
+    // Tính tổng số lượng
     const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
     return (

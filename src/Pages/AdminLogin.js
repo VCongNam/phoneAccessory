@@ -24,6 +24,7 @@ const AdminAuth = () => {
             return;
         }
         
+        // Check xem user có đúng là admin hay k
         if (data.length > 0 && data[0].role_id === 2) {
             message.success('Đăng nhập thành công');
             setIsLoggedIn(true);
@@ -32,9 +33,9 @@ const AdminAuth = () => {
             const tokenData = { user_id: user.user_id, role_id: user.role_id };
 
             const encodedToken = encoder64(JSON.stringify(tokenData));
-            // Set the user cookie
+            // Tạo cookie
             document.cookie = `token=${encodedToken}; expires=${new Date(
-                new Date().getTime() + 60 * 60 * 1000 // 1 hour expiry
+                new Date().getTime() + 60 * 60 * 1000 // Hết trong 1 giờ
             ).toUTCString()}; path=/; samesite=strict; secure`;
         
             window.location.href = '/dashboard';
