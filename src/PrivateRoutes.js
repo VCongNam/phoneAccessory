@@ -2,23 +2,23 @@ import { Outlet, Navigate } from 'react-router-dom';
 import { decoder64 } from './Components/Base64Encoder/Base64Encoder';
 import { getToken }  from './Components/GetToken/GetToken';
 
-const PrivateRoutes = () => {
+const PrivateRoutes = ({ requiredRole }) => {
   const token = getToken('token');
 
-  console.log('Token before decoding:', token);
+  console.log('Token before decoding:', token); // Log token để check
 
   if (!token) return <Navigate to="/" />;
 
-  // Decode the Base64 token string
+  // Giải mã token
   const decodedToken = decoder64(token);
-  console.log('Decoded token:', decodedToken); // Log the decoded token
+  console.log('Decoded token:', decodedToken); // Log Token
 
   if (!decodedToken) {
     console.error('Invalid or corrupted token:', decodedToken);
     return <Navigate to="/" />;
   }
 
-  // Parse the decoded token (since it's a JSON object encoded as a string)
+  // Phân tích token
   let parsedToken;
   try {
     parsedToken = JSON.parse(decodedToken);
@@ -27,16 +27,13 @@ const PrivateRoutes = () => {
     return <Navigate to="/" />;
   }
 
-  console.log('Parsed Token:', parsedToken); // Log the parsed token
+  console.log('Parsed Token:', parsedToken); // Log token
 
-  // Check for role_id in the parsed token
-  if (parsedToken.role_id === 2) {
+  // check điều kiện role_id
+  if (parsedToken.role_id === requiredRole) {
     return <Outlet />;
-  }else if(parsedToken.role_id === 3){
-    console.log('Seller logged in, redirecting to seller dashboard');
-    return <Outlet/>;
-  }else{
-    console.error('Access denied. User role is not authorized.', parsedToken.role_id);
+  } else {
+    console.error('Access denied. User role is not authorized.'); // Log ra để check
     return <Navigate to="/" />;
   }
 };
