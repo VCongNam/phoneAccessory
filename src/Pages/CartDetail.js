@@ -135,8 +135,12 @@ const CartDetail = () => {
         setSelectedItems([]);
     };
 
-    const total = cartItems.reduce((sum, item) => sum + item.products.sell_price * item.quantity, 0);
-    const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    const selectedTotal = cartItems
+        .filter(item => selectedItems.includes(item.products.product_id))
+        .reduce((sum, item) => sum + item.products.sell_price * item.quantity, 0);
+    const selectedItemCount = cartItems
+        .filter(item => selectedItems.includes(item.products.product_id))
+        .reduce((sum, item) => sum + item.quantity, 0);
 
     return (
         <Layout className="layout cart-layout">
@@ -198,6 +202,7 @@ const CartDetail = () => {
                         )}
                     />
 
+                    {/*Check xem có đang chọn sản phẩm hay k*/}
                     {selectedItems.length > 0 && (
                         <div style={{ marginTop: '16px' }}>
                             <Button onClick={deleteSelectedItems} danger style={{ marginRight: '8px' }}>
@@ -207,7 +212,7 @@ const CartDetail = () => {
                     )}
 
                     <Card className="cart-total-card">
-                        <Text strong>Tổng giá trị ({itemCount} sản phẩm): {total.toLocaleString('vi-VN')} VND</Text>
+                        <Text strong>Tổng giá trị ({selectedItemCount} sản phẩm): {selectedTotal.toLocaleString('vi-VN')} VND</Text>
                         <Button type="primary" size="large" className="checkout-button">
                             Tiếp tục thanh toán
                         </Button>
