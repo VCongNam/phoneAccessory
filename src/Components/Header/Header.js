@@ -5,6 +5,8 @@ import "./Header.css";
 import logow from "./logow.jpg";
 import { Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+import { HashLink } from 'react-router-hash-link';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 const { Header } = Layout;
 const { SubMenu } = Menu;
@@ -34,6 +36,15 @@ function AppHeader() {
     setIsLoggedIn(loggedInStatus);
   }, []);
 
+  const contactTooltip = (
+    <Tooltip id="contact-tooltip">
+      <div>
+        <p>📞 Điện thoại: 096 333 444</p>
+        <p>📧 Email: demo@gmail.com</p>
+        <p>🏢 Địa chỉ: Đại học FPT, Khu CNC Hòa Lạc</p>
+      </div>
+    </Tooltip>
+  );
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.setItem("isLoggedIn", "false");
@@ -75,11 +86,21 @@ function AppHeader() {
             <img src={logow} alt="Logo" className="logo-image" style={{ width: "100px", height: "auto" }} />
           </Link>
         </div>
-        <div className="menu-custom">
+        <div className="menu-custom" style={{ fontSize: "25px" }}>
           <Link to="/">
             Trang Chủ
           </Link>
         </div>
+        <div className="menu-custom" style={{ marginLeft: "20px" }}>
+      <OverlayTrigger
+        placement="bottom"
+        overlay={contactTooltip}
+      >
+        <HashLink smooth to="/#footer" style={{ textDecoration: 'none', color: 'inherit' }}>
+          Liên hệ chúng tôi
+        </HashLink>
+      </OverlayTrigger>
+    </div>
 
         <div className="blank-space" />
 
