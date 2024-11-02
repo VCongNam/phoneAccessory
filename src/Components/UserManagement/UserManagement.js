@@ -52,7 +52,7 @@ const AccountManagement = () => {
       }
 
     } catch (error) {
-      message.error("Error fetching accounts: " + error.message);
+      message.error("Lỗi truy vấn account: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -60,10 +60,12 @@ const AccountManagement = () => {
   const fetchRoles = async () => {
     try {
       const { data, error } = await supabase.from("role").select("*");
+
       if (error) throw error;
+
       setRoles(data);
     } catch (error) {
-      message.error("Error fetching roles: " + error.message);
+      message.error("Lỗi khi truy vấn lấy role: " + error.message);
     }
   };
 
@@ -94,33 +96,6 @@ const AccountManagement = () => {
     }
   };
 
-  //   try {
-  //     // Ensure role_id is a number
-  //     const formattedValues = {
-  //       ...values,
-  //       role_id: Number(values.role_id),
-  //     };
-
-  //     const { error } = await supabase
-  //       .from("account")
-  //       .update(formattedValues)
-  //       .eq("user_id", formattedValues.user_id);
-
-  //     if (error) throw error;
-
-  //     toast.success("Cập nhập thành công!");
-  //     setAccounts(
-  //       accounts.map((account) =>
-  //         account.user_id === formattedValues.user_id
-  //           ? { ...account, ...formattedValues }
-  //           : account
-  //       )
-  //     );
-  //     setIsModalVisible(false);
-  //   } catch (error) {
-  //     message.error("Error updating account: " + error.message);
-  //   }
-  // };
   const handleUpdateAccount = async (values) => {
     try {
       // Đảm bảo role_id được xử lý đúng
@@ -147,12 +122,9 @@ const AccountManagement = () => {
       );
       setIsModalVisible(false);
     } catch (error) {
-      message.error("Error updating account: " + error.message);
+      message.error("Lỗi khi cập nhật tài khoản: " + error.message);
     }
   };
-
-
-
 
   const handleDeleteAccount = async (accountId, roleId) => {
     try {
@@ -171,22 +143,9 @@ const AccountManagement = () => {
       toast.success("Xóa thành công!");
       setAccounts(accounts.filter((account) => account.user_id !== accountId));
     } catch (error) {
-      message.error("Error deleting account: " + error.message);
+      message.error("Lỗi khi xóa tài khoản: " + error.message);
     }
   };
-  //   setIsEditing(!!record);
-  //   if (record) {
-  //     form.setFieldsValue({
-  //       ...record,
-  //       // Set role_name from the joined role data
-  //       role_name: record.role?.role_name || "Không rõ quyền",
-  //       role_id: record.role?.role_id,
-  //     });
-  //   } else {
-  //     form.resetFields();
-  //   }
-  //   setIsModalVisible(true);
-  // };
 
   const showModal = (record = null) => {
     console.log("Record being edited: ", record);  // Log kiểm tra
