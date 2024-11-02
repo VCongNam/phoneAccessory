@@ -10,6 +10,8 @@ import Profile from './Pages/Profile';
 import AdminAuth from './Pages/AdminLogin';
 import SellerAuth from './Pages/SellerLogin';
 import DashboardPage1 from './Pages/SellerDashboard';
+import CheckoutPage from './Pages/CheckOut';
+import OrderConfirmation from './Pages/OrderCf';
 
 const AppRouter = () => {
     return (
@@ -33,6 +35,8 @@ const AppRouter = () => {
                     <Route path="/login" element={<Auth />} />
                     <Route path="/cart" element={<CartDetail />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/order-confirmation" element={<OrderConfirmation/>} />
                 </Routes>
             </div>
         </Router>
