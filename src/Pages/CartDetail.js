@@ -6,12 +6,6 @@ import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
 import { decoder64 } from '../Components/Base64Encoder/Base64Encoder';
 import "./CSS/CartDetail.css";
-import { Layout, List, Card, Button, InputNumber, Typography, Avatar, Popconfirm } from 'antd';
-import {  DeleteOutlined } from '@ant-design/icons';
-import "./CSS/CartDetail.css";
-import Header from "../Components/Header/Header";
-import Footer from "../Components/Footer/Footer";
-import { decoder64 } from '../Components/Base64Encoder/Base64Encoder';
 import { Link } from "react-router-dom";
 
 const { Content } = Layout;
@@ -221,9 +215,6 @@ const CartDetail = () => {
 
                     <Card className="cart-total-card">
                         <Text strong>Tổng giá trị ({selectedItemCount} sản phẩm): {selectedTotal.toLocaleString('vi-VN')} VND</Text>
-                    </Card>
-                    <Card style={{ marginTop: 16 }}>
-                        <Text strong>Tổng giá trị ({itemCount} items): {total.toLocaleString('vi-VN')} VND</Text>
                         <Link to="/checkout">
                         <Button type="primary" size="large" style={{ width: '100%', marginTop: 16 }}>
                             Tiếp tục thanh toán
