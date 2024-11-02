@@ -2,11 +2,9 @@ import React, { useState } from 'react';
 import { Tabs } from 'antd';
 import ProductStat from "../Statis/Product";
 import SalesStatistics from "../Statis/OrderSta";
-import CustomerStatistics from '../Statis/CustomerStat';
-
 const { TabPane } = Tabs;
 
-const Dashboard = () => {
+const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('1');
 
   const handleTabChange = (key) => {
@@ -23,12 +21,10 @@ const Dashboard = () => {
         <TabPane tab="Thống kê sản phẩm" key="2">
           <ProductStat />
         </TabPane>
-        <TabPane tab="Thống kê khách hãng" key="3">
-          <CustomerStatistics />
-        </TabPane>
+
       </Tabs>
     </div>
   );
 };
 
-export default Dashboard;
+export default AdminDashboard;
