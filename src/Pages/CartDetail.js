@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
-import { Layout, List, Card, Button, InputNumber, Typography, Avatar, Popconfirm } from 'antd';
+import { Layout, List, Card, Button, InputNumber, Typography, Avatar, Popconfirm, Checkbox } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
@@ -20,6 +20,7 @@ const CartDetail = () => {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
+    const [selectedItems, setSelectedItems] = useState([]);
 
     useEffect(() => {
         const fetchUserAndCart = async () => {
@@ -101,6 +102,16 @@ const CartDetail = () => {
         }
     };
 
+    const handleSelectChange = (productId) => {
+        setSelectedItems((prev) => {
+            if (prev.includes(productId)) {
+                return prev.filter(id => id !== productId);
+            } else {
+                return [...prev, productId];
+            }
+        });
+    };
+
     const removeProduct = async (cart_id, product_id) => {
         try {
             const { error } = await supabase
@@ -116,6 +127,14 @@ const CartDetail = () => {
         }
     };
 
+    const deleteSelectedItems = async () => {
+        const itemsToDelete = cartItems.filter(item => selectedItems.includes(item.products.product_id));
+        for (const item of itemsToDelete) {
+            await removeProduct(item.cart_id, item.products.product_id);
+        }
+        setSelectedItems([]);
+    };
+
     const total = cartItems.reduce((sum, item) => sum + item.products.sell_price * item.quantity, 0);
     const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -128,12 +147,12 @@ const CartDetail = () => {
                     <List
                         header={
                             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 16px' }}>
-                            <Text strong style={{ width: '25%' }}>Tên sản phẩm</Text>
-                            <Text strong style={{ width: '15%', textAlign: 'center' }}>Giá</Text>
-                            <Text strong style={{ width: '20%', textAlign: 'center' }}>Số lượng</Text>
-                            <Text strong style={{ width: '15%', textAlign: 'center' }}>Tổng tiền</Text>
-                            <Text strong style={{ width: '15%', textAlign: 'center' }}>Hành động</Text>
-                        </div>
+                                <Text strong style={{ width: '25%' }}>Tên sản phẩm</Text>
+                                <Text strong style={{ width: '15%', textAlign: 'center' }}>Giá</Text>
+                                <Text strong style={{ width: '20%', textAlign: 'center' }}>Số lượng</Text>
+                                <Text strong style={{ width: '15%', textAlign: 'center' }}>Tổng tiền</Text>
+                                <Text strong style={{ width: '15%', textAlign: 'center' }}>Hành động</Text>
+                            </div>
                         }
                         itemLayout="horizontal"
                         dataSource={cartItems.sort((a, b) => a.products.product_id - b.products.product_id)}
@@ -141,6 +160,11 @@ const CartDetail = () => {
                         renderItem={item => (
                             <List.Item className="cart-item">
                                 <div className="cart-item-name">
+                                    <Checkbox
+                                        checked={selectedItems.includes(item.products.product_id)}
+                                        onChange={() => handleSelectChange(item.products.product_id)}
+                                    />
+
                                     <List.Item.Meta
                                         avatar={<Avatar src={item.products.img[0]} shape="square" size={64} />}
                                         title={item.products.name}
@@ -173,6 +197,14 @@ const CartDetail = () => {
                             </List.Item>
                         )}
                     />
+
+                    {selectedItems.length > 0 && (
+                        <div style={{ marginTop: '16px' }}>
+                            <Button onClick={deleteSelectedItems} danger style={{ marginRight: '8px' }}>
+                                Xóa đã chọn
+                            </Button>
+                        </div>
+                    )}
 
                     <Card className="cart-total-card">
                         <Text strong>Tổng giá trị ({itemCount} sản phẩm): {total.toLocaleString('vi-VN')} VND</Text>
