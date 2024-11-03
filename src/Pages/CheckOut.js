@@ -18,6 +18,9 @@ import { useNavigate } from "react-router-dom";
 import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
 import { decoder64 } from "../Components/Base64Encoder/Base64Encoder";
+import { useLocation } from 'react-router-dom';
+import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
+import { toast, ToastContainer } from 'react-toastify';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -31,7 +34,8 @@ const Checkout = () => {
   const [total, setTotal] = useState(0);
   const [useNewAddress, setUseNewAddress] = useState(false);
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const selectedItems = location.state?.selectedItems || [];
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [wards, setWards] = useState([]);
@@ -213,35 +217,40 @@ const Checkout = () => {
 
           if (cartData) {
             const { data: cartItemsData, error: cartItemsError } =
-              await supabase
-                .from("cart_item")
-                .select(
-                  `
-                                quantity,
-                                products (
-                                    product_id,
-                                    name,
-                                    sell_price,
-                                    img
-                                )
-                            `
-                )
-                .eq("cart_id", cartData.id);
-
+                await supabase
+                    .from("cart_item")
+                    .select(
+                        `
+                            quantity,
+                            products (
+                                product_id,
+                                name,
+                                sell_price,
+                                img
+                            )
+                        `
+                    )
+                    .eq("cart_id", cartData.id);
+    
+            // Filter cart items based on selectedItems
+            const filteredCartItems = cartItemsData.filter(item => 
+                selectedItems.includes(item.products.product_id)
+            ); 
+    
             if (cartItemsError) {
-              console.error("Cart Items Fetch Error:", cartItemsError);
-              return;
+                console.error("Cart Items Fetch Error:", cartItemsError);
+                return;
             }
-
-            if (cartItemsData && cartItemsData.length > 0) {
-              setCartItems(cartItemsData);
-              const totalAmount = cartItemsData.reduce(
-                (acc, item) => acc + item.quantity * item.products.sell_price,
-                0
-              );
-              setTotal(totalAmount);
+    
+            if (filteredCartItems && filteredCartItems.length > 0) { 
+                setCartItems(filteredCartItems);
+                const totalAmount = filteredCartItems.reduce(
+                    (acc, item) => acc + item.quantity * item.products.sell_price,
+                    0
+                );
+                setTotal(totalAmount);
             }
-          }
+        }
         }
       }
     } catch (error) {
@@ -334,7 +343,7 @@ const Checkout = () => {
       const orderInsertData = {
         user_id: user.user_id,
         total_price: calculatedTotal,
-        status: "Chờ duyệt",
+        status: 1,
         address_order: `${shippingInfo.address}, ${shippingInfo.ward}, ${shippingInfo.district}, ${shippingInfo.city}`,
         created_at: vietnamTime.toISOString(),
       };
@@ -389,7 +398,7 @@ const Checkout = () => {
         if (clearCartError) throw clearCartError;
       }
 
-      alert("Đặt hàng thành công!");
+      toast.success("Đặt hàng thành công!");
       navigate("/order-confirmation", {
         state: {
           orderId: orderData.id,
@@ -426,6 +435,7 @@ const Checkout = () => {
 
   return (
     <Layout className="layout" style={{ minHeight: "100vh" }}>
+      <ToastContainer />
       <Header />
       <Content style={{ padding: "0 50px", marginTop: 64 }}>
         <div
