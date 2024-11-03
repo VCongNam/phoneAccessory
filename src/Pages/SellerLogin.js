@@ -62,15 +62,17 @@ const SellerAuth = () => {
             .from('account')
             .select('*')
             .eq('user_name', phone)
-            .eq('password', oldPassword);
-
-        if (fetchError) {
-            message.error('Lỗi khi truy vấn cơ sở dữ liệu: ' + fetchError.message);
-            return;
-        }
+            .eq('password', oldPassword)
+            .eq('role_id', 3);
 
         if (data.length === 0) {
             message.error('Mật khẩu cũ không chính xác hoặc không tìm thấy tài khoản với số điện thoại này!');
+            return;
+        } else if (data.length > 0 && data[0].role_id !== 3) {
+            message.error('Tài khoản không hợp lệ!');
+            return;
+        } else if (fetchError) {
+            message.error('Lỗi khi truy vấn cơ sở dữ liệu: ' + fetchError.message);
             return;
         }
 
@@ -170,7 +172,7 @@ const SellerAuth = () => {
                     )}
                     <Form.Item>
                         <Button type="primary" htmlType="submit" className="auth-button">
-                        {isLogin ? 'Đăng nhập' : 'Đổi mật khẩu'}
+                            {isLogin ? 'Đăng nhập' : 'Đổi mật khẩu'}
                         </Button>
                         <Button
                             type="link"
