@@ -152,11 +152,12 @@ const CartDetail = () => {
                     <List
                         header={
                             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 16px' }}>
-                                <Text strong style={{ width: '25%' }}>Tên sản phẩm</Text>
-                                <Text strong style={{ width: '15%', textAlign: 'center' }}>Giá</Text>
-                                <Text strong style={{ width: '20%', textAlign: 'center' }}>Số lượng</Text>
-                                <Text strong style={{ width: '15%', textAlign: 'center' }}>Tổng tiền</Text>
-                                <Text strong style={{ width: '15%', textAlign: 'center' }}>Hành động</Text>
+                                <Text strong style={{ width: '5%' }}></Text>
+                                <Text strong style={{ width: '28%' }}>Sản phẩm</Text>
+                                <Text strong style={{ width: '30%', textAlign: 'center' }}>Giá</Text>
+                                <Text strong style={{ width: '22%', textAlign: 'center' }}>Số lượng</Text>
+                                <Text strong style={{ width: '25%', textAlign: 'center' }}>Tổng tiền</Text>
+                                <Text strong style={{ width: '20%', textAlign: 'center' }}>Hành động</Text>
                             </div>
                         }
                         itemLayout="horizontal"
@@ -164,12 +165,11 @@ const CartDetail = () => {
                         loading={loading}
                         renderItem={item => (
                             <List.Item className="cart-item">
+                                <Checkbox
+                                    checked={selectedItems.includes(item.products.product_id)}
+                                    onChange={() => handleSelectChange(item.products.product_id)}
+                                />
                                 <div className="cart-item-name">
-                                    <Checkbox
-                                        checked={selectedItems.includes(item.products.product_id)}
-                                        onChange={() => handleSelectChange(item.products.product_id)}
-                                    />
-
                                     <List.Item.Meta
                                         avatar={<Avatar src={item.products.img[0]} shape="square" size={64} />}
                                         title={item.products.name}
@@ -203,11 +203,10 @@ const CartDetail = () => {
                         )}
                     />
 
-
                     {/*Check xem có đang chọn sản phẩm hay k*/}
                     {selectedItems.length > 0 && (
                         <div style={{ marginTop: '16px' }}>
-                            <Button onClick={deleteSelectedItems} danger style={{ marginRight: '8px' }}>
+                            <Button onClick={deleteSelectedItems} className="delete-selected-button" danger>
                                 Xóa đã chọn
                             </Button>
                         </div>
@@ -216,7 +215,7 @@ const CartDetail = () => {
                     <Card className="cart-total-card">
                         <Text strong>Tổng giá trị ({selectedItemCount} sản phẩm): {selectedTotal.toLocaleString('vi-VN')} VND</Text>
                         <Link to="/checkout">
-                        <Button type="primary" size="large" style={{ width: '100%', marginTop: 16 }}>
+                        <Button type="primary" size="large" className="checkout-button">
                             Tiếp tục thanh toán
                         </Button>
                         </Link>

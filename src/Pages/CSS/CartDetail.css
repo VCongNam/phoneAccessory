@@ -89,3 +89,12 @@
 .cart-detail button:hover {
   background-color: #23b035;
 }
+
+.delete-selected-button {
+  margin-right: 8px;
+  }
+
+.checkout-button{
+  width: 100%;
+  margin-top: 16px;
+}
