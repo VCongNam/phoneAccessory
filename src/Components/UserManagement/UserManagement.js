@@ -12,13 +12,14 @@ import {
   InputNumber,
   Select,
 } from "antd";
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 
 
 const AccountManagement = () => {
 
   const [accounts, setAccounts] = useState([]);
+  const [filteredAccounts, setFilteredAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
@@ -26,7 +27,7 @@ const AccountManagement = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [sortOption, setSortOption] = useState("user_id"); // Sort mặc định theo user_id
   const [sortOrder, setSortOrder] = useState("ascend"); // Sort theo chiều tăng dần
-
+  const [searchTerm, setSearchTerm] = useState("");
 
 
   useEffect(() => {
@@ -47,6 +48,7 @@ const AccountManagement = () => {
       // Check xem có data hay k
       if (data) {
         setAccounts(data); // Có thì set state của account là data
+        setFilteredAccounts(data || []);
       } else {
         setAccounts([]); // Set state là 1 array rỗng nếu như k có data
       }
@@ -164,8 +166,6 @@ const AccountManagement = () => {
     setIsModalVisible(true);
   };
 
-
-
   const handleModalOk = () => {
     form.submit();
   };
@@ -175,8 +175,17 @@ const AccountManagement = () => {
     form.resetFields();
   };
 
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    const filtered = accounts.filter((account) =>
+      account.user_name.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredAccounts(filtered);
+  };
+
   const handleSortAndFilter = () => {
-    let sortedAccounts = [...accounts];
+    let sortedAccounts = [...filteredAccounts];
 
     if (sortOption === "user_id") {
       sortedAccounts.sort((a, b) =>
@@ -199,9 +208,6 @@ const AccountManagement = () => {
     return sortedAccounts;
   };
 
-
-
-
   const onFinish = (values) => {
     console.log("Form values on submit: ", values);  // Log để kiểm tra role_id
     if (isEditing) {
@@ -214,17 +220,14 @@ const AccountManagement = () => {
     }
   };
 
-
   const columns = [
     {
-      title: "Mã tài khoản",
+      title: <div style={{ textAlign: 'center' }}>Mã tài khoản</div>,
       dataIndex: "user_id",
-      key: "user_id",
-      defaultsortOrder: "ascend", // Sort theo thứ tự tăng dần
-      sorter: (a, b) => a.user_id - b.user_id // Sort theo user_id
+      key: "user_id"
     },
     {
-      title: "Quyền",
+      title: <div style={{ textAlign: 'center' }}>Quyền</div>,
       dataIndex: ["role", "role_name"], // Lấy ra role_name
       key: "role_name",
       filters: roles.map((role) => ({
@@ -232,21 +235,20 @@ const AccountManagement = () => {
         value: role.role_name
       })), 
       onFilter: (value, record) => record.role.role_name === value, //Lọc theo role_name
-      sorter: (a, b) => a.role?.role_id - b.role?.role_id, // Sort theo role_name
     },
     {
-      title: "Số điện thoại",
+      title: <div style={{ textAlign: 'center' }}>Số điện thoại</div>,
       dataIndex: "user_name",
       key: "user_name"
     },
     {
-      title: "Mật khẩu",
+      title: <div style={{ textAlign: 'center' }}>Mật khẩu</div>,
       dataIndex: "password",
       key: "password",
       render: () => "••••••••", // Mask the password
     },
     {
-      title: "Hành động",
+      title: <div style={{ textAlign: 'center' }}>Hành động</div>,
       key: "action",
       render: (_, record) => (
         <Space size="middle">
@@ -272,13 +274,21 @@ const AccountManagement = () => {
     <div style={{ padding: "24px" }}>
       <h2>Quản lý tài khoản</h2>
       <Space style={{ marginBottom: "16px" }}>
+      <Input
+          placeholder="Tìm kiếm theo số điện thoại"
+          value={searchTerm}
+          onChange={handleSearch}
+          prefix={<SearchOutlined />}
+          style={{ width: 200 }}
+        />
+        
         <Select
           defaultValue="user_id"
           style={{ width: 180 }}
           onChange={(value) => setSortOption(value)}
         >
           <Select.Option value="user_id">Lọc theo Mã tài khoản</Select.Option>
-          <Select.Option value="role">Lọc theo Quyên</Select.Option>
+          <Select.Option value="role">Lọc theo Quyền</Select.Option>
           <Select.Option value="user_name">Lọc theo SDT</Select.Option>
         </Select>
 
