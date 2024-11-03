@@ -3,6 +3,7 @@ import { Layout, Menu } from 'antd';
 import {
   DashboardOutlined,
   ShoppingOutlined,
+  FileDoneOutlined
 
 } from '@ant-design/icons';
 
@@ -27,6 +28,9 @@ const SellerSidebar = ({ onMenuClick }) => {
         </Menu.Item>
         <Menu.Item key="products" icon={<ShoppingOutlined />}>
           Quản lý sản phẩm
+        </Menu.Item>
+        <Menu.Item key="orders" icon={<FileDoneOutlined />}>
+          Quản lý đơn hàng
         </Menu.Item>
 
       </Menu>
