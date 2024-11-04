@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Typography, message, Layout } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Button, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined, KeyOutlined } from '@ant-design/icons';
 import { supabase } from '../supabaseClient';
 import { encoder64 } from '../Components/Base64Encoder/Base64Encoder';
@@ -89,7 +89,7 @@ const AdminAuth = () => {
                                 name="phone"
                                 rules={[
                                     { required: true, message: 'Nhập số điện thoại của bạn!' },
-                                    { pattern: /^0[0-9]{9}$/, message: 'Hãy nhập số điện thoại hợp lệ!' },
+                                    { pattern: /^0\d{9}$/, message: 'Hãy nhập số điện thoại hợp lệ!' },
                                 ]}
                             >
                                 <Input
@@ -133,7 +133,8 @@ const AdminAuth = () => {
                                     { required: true, message: 'Hãy nhập mật khẩu mới!' },
                                     {
                                         pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                                        message: 'Hãy điền tối thiểu 8 ký tự bao gồm tối thiểu 1 chữ cái thường, chữ cái in hoa, số và kí tự đặc biệt'                                    }
+                                        message: 'Hãy điền tối thiểu 8 ký tự bao gồm tối thiểu 1 chữ cái thường, chữ cái in hoa, số và kí tự đặc biệt'
+                                    }
                                 ]}
                             >
                                 <Input.Password
@@ -148,7 +149,8 @@ const AdminAuth = () => {
                                     { required: true, message: 'Hãy xác nhận mật khẩu mới!' },
                                     {
                                         pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                                        message: 'Hãy điền tối thiểu 8 ký tự bao gồm tối thiểu 1 chữ cái thường, chữ cái in hoa, số và kí tự đặc biệt'                                    }
+                                        message: 'Hãy điền tối thiểu 8 ký tự bao gồm tối thiểu 1 chữ cái thường, chữ cái in hoa, số và kí tự đặc biệt'
+                                    }
                                 ]}
                             >
                                 <Input.Password
@@ -170,7 +172,16 @@ const AdminAuth = () => {
                                 form.resetFields();
                             }}
                         >
-                            {isLogin ? 'Đổi mật khẩu?' : 'Quay lại đăng nhập'}
+                            <Button
+                                type="default"
+                                onClick={() => {
+                                    setIsLogin(!isLogin);
+                                    form.resetFields();
+                                }}
+                                className="toggle-auth-button"
+                            >
+                                {isLogin ? 'Đổi mật khẩu?' : 'Quay lại đăng nhập'}
+                            </Button>
                         </Button>
                     </Form.Item>
                 </Form>
