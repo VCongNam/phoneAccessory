@@ -12,13 +12,10 @@ const { Meta } = Card;
 const { Search } = Input;
 
 const ProductList = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [brand, setBrand] = useState([]);
-  const [selectedBrand, setSelectedBrand] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState(null);
   const { id } = useParams(); // Lấy id từ URL
   const navigate = useNavigate();
 
@@ -41,7 +38,7 @@ const ProductList = () => {
 
   // Fetch all products
   const fetchProducts = async () => {
-    const { data, error } = await supabase.from("products").select("*");
+    const { data, error } = await supabase.from("products").select("*").eq("status", 2);
     if (error) {
       console.error("Error fetching products:", error);
     } else {
@@ -83,6 +80,7 @@ const ProductList = () => {
         const { data, error } = await supabase
           .from('products')
           .select('*')
+          .eq("status", 2)
           .eq('cate_id', id);
 
         if (error) {
@@ -98,21 +96,17 @@ const ProductList = () => {
 
 
   const handleCategoryClick = (categoryId) => {
-    setSelectedCategory(categoryId);
     navigate(`/productlist/${categoryId}`);
   };
-  
+
+  const handleBrandClick = (brandid) => {
+    alert(brandid);
+  };
+
 
   const handleProductClick = (id) => {
     navigate(`/ProductDetail/${id}`);
   };
-
-  const [selectedOption, setSelectedOption] = useState('');
-
-  const handleChange = (event) => {
-    setSelectedOption(event.target.value);
-  };
-
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -146,36 +140,34 @@ const ProductList = () => {
                 renderItem={(category) => (
                   <List.Item
                     onClick={() => handleCategoryClick(category.id)}
-                    style={{
-                      cursor: "pointer",
-                      backgroundColor:
-                        selectedCategory === category.id ? "#e6f7ff" : "white",
-                    }}
                   >
                     {category.name}
                   </List.Item>
                 )}
               />
             </Card>
-            <Card>
-              <div>
-                <label htmlFor="comboBox">Chọn nhãn hàng: </label>
-                <select id="comboBox" value={selectedOption} onChange={handleChange}>
-                  <option value="" >
-                    -- chọn nhãn hàng --
-                  </option>
-                  {brand.map((option) => (
-                    <option key={option.id} value={option.id}>
-                      {option.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <Card
+              title="Thể loại sản phẩm"
+              bordered={false}
+              style={{ marginTop: 20 }}
+            >
+              <List
+                dataSource={brand}
+                renderItem={(brand) => (
+                  <List.Item
+                    onClick={() => handleBrandClick(brand.brand_id)}
+                  >
+                    {brand.name}
+                  </List.Item>
+                )}
+              />
             </Card>
           </Col>
           {/* Product List */}
           <Col xs={24} sm={16}>
-            <h2 className="text-center">
+            <h2 className="text-center"
+            
+            >
               {id
                 ? `Sản phẩm của ${categories.find((cat) => cat.id === parseInt(id))?.name}`
                 : "Tất cả sản phẩm"}
@@ -186,9 +178,12 @@ const ProductList = () => {
                 <Spin size="large" />
               </div>
             ) : (
-              <Row gutter={[16, 16]}>
+              <Row gutter={[16, 16]}
+              style={{  backgroundColor: "rgb(220 220 220)", padding: "10px"  }}
+              
+              >
                 {products.map((product) => (
-                  <Col key={product.id} xs={24} sm={12} md={8} lg={6}>
+                  <Col key={product.id} xs={24} sm={12} md={8} lg={6} >
                     <Card
                       hoverable
                       cover={
@@ -197,6 +192,7 @@ const ProductList = () => {
                           src={product.img[0]}
                           style={{ height: "auto", objectFit: "cover" }}
                         />
+                        
                       }
                       actions={[
                         <Button
@@ -206,10 +202,14 @@ const ProductList = () => {
                           Xem chi tiết
                         </Button>,
                       ]}
+                      
                     >
                       <Meta
                         title={product.name}
-                        description={`Giá: ${product.sell_price.toLocaleString()} VND`}
+                        description={
+                         <span style={{ color: "rgb(255 64 64)" }}>  Giá: {product.sell_price.toLocaleString()} VND</span>
+                        }
+                        
                       />
                     </Card>
                   </Col>
