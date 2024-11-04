@@ -68,3 +68,16 @@
     background-color: #4a4a4a;
     border: 1px solid #595959;
 }
+
+.toggle-auth-button {
+    margin-top: 10px;
+    width: 100%;
+    background-color:  #404c92;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    padding: 12px;
+    /* font-weight: bold; */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}

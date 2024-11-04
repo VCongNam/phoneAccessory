@@ -133,7 +133,8 @@ const AdminAuth = () => {
                                     { required: true, message: 'Hãy nhập mật khẩu mới!' },
                                     {
                                         pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                                        message: 'Hãy điền tối thiểu 8 ký tự bao gồm tối thiểu 1 chữ cái thường, chữ cái in hoa, số và kí tự đặc biệt'                                    }
+                                        message: 'Hãy điền tối thiểu 8 ký tự bao gồm tối thiểu 1 chữ cái thường, chữ cái in hoa, số và kí tự đặc biệt'
+                                    }
                                 ]}
                             >
                                 <Input.Password
@@ -148,7 +149,8 @@ const AdminAuth = () => {
                                     { required: true, message: 'Hãy xác nhận mật khẩu mới!' },
                                     {
                                         pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                                        message: 'Hãy điền tối thiểu 8 ký tự bao gồm tối thiểu 1 chữ cái thường, chữ cái in hoa, số và kí tự đặc biệt'                                    }
+                                        message: 'Hãy điền tối thiểu 8 ký tự bao gồm tối thiểu 1 chữ cái thường, chữ cái in hoa, số và kí tự đặc biệt'
+                                    }
                                 ]}
                             >
                                 <Input.Password
@@ -170,7 +172,16 @@ const AdminAuth = () => {
                                 form.resetFields();
                             }}
                         >
-                            {isLogin ? 'Đổi mật khẩu?' : 'Quay lại đăng nhập'}
+                            <Button
+                                type="default"
+                                onClick={() => {
+                                    setIsLogin(!isLogin);
+                                    form.resetFields();
+                                }}
+                                className="toggle-auth-button"
+                            >
+                                {isLogin ? 'Đổi mật khẩu?' : 'Quay lại đăng nhập'}
+                            </Button>
                         </Button>
                     </Form.Item>
                 </Form>
