@@ -4,11 +4,9 @@ import AppHeader from '../Components/Header/Header';
 import Sidebar from '../Components/Sidebar/Sidebar';
 import OrderManagement from '../Components/OrderManagement/OrderManagement';
 import ProductManagement from '../Components/ProductManagement/ProductManagement';
-import UserManagement from '../Components/UserManagement/UserManagement';
 import AccountManagement from '../Components/UserManagement/UserManagement';
-import VoucherManagement from '../Components/Voucher/Voucher';
 import ProfileManagement from '../Components/CustomerManagement/CustomerManage';
-import DashboardOverview from '../Components/GeneralDash/General';
+import DashboardOverview from '../Components/AdminDash/AdminDash';
 const { Content } = Layout;
 
 const DashboardPage = () => {
@@ -26,8 +24,7 @@ const DashboardPage = () => {
         return <ProfileManagement />;
       case 'accounts':
         return <AccountManagement />;
-      case 'reports':
-        return <VoucherManagement />;
+      
       default:
         return <DashboardOverview />;
     }

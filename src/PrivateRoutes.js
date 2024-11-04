@@ -5,20 +5,20 @@ import { getToken }  from './Components/GetToken/GetToken';
 const PrivateRoutes = ({ requiredRole }) => {
   const token = getToken('token');
 
-  console.log('Token before decoding:', token);
+  console.log('Token before decoding:', token); // Log token để check
 
   if (!token) return <Navigate to="/" />;
 
-  // Decode the Base64 token string
+  // Giải mã token
   const decodedToken = decoder64(token);
-  console.log('Decoded token:', decodedToken); // Log the decoded token
+  console.log('Decoded token:', decodedToken); // Log Token
 
   if (!decodedToken) {
     console.error('Invalid or corrupted token:', decodedToken);
     return <Navigate to="/" />;
   }
 
-  // Parse the decoded token (since it's a JSON object encoded as a string)
+  // Phân tích token
   let parsedToken;
   try {
     parsedToken = JSON.parse(decodedToken);
@@ -27,13 +27,13 @@ const PrivateRoutes = ({ requiredRole }) => {
     return <Navigate to="/" />;
   }
 
-  console.log('Parsed Token:', parsedToken); // Log the parsed token
+  console.log('Parsed Token:', parsedToken); // Log token
 
-  // Check for role_id in the parsed token
+  // check điều kiện role_id
   if (parsedToken.role_id === requiredRole) {
     return <Outlet />;
   } else {
-    console.error('Access denied. User role is not authorized.');
+    console.error('Access denied. User role is not authorized.'); // Log ra để check
     return <Navigate to="/" />;
   }
 };

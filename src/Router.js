@@ -10,16 +10,19 @@ import Profile from './Pages/Profile';
 import AdminAuth from './Pages/AdminLogin';
 import SellerAuth from './Pages/SellerLogin';
 import DashboardPage1 from './Pages/SellerDashboard';
+import CheckoutPage from './Pages/CheckOut';
+import OrderConfirmation from './Pages/OrderCf';
 
 const AppRouter = () => {
     return (
         <Router>
             <div>
                 <Routes>
+                    {/*Check điều kiện role_id*/}
                     <Route element={<PrivateRoutes requiredRole={2} />}>
                         <Route path="/dashboard" element={<DashboardPage />} />
                     </Route>
-
+                    {/*Check điều kiện role_id*/}
                     <Route element={<PrivateRoutes requiredRole={3} />}>
                         <Route path="/SellerDashboard" element={<DashboardPage1 />} />
                     </Route>
@@ -32,6 +35,8 @@ const AppRouter = () => {
                     <Route path="/login" element={<Auth />} />
                     <Route path="/cart" element={<CartDetail />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/order-confirmation" element={<OrderConfirmation/>} />
                 </Routes>
             </div>
         </Router>

@@ -13,6 +13,7 @@ const { Title, Text } = Typography;
 
 const AppFooter = () => {
   return (
+    <footer id="footer" className="footer">
     <Layout>
       <Footer style={{ backgroundColor: 'rgb(48, 47, 47)', color: 'white', padding: '40px 50px' }}>
         <Row gutter={[16, 16]}>
@@ -76,6 +77,7 @@ const AppFooter = () => {
         </Row>
       </Footer>
     </Layout>
+    </footer>
   );
 };
 

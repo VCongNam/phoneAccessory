@@ -4,6 +4,7 @@ import AppHeader from '../Components/Header/Header';
 import SellerSidebar from '../Components/SellerSliderbar/SellerSliderbar';
 import SellerProductList from '../Components/Sellerlistproductmana/SellerProductList';
 import DashboardOverview from '../Components/GeneralDash/General';
+import SellerOrderManagement from '../Components/OrderManagement/SellerOrderManagement';
 const { Content } = Layout;
 
 const DashboardPage1 = () => {
@@ -15,6 +16,8 @@ const DashboardPage1 = () => {
         return <DashboardOverview />;
       case 'products':
         return <SellerProductList />;
+      case 'orders':
+        return <SellerOrderManagement />;
       default:
         return <DashboardOverview />;
     }
@@ -24,6 +27,7 @@ const DashboardPage1 = () => {
   const breadcrumbItems = {
     dashboard: ['Tổng quan'],
     products: ['Quản lý sản phẩm'],
+    orders: ['Quản lý đơn hàng'],
     
   
   };
