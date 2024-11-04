@@ -40,7 +40,10 @@ const HomeBrand = ({ brandName }) => {
       const { data: products, error: productError } = await supabase
         .from("products")
         .select(`*`)
-        .eq("brand_id", brandId);
+        .eq("brand_id", brandId)
+        .eq("status", 2)
+        .gt("stock_quantity", 0)
+        .order("isHot", { ascending: false });
 
       if (productError) throw productError;
 
