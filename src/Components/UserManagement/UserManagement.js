@@ -9,7 +9,6 @@ import {
   message,
   Popconfirm,
   Space,
-  InputNumber,
   Select,
 } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
@@ -335,7 +334,7 @@ const AccountManagement = () => {
             label="Số điện thoại"
             rules={[
               { required: true, message: 'Nhập số điện thoại của bạn!' },
-              { pattern: /^0[0-9]{9}$/, message: 'Hãy nhập số điện thoại hợp lệ!' },
+              { pattern: /^0\d{9}$/, message: 'Hãy nhập số điện thoại hợp lệ!' },
             ]}
           >
             <Input disabled={isEditing} />
