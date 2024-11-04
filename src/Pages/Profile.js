@@ -166,6 +166,9 @@ export default function Profile() {
         status,
         created_at,
         address_order,
+        order_status (
+          status_name
+        ),
         order_items (
           quantity,
           products (
@@ -176,7 +179,7 @@ export default function Profile() {
       `)
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
-
+  
     if (error) {
       console.error("Lỗi khi lấy lịch sử đơn hàng: ", error);
     } else {
@@ -184,7 +187,7 @@ export default function Profile() {
         key: order.id,
         id: order.id,
         total_price: order.total_price.toLocaleString("vi-VN") + " VND",
-        status: order.status,
+        status: order.order_status.status_name, // Now using the status name instead of ID
         created_at: new Date(order.created_at).toLocaleString("vi-VN"),
         address_order: order.address_order,
         items: order.order_items.map((item) => ({

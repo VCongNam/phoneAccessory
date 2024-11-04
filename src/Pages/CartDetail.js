@@ -214,11 +214,11 @@ const CartDetail = () => {
 
                     <Card className="cart-total-card">
                         <Text strong>Tổng giá trị ({selectedItemCount} sản phẩm): {selectedTotal.toLocaleString('vi-VN')} VND</Text>
-                        <Link to="/checkout">
-                        <Button type="primary" size="large" className="checkout-button">
-                            Tiếp tục thanh toán
-                        </Button>
-                        </Link>
+                        <Link to="/checkout" state={{ selectedItems: selectedItems }}> 
+    <Button type="primary" size="large" className="checkout-button">
+        Tiếp tục thanh toán
+    </Button>
+</Link>
                     </Card>
                 </div>
             </Content>

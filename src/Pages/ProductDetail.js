@@ -25,6 +25,7 @@ function ProductDetail() {
     const [user, setUser] = useState(null);
     const [cart, setCart] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null); // Thêm state cho ảnh chính
+    const [isAdding, setIsAdding] = useState(false); // New state for "Add to Cart" button
     const navigate = useNavigate();
 
     const getCookie = (name) => {
@@ -82,14 +83,18 @@ function ProductDetail() {
     }, [id]);
 
     if (loading) {
-        return <p>Đang tải thông tin sản phẩm...</p>; // Vietnamese for "Loading product details..."
+        return <p>Đang tải thông tin sản phẩm...</p>;
     }
 
     if (!product) {
-        return <p>Không tìm thấy sản phẩm.</p>; // Vietnamese for "Product not found."
+        return <p>Không tìm thấy sản phẩm.</p>;
     }
 
     const handleQuantityChange = (e) => {
+        if (e.target.value < 1) {
+            alert("Quantity must be at least 1");
+            return;
+        }
         setQuantity(e.target.value);
     };
 
@@ -172,6 +177,7 @@ function ProductDetail() {
                 });
             }
         }
+        setIsAdding(false);
     };
 
 
@@ -242,7 +248,10 @@ function ProductDetail() {
                             value={quantity}
                             onChange={handleQuantityChange}
                         />
-                        <button onClick={handleAddToCart}>Thêm vào giỏ</button>
+                        <button onClick={handleAddToCart} disabled={isAdding}>
+                            {isAdding ? "Đang thêm sản phẩm..." : "Thêm vào giỏ"}
+                        </button>
+
                         <div
                             className="product-description"
                             dangerouslySetInnerHTML={{ __html: product.des }} // Inject HTML content safely
