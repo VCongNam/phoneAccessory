@@ -181,7 +181,16 @@ const SellerAuth = () => {
                                 form.resetFields();
                             }}
                         >
-                            {isLogin ? 'Đổi mật khẩu?' : 'Quay lại đăng nhập'}
+                            <Button
+                                type="default"
+                                onClick={() => {
+                                    setIsLogin(!isLogin);
+                                    form.resetFields();
+                                }}
+                                className="toggle-auth-button"
+                            >
+                                {isLogin ? 'Đổi mật khẩu?' : 'Quay lại đăng nhập'}
+                            </Button>
                         </Button>
                     </Form.Item>
                 </Form>
