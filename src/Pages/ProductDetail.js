@@ -234,9 +234,9 @@ function ProductDetail() {
                     </div>
                     <div className="product-details">
                         <h1>{product.name}</h1>
-                        <div className="product-rating">
+                        {/* <div className="product-rating">
                             <Rating totalStars={5} onRate={handleRate} />
-                        </div>
+                        </div> */}
                         <p className="product-price">{formatPrice(product.sell_price)} VND</p>
 
                         <label htmlFor="quantity">Số lượng:</label>
