@@ -18,9 +18,9 @@ import { useNavigate } from "react-router-dom";
 import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
 import { decoder64 } from "../Components/Base64Encoder/Base64Encoder";
-import { useLocation } from 'react-router-dom';
-import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
-import { toast, ToastContainer } from 'react-toastify';
+import { useLocation } from "react-router-dom";
+import "react-toastify/dist/ReactToastify.css"; // Import toast styles
+import { toast, ToastContainer } from "react-toastify";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -42,6 +42,7 @@ const Checkout = () => {
   const [selectedProvince, setSelectedProvince] = useState(null);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [form] = Form.useForm();
+  const [shippingFee, setShippingFee] = useState(0); 
 
   useEffect(() => {
     fetchUserAndCart();
@@ -50,23 +51,38 @@ const Checkout = () => {
   useEffect(() => {
     // Reset districts and wards when switching between new and default addresses
     if (useNewAddress) {
-        setDistricts([]);
-        setWards([]);
-        setSelectedProvince(null);
-        setSelectedDistrict(null);
-        form.resetFields(['city', 'district', 'ward', 'address']);
+      setDistricts([]);
+      setWards([]);
+      setSelectedProvince(null);
+      setSelectedDistrict(null);
+      form.resetFields(["city", "district", "ward", "address"]);
     } else {
-        form.setFieldsValue({
-            name: profileData.name,
-            phone: profileData.phone,
-            address: profileData.address,
-            city: provinces.find(p => p.name === profileData.city)?.code,
-            district: districts.find(d => d.name === profileData.district)?.code,
-            ward: profileData.ward
-        });
+      form.setFieldsValue({
+        name: profileData.name,
+        phone: profileData.phone,
+        address: profileData.address,
+        city: provinces.find((p) => p.name === profileData.city)?.code,
+        district: districts.find((d) => d.name === profileData.district)?.code,
+        ward: profileData.ward,
+      });
     }
-}, [useNewAddress]);
+  }, [useNewAddress]);
+  useEffect(() => {
+    const calculatedTotal = cartItems.reduce(
+      (acc, item) => acc + item.quantity * item.products.sell_price,
+      0
+    );
+    setTotal(calculatedTotal);
 
+    // Tính phí vận chuyển
+    let calculatedShippingFee = 0;
+    if (calculatedTotal < 100000) {
+      calculatedShippingFee = 50000;
+    } else if (calculatedTotal < 200000) {
+      calculatedShippingFee = 30000;
+    }
+    setShippingFee(calculatedShippingFee);
+  }, [cartItems]);
   // Fetch provinces
   const fetchProvinces = async () => {
     try {
@@ -141,7 +157,16 @@ const Checkout = () => {
           .select("name, phone, address, city, district, ward")
           .eq("user_id", decodedUser.user_id)
           .single();
-
+          if (!profileData.address || !profileData.city || !profileData.district || !profileData.ward) {
+            toast.info(
+              "Vui lòng cập nhật thông tin địa chỉ của bạn để tiến hành đặt hàng.",
+              {
+                 position: "top-center",
+                onClose: () => navigate("/profile"),
+              }
+            );
+            return;
+          }
         if (profileError) {
           console.error("Profile Fetch Error:", profileError);
           return;
@@ -217,10 +242,10 @@ const Checkout = () => {
 
           if (cartData) {
             const { data: cartItemsData, error: cartItemsError } =
-                await supabase
-                    .from("cart_item")
-                    .select(
-                        `
+              await supabase
+                .from("cart_item")
+                .select(
+                  `
                             quantity,
                             products (
                                 product_id,
@@ -229,28 +254,28 @@ const Checkout = () => {
                                 img
                             )
                         `
-                    )
-                    .eq("cart_id", cartData.id);
-    
+                )
+                .eq("cart_id", cartData.id);
+
             // Filter cart items based on selectedItems
-            const filteredCartItems = cartItemsData.filter(item => 
-                selectedItems.includes(item.products.product_id)
-            ); 
-    
+            const filteredCartItems = cartItemsData.filter((item) =>
+              selectedItems.includes(item.products.product_id)
+            );
+
             if (cartItemsError) {
-                console.error("Cart Items Fetch Error:", cartItemsError);
-                return;
+              console.error("Cart Items Fetch Error:", cartItemsError);
+              return;
             }
-    
-            if (filteredCartItems && filteredCartItems.length > 0) { 
-                setCartItems(filteredCartItems);
-                const totalAmount = filteredCartItems.reduce(
-                    (acc, item) => acc + item.quantity * item.products.sell_price,
-                    0
-                );
-                setTotal(totalAmount);
+
+            if (filteredCartItems && filteredCartItems.length > 0) {
+              setCartItems(filteredCartItems);
+              const totalAmount = filteredCartItems.reduce(
+                (acc, item) => acc + item.quantity * item.products.sell_price,
+                0
+              );
+              setTotal(totalAmount);
             }
-        }
+          }
         }
       }
     } catch (error) {
@@ -261,158 +286,160 @@ const Checkout = () => {
     }
   };
 
-  // Fetch city and district names based on codes (keep these functions as-is)
-  const fetchCityName = async (cityCode) => {
-    if (!cityCode) return "";
-    try {
-      const response = await fetch(
-        `https://provinces.open-api.vn/api/p/${cityCode}`
-      );
-      const data = await response.json();
-      console.log("Fetched city data:", data);
-      return data.name || "";
-    } catch (error) {
-      console.error("City Fetch Error:", error);
-      return "";
-    }
-  };
-
-  const fetchDistrictName = async (districtCode) => {
-    if (!districtCode) return "";
-    try {
-      const response = await fetch(
-        `https://provinces.open-api.vn/api/d/${districtCode}`
-      );
-      const data = await response.json();
-      console.log("Fetched district data:", data);
-      return data.name || "";
-    } catch (error) {
-      console.error("District Fetch Error:", error);
-      return "";
-    }
-  };
 
   const handlePlaceOrder = async (values) => {
     try {
-      if (!cartItems || cartItems.length === 0) {
-        alert("Giỏ hàng của bạn đang trống!");
-        return;
-      }
+        if (!cartItems || cartItems.length === 0) {
+            alert("Giỏ hàng của bạn đang trống!");
+            return;
+        }
 
-      let shippingInfo;
-      if (!useNewAddress) {
-        // Use default address
-        shippingInfo = {
-          name: profileData.name,
-          phone: profileData.phone,
-          address: profileData.address,
-          city: profileData.city,
-          district: profileData.district,
-          ward: profileData.ward,
+        let shippingInfo;
+        if (!useNewAddress) {
+            // Use default address
+            shippingInfo = {
+                name: profileData.name,
+                phone: profileData.phone,
+                address: profileData.address,
+                city: profileData.city,
+                district: profileData.district,
+                ward: profileData.ward,
+            };
+        } else {
+            // Use new address from form
+            const selectedCity = provinces.find(
+                (p) => p.code === values.city
+            )?.name;
+            const selectedDistrict = districts.find(
+                (d) => d.code === values.district
+            )?.name;
+
+            shippingInfo = {
+                name: values.name,
+                phone: values.phone,
+                address: values.address,
+                city: selectedCity,
+                district: selectedDistrict,
+                ward: values.ward,
+            };
+        }
+
+        // Tính tổng giá trị đơn hàng bao gồm cả phí vận chuyển
+        const totalWithShipping = total + shippingFee;
+
+        const vietnamTime = new Date();
+        vietnamTime.setHours(
+            vietnamTime.getHours() + 7 - vietnamTime.getTimezoneOffset() / 60
+        );
+
+        const orderInsertData = {
+            user_id: user.user_id,
+            total_price: totalWithShipping,
+            status: 1,
+            address_order: `${shippingInfo.address}, ${shippingInfo.ward}, ${shippingInfo.district}, ${shippingInfo.city}`,
+            created_at: vietnamTime.toISOString(),
         };
-      } else {
-        // Use new address from form
-        const selectedCity = provinces.find(
-          (p) => p.code === values.city
-        )?.name;
-        const selectedDistrict = districts.find(
-          (d) => d.code === values.district
-        )?.name;
 
-        shippingInfo = {
-          name: values.name,
-          phone: values.phone,
-          address: values.address,
-          city: selectedCity,
-          district: selectedDistrict,
-          ward: values.ward,
-        };
+        const { data: orderData, error: orderError } = await supabase
+            .from("orders")
+            .insert(orderInsertData)
+            .select()
+            .single();
+
+        if (orderError) {
+            console.error("Order Error Details:", orderError);
+            alert(`Lỗi khi tạo đơn hàng: ${orderError.message}`);
+            return;
+        }
+
+        const orderItems = cartItems.map((item) => ({
+            order_id: orderData.id,
+            product_id: item.products.product_id,
+            quantity: parseInt(item.quantity),
+        }));
+
+        const { error: orderItemsError } = await supabase
+            .from("order_items")
+            .insert(orderItems);
+
+        if (orderItemsError) {
+            await supabase.from("orders").delete().eq("id", orderData.id);
+            alert("Lỗi khi lưu chi tiết đơn hàng!");
+            return;
+        }
+
+        // Chỉ xóa các sản phẩm đã chọn khỏi giỏ hàng
+        const { data: cartData, error: cartError } = await supabase
+            .from("cart")
+            .select("id")
+            .eq("user_id", user.user_id)
+            .single();
+
+        if (cartError) {
+            console.error("Error fetching cart data:", cartError);
+            return;
+        }
+
+        if (cartData && selectedItems.length > 0) { 
+          const { error: clearCartError } = await supabase
+              .from("cart_item")
+              .delete()
+              .in("product_id", selectedItems) // Use selectedItems directly
+              .eq("cart_id", cartData.id);
+
+          if (clearCartError) throw clearCartError;
       }
 
-      const calculatedTotal = cartItems.reduce((sum, item) => {
-        const price = parseFloat(item.products.sell_price) || 0;
-        const quantity = parseInt(item.quantity) || 0;
-        return sum + price * quantity;
-      }, 0);
-
-      const vietnamTime = new Date();
-      vietnamTime.setHours(
-        vietnamTime.getHours() + 7 - vietnamTime.getTimezoneOffset() / 60
-      );
-
-      const orderInsertData = {
-        user_id: user.user_id,
-        total_price: calculatedTotal,
-        status: 1,
-        address_order: `${shippingInfo.address}, ${shippingInfo.ward}, ${shippingInfo.district}, ${shippingInfo.city}`,
-        created_at: vietnamTime.toISOString(),
-      };
-
-      const { data: orderData, error: orderError } = await supabase
-        .from("orders")
-        .insert(orderInsertData)
-        .select()
-        .single();
-
-      if (orderError) {
-        console.error("Order Error Details:", orderError);
-        alert(`Lỗi khi tạo đơn hàng: ${orderError.message}`);
-        return;
+        toast.success("Đặt hàng thành công!");
+        navigate("/order-confirmation", {
+            state: {
+                orderId: orderData.id,
+                orderTotal: totalWithShipping,
+                shippingInfo,
+            },
+        });
+        for (const item of cartItems) {
+          // Lấy số lượng tồn kho hiện tại của sản phẩm
+          const { data: productData, error: fetchError } = await supabase
+              .from("products")
+              .select("stock_quantity")
+              .eq("product_id", item.products.product_id)
+              .single();
+      
+          if (fetchError) {
+              console.error("Error fetching product stock quantity:", fetchError);
+              alert("Lỗi khi lấy thông tin tồn kho sản phẩm.");
+              return;
+          }
+      
+          const newStockQuantity = productData.stock_quantity - item.quantity;
+      
+          if (newStockQuantity < 0) {
+              alert(`Sản phẩm ${item.products.name} không đủ hàng tồn kho.`);
+              return;
+          }
+      
+          // Cập nhật số lượng hàng
+          const { error: updateError } = await supabase
+              .from("products")
+              .update({ stock_quantity: newStockQuantity })
+              .eq("product_id", item.products.product_id);
+      
+          if (updateError) {
+              console.error("Stock Update Error:", updateError);
+              alert("Lỗi khi cập nhật tồn kho sản phẩm.");
+              return;
+          }
       }
-
-      const orderItems = cartItems.map((item) => ({
-        order_id: orderData.id,
-        product_id: item.products.product_id,
-        quantity: parseInt(item.quantity),
-      }));
-
-      const { error: orderItemsError } = await supabase
-        .from("order_items")
-        .insert(orderItems);
-
-      if (orderItemsError) {
-        await supabase.from("orders").delete().eq("id", orderData.id);
-        alert("Lỗi khi lưu chi tiết đơn hàng!");
-        return;
-      }
-
-      // Fetch cart data again to get the cart ID
-      const { data: cartData, error: cartError } = await supabase
-        .from("cart")
-        .select("id")
-        .eq("user_id", user.user_id)
-        .single();
-
-      if (cartError) {
-        console.error("Error fetching cart data:", cartError);
-        return;
-      }
-
-      if (cartData) {
-        // Clear cart items
-        const { error: clearCartError } = await supabase
-          .from("cart_item")
-          .delete()
-          .eq("cart_id", cartData.id);
-
-        if (clearCartError) throw clearCartError;
-      }
-
-      toast.success("Đặt hàng thành công!");
-      navigate("/order-confirmation", {
-        state: {
-          orderId: orderData.id,
-          orderTotal: calculatedTotal,
-          shippingInfo,
-        },
-      });
+      
     } catch (error) {
-      console.error("Unexpected Error:", error);
-      alert(
-        "Lỗi khi đặt hàng: " + (error.message || "Đã xảy ra lỗi không xác định")
-      );
+        console.error("Unexpected Error:", error);
+        alert(
+            "Lỗi khi đặt hàng: " + (error.message || "Đã xảy ra lỗi không xác định")
+        );
     }
-  };
+};
+
   const handleAddressTypeChange = (e) => {
     setUseNewAddress(e.target.value === "new");
     if (e.target.value === "default") {
@@ -449,35 +476,19 @@ const Checkout = () => {
             Thanh toán
           </Title>
           <Row gutter={32}>
-            <Col xs={24} md={12}>
+          <Col xs={24} md={12}>
               <Card bordered={false} style={{ marginBottom: "24px" }}>
                 <Title level={4}>Sản phẩm</Title>
                 <Divider />
                 {cartItems.length > 0 ? (
                   <ul style={{ padding: 0, listStyle: "none" }}>
                     {cartItems.map((item, index) => (
-                      <li
-                        key={index}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginBottom: "10px",
-                        }}
-                      >
-                        <Avatar
-                          src={item.products.img[0]}
-                          shape="square"
-                          size={80}
-                          style={{ marginRight: "16px" }}
-                        />
+                      <li key={index} style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
+                        <Avatar src={item.products.img[0]} shape="square" size={80} style={{ marginRight: "16px" }} />
                         <div>
                           <Text strong>{item.products.name}</Text>
                           <br />
-                          <Text>
-                            {item.quantity} x{" "}
-                            {item.products.sell_price.toLocaleString("vi-VN")}{" "}
-                            VND
-                          </Text>
+                          <Text>{item.quantity} x {item.products.sell_price.toLocaleString("vi-VN")} VND</Text>
                         </div>
                       </li>
                     ))}
@@ -486,12 +497,12 @@ const Checkout = () => {
                   <Text>Giỏ hàng trống</Text>
                 )}
                 <Divider />
+                <Text strong style={{ fontSize: "16px" }}>
+                  Phí vận chuyển: {shippingFee > 0 ? `${shippingFee.toLocaleString("vi-VN")} VND` : "Miễn phí"}
+                </Text>
+                <br />
                 <Text strong style={{ fontSize: "20px" }}>
-                  Tổng thanh toán:{" "}
-                  <span style={{ color: "red" }}>
-                    {total.toLocaleString("vi-VN")}
-                  </span>{" "}
-                  VND
+                  Tổng thanh toán: <span style={{ color: "red" }}>{(total + shippingFee).toLocaleString("vi-VN")}</span> VND
                 </Text>
               </Card>
             </Col>
