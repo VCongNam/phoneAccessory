@@ -93,6 +93,7 @@ const HomeBrand = ({ brandName }) => {
             <Card
               hoverable
               cover={
+            
                 <img
                   alt={product.name}
                   src={product.img[0]}
@@ -103,7 +104,11 @@ const HomeBrand = ({ brandName }) => {
               className="product-card"
             >
               <Meta
-                title={product.name}
+                  title={
+                    <span>
+                      {product.name} {product.isHot == 1 && <span className="hot-badge">Hot</span>}
+                    </span>
+                  }
                 description={`Giá: ${product.sell_price} VNĐ`}
               />
             </Card>
