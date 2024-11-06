@@ -170,6 +170,7 @@ const HomeMenu = () => {
       </div>
 
       <h3 className="text-center mb-4">ĐÚNG HÀNG - ĐÚNG GIÁ - ĐÚNG CHẤT LƯỢNG</h3>
+      <h3 className="text-center mb-4">Danh mục sản phẩm</h3>
       
       <Row gutter={[16, 16]} justify="center">
       {categories.slice(0, 8).map((category) => {

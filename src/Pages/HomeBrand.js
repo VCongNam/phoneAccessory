@@ -109,7 +109,7 @@ const HomeBrand = ({ brandName }) => {
                       {product.name} {product.isHot == 1 && <span className="hot-badge">Hot</span>}
                     </span>
                   }
-                description={`Giá: ${product.sell_price} VNĐ`}
+                  description={<span style={{ color: "rgb(255 64 64)" }}>Giá: {product.sell_price.toLocaleString()} VND</span>}
               />
             </Card>
           </div>
