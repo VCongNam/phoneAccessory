@@ -1,6 +1,6 @@
 // SalesStatistics.js
 import React, { useState, useEffect } from 'react';
-import { Table } from 'antd';
+import { Table, DatePicker, Select } from 'antd';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, Title, Tooltip, Legend, PointElement } from 'chart.js';
 import { supabase } from "../supabaseClient";
 import { Chart } from 'react-chartjs-2';
@@ -16,9 +16,16 @@ ChartJS.register(
   Legend
 );
 
+const { RangePicker } = DatePicker;
+const { Option } = Select;
+
 const SalesStatistics = () => {
   const [dailyStats, setDailyStats] = useState([]);
-  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0); // Total revenue for the chart
+  const [tableTotalRevenue, setTableTotalRevenue] = useState(0); // Total revenue for the table
+  const [filteredStats, setFilteredStats] = useState([]); // Used for the chart
+  const [tableData, setTableData] = useState([]); // Used for the table
+  const [filterType, setFilterType] = useState('day');
 
   useEffect(() => {
     const fetchSalesData = async () => {
@@ -61,19 +68,78 @@ const SalesStatistics = () => {
       }));
       
       setDailyStats(dailyStatsArray);
-      setTotalRevenue(totalRev); // Set total revenue
+      setTotalRevenue(totalRev); // Set total revenue for the chart
+      setFilteredStats(dailyStatsArray); // Initialize chart data with all data
+      setTableData(dailyStatsArray); // Initialize table data with all data
+      calculateTableTotalRevenue(dailyStatsArray); // Calculate initial table total revenue
     };
 
     fetchSalesData();
   }, []);
 
+  // Function to calculate total revenue based on tableData
+  const calculateTableTotalRevenue = (data) => {
+    const total = data.reduce((sum, item) => sum + item.revenue, 0);
+    setTableTotalRevenue(total);
+  };
+
+  // Function to filter table data by day, week, or month
+  const handleFilterTypeChange = (value) => {
+    setFilterType(value);
+    let filtered = dailyStats;
+
+    const currentDate = new Date();
+
+    if (value === 'day') {
+      filtered = dailyStats.filter(stat => {
+        const statDate = new Date(stat.date.split('/').reverse().join('-')); // Convert to YYYY-MM-DD format
+        return statDate.toDateString() === currentDate.toDateString();
+      });
+    } else if (value === 'week') {
+      const weekAgo = new Date();
+      weekAgo.setDate(currentDate.getDate() - 7);
+
+      filtered = dailyStats.filter(stat => {
+        const statDate = new Date(stat.date.split('/').reverse().join('-'));
+        return statDate >= weekAgo && statDate <= currentDate;
+      });
+    } else if (value === 'month') {
+      const monthAgo = new Date();
+      monthAgo.setMonth(currentDate.getMonth() - 1);
+
+      filtered = dailyStats.filter(stat => {
+        const statDate = new Date(stat.date.split('/').reverse().join('-'));
+        return statDate >= monthAgo && statDate <= currentDate;
+      });
+    }
+
+    setTableData(filtered); // Only update the table data
+    calculateTableTotalRevenue(filtered); // Update the table's total revenue based on the filtered data
+  };
+
+  // Function to filter chart data by date range
+  const handleDateRangeChange = (dates) => {
+    if (!dates || !dates[0] || !dates[1]) {
+      setFilteredStats(dailyStats); // Reset to all data if no dates are selected
+      return;
+    }
+
+    const [start, end] = dates;
+    const filtered = dailyStats.filter(stat => {
+      const statDate = new Date(stat.date.split('/').reverse().join('-')); // Convert to YYYY-MM-DD format
+      return statDate >= start.toDate() && statDate <= end.toDate();
+    });
+
+    setFilteredStats(filtered);
+  };
+
   const chartData = {
-    labels: dailyStats.map(stat => stat.date),
+    labels: filteredStats.map(stat => stat.date),
     datasets: [
       {
         type: 'line',
         label: 'Doanh thu (₫)',
-        data: dailyStats.map(stat => stat.revenue),
+        data: filteredStats.map(stat => stat.revenue),
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         fill: true,
@@ -83,7 +149,7 @@ const SalesStatistics = () => {
       {
         type: 'bar',
         label: 'Số lượng sản phẩm đã bán',
-        data: dailyStats.map(stat => stat.productsSold),
+        data: filteredStats.map(stat => stat.productsSold),
         backgroundColor: 'rgba(153, 102, 255, 0.6)',
         yAxisID: 'y1',
       },
@@ -151,13 +217,34 @@ const SalesStatistics = () => {
 
   return (
     <div>
-      <h3>Thống Kê Bán Hàng Theo Ngày</h3>
+      <h3>Thống Kê Bán Hàng</h3>
 
       <div style={{ marginBottom: '20px', fontSize: '1.5em', fontWeight: 'bold' }}>
-        Tổng Doanh Thu: <span style={{ color: 'red' }}>{totalRevenue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span>
+        Tổng Doanh Thu (Biểu Đồ): <span style={{ color: 'red' }}>{totalRevenue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span>
+      </div>
+      
+      <div style={{ marginBottom: '20px', fontSize: '1.5em', fontWeight: 'bold' }}>
+        Tổng Doanh Thu (Bảng): <span style={{ color: 'blue' }}>{tableTotalRevenue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span>
       </div>
 
-      <Table dataSource={dailyStats} columns={columns} rowKey="date" />
+      <Select 
+        defaultValue="day" 
+        style={{ width: 200, marginBottom: '20px', marginRight: '20px' }}
+        onChange={handleFilterTypeChange}
+      >
+        <Option value="day">Hôm nay</Option>
+        <Option value="week">Tuần này</Option>
+        <Option value="month">Tháng này</Option>
+      </Select>
+
+      <Table dataSource={tableData} columns={columns} rowKey="date" style={{ marginBottom: '40px' }} />
+
+      <RangePicker
+        format="DD/MM/YYYY"
+        onChange={handleDateRangeChange}
+        style={{ marginBottom: '20px' }}
+      />
+
       <Chart type="bar" data={chartData} options={chartOptions} />
     </div>
   );
