@@ -58,6 +58,14 @@ const OrderConfirmation = () => {
                     <Button 
                         type="primary" 
                         size="large" 
+                        style={{ width: '100%', marginTop: '20px', backgroundColor: '#20c35a', borderColor: '#52c41a' }}
+                        onClick={() => navigate('/profile')}
+                    >
+                        Kiểm tra đơn hàng
+                    </Button>
+                    <Button 
+                        type="primary" 
+                        size="large" 
                         style={{ width: '100%', marginTop: '20px', backgroundColor: '#52c41a', borderColor: '#52c41a' }}
                         onClick={() => navigate('/')}
                     >
