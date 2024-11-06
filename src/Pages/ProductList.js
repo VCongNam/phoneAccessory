@@ -112,7 +112,7 @@ const ProductList = () => {
     const brandName = brands.find((brand) => brand.brand_id === selectedBrand)?.name;
 
     if (categoryId && selectedBrand) {
-      return `Tất cả sản phẩm của ${categoryName} ${brandName}`;
+      return `Tất cả sản phẩm của ${categoryName} của ${brandName}`;
     } else if (categoryId) {
       return `Tất cả sản phẩm của ${categoryName}`;
     } else if (selectedBrand) {
@@ -209,7 +209,9 @@ const ProductList = () => {
                       ]}
                     >
                       <Meta
-                        title={product.name}
+                        title={<span>
+                          {product.name} {product.isHot == 1 && <span className="hot-badge">Hot</span>}
+                        </span>}
                         description={<p style={{ color: "#121214", marginTop: "10px" }}>Giá: {product.sell_price.toLocaleString()} VND</p>}
                       />
                     </Card>
