@@ -7,8 +7,7 @@ import ProductDetail from './Pages/ProductDetail';
 import DashboardPage from './Pages/AdminDash';
 import CartDetail from './Pages/CartDetail';
 import Profile from './Pages/Profile';
-import AdminAuth from './Pages/AdminLogin';
-import SellerAuth from './Pages/SellerLogin';
+import AuthPortal from './Pages/AuthLogin';
 import DashboardPage1 from './Pages/SellerDashboard';
 import CheckoutPage from './Pages/CheckOut';
 import OrderConfirmation from './Pages/OrderCf';
@@ -26,8 +25,7 @@ const AppRouter = () => {
                     <Route element={<PrivateRoutes requiredRole={3} />}>
                         <Route path="/SellerDashboard" element={<DashboardPage1 />} />
                     </Route>
-                    <Route path="/adminlogin" element={<AdminAuth />} />
-                    <Route path="/sellerlogin" element={<SellerAuth />} />
+                    <Route path="/authlogin" element={<AuthPortal />} />
                     <Route path="/" element={<Home />} exact />
                     <Route path="/productlist" element={<ProductList />} />
                     <Route path="/productdetail/:id" element={<ProductDetail />} />
