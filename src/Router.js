@@ -12,6 +12,7 @@ import DashboardPage1 from './Pages/SellerDashboard';
 import CheckoutPage from './Pages/CheckOut';
 import OrderConfirmation from './Pages/OrderCf';
 import BrandProductList from './Pages/BrandProductList'
+import SearchProductList from './Pages/SearchProductList';
 
 const AppRouter = () => {
     return (
@@ -36,6 +37,7 @@ const AppRouter = () => {
                     <Route path="/cart" element={<CartDetail />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path='/SearchProductList' element={<SearchProductList/>}/>
                     <Route path="/order-confirmation" element={<OrderConfirmation/>} />
                 </Routes>
             </div>
