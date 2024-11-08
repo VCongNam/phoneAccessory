@@ -10,6 +10,7 @@ import bn1 from "./images/bn1.png";
 import bn2 from "./images/bn2.png";
 import bn4 from "./images/bn4.jpg"; 
 import bn5 from "./images/bn5.jpg";
+import zalo from "./images/zalo.png";
 
 import "./CSS/Home.css";
 
@@ -90,7 +91,7 @@ const Home = () => {
         <HomeBrand brandName="Marshall" /> {/* Truyền tên thương hiệu vào BrandName */}
       </Content>
       <div class="float-contact"> 
-          <div class="chat-zalo"> <a href="https://zalo.me/0963355865" target="_blank"><img title="Chat Zalo" src={zalo} alt="zalo-icon" 
+          <div  class="chat-zalo"> <a href="https://zalo.me/0963355865" target="_blank"><img title="Chat Zalo" src={zalo} alt="zalo-icon" 
           width="40" height="40" /></a> 
           </div>
           </div>
