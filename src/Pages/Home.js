@@ -88,7 +88,11 @@ const Home = () => {
         {/* Danh sách sản phẩm của thương hiệu "Marshall" */}
         <HomeBrand brandName="Marshall" /> {/* Truyền tên thương hiệu vào BrandName */}
       </Content>
-
+      <div class="float-contact"> 
+          <div class="chat-zalo"> <a href="https://zalo.me/0963355865" target="_blank"><img title="Chat Zalo" src={zalo} alt="zalo-icon" 
+          width="40" height="40" /></a> 
+          </div>
+          </div>
       <Footer />
     </Layout>
   );

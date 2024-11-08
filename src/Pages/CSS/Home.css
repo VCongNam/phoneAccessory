@@ -162,3 +162,4 @@
     margin-bottom: 20px;
   }
 }
+.float-contact { position: fixed; bottom: 20px; right: 20px; z-index: 99999; } .chat-zalo { display: block; margin-bottom: 20px; line-height: 0; }
