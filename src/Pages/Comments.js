@@ -1,9 +1,11 @@
 // Comment.js
 import React, { useEffect, useState } from "react";
-import { Card, Rate, Button, Input, message } from "antd";
+import { Card, Rate, Button, Input, message, Typography, Divider, Avatar } from "antd";
 import { supabase } from "../supabaseClient"; // Adjust path if needed
+import { UserOutlined } from "@ant-design/icons";
 
 const { TextArea } = Input;
+const { Text, Title } = Typography;
 
 const Comment = ({ productId, user }) => {
     const [comments, setComments] = useState([]);
@@ -12,7 +14,6 @@ const Comment = ({ productId, user }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [existingFeedback, setExistingFeedback] = useState(null);
 
-    // Fetch all comments for the product
     const fetchComments = async () => {
         const { data, error } = await supabase
             .from("comment")
@@ -23,8 +24,6 @@ const Comment = ({ productId, user }) => {
             console.error("Error fetching comments:", error);
         } else {
             setComments(data);
-
-            // Check if user has already provided feedback
             if (user) {
                 const userComment = data.find(comment => comment.user_id === user.user_id);
                 if (userComment) {
@@ -58,7 +57,7 @@ const Comment = ({ productId, user }) => {
             message.success("Feedback submitted successfully!");
             setFeedback("");
             setRating(0);
-            fetchComments(); // Refresh comments after submission
+            fetchComments();
         }
 
         setIsSubmitting(false);
@@ -66,47 +65,59 @@ const Comment = ({ productId, user }) => {
     };
 
     return (
-        <div>
-            {/* Show feedback form only if user is logged in and hasn't already left feedback */}
+        <div style={{ padding: "0 20px", maxWidth: "800px", margin: "0 auto" }}>
+            <Title level={3} style={{ textAlign: "center", marginTop: "20px" }}>Đánh giá sản phẩm</Title>
+            <Divider />
+            
+            {/* Feedback form */}
             {user && !existingFeedback ? (
-                <div style={{ marginTop: "20px" }}>
-                    <Rate onChange={(value) => setRating(value)} value={rating} /><br />
+                <div style={{ margin: "20px 0" }}>
+                    <Title level={4}>Viết đánh giá của bạn</Title>
+                    <Rate onChange={(value) => setRating(value)} value={rating} style={{ marginBottom: "10px" }} />
                     <TextArea
                         rows={4}
                         value={feedback}
                         onChange={(e) => setFeedback(e.target.value)}
-                        placeholder="viết đánh giá của bạn..."
-                        style={{ marginTop: "10px", marginBottom: "10px" }}
+                        placeholder="Nhập đánh giá của bạn..."
+                        style={{ marginBottom: "10px" }}
                     />
                     <Button
                         type="primary"
                         onClick={handleSubmitFeedback}
                         loading={isSubmitting}
+                        block
                     >
-                        Submit Feedback
+                        Gửi đánh giá
                     </Button>
                 </div>
             ) : (
-                <p>{!user ? "Đăng nhập trước khi thêm đánh giá." : "Bạn đã thêm đánh giá cho sản phẩm này."}</p>
+                <Text type="secondary">{!user ? "Vui lòng đăng nhập để thêm đánh giá." : "Bạn đã gửi đánh giá cho sản phẩm này."}</Text>
             )}
-            <h3 style={{ marginTop: "20px",textAlign:"center" }}>Đánh giá sản phẩm</h3>
+
+            <Divider />
+
+            {/* Display comments */}
             {comments.length > 0 ? (
                 comments.map((comment) => (
-                    <Card key={comment.id} hoverable style={{ marginBottom: "16px" }}>
-                        <div>
-                            <strong>{comment.user_id}</strong>
-                            <Rate disabled value={comment.rate} />
-                            <p><strong>Feedback:</strong> {comment.feedback}</p>
+                    <Card key={comment.id} style={{ marginBottom: "16px" }}>
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                            <Avatar icon={<UserOutlined />} style={{ marginRight: "10px" }} />
+                            <div>
+                                <Text strong>Người dùng ẩn danh</Text>
+                                <Rate disabled value={comment.rate} style={{ fontSize: "14px", marginLeft: "10px" }} />
+                            </div>
                         </div>
+                        <Text style={{ display: "block", marginTop: "10px" }}><strong>Feedback:</strong> {comment.feedback}</Text>
                     </Card>
                 ))
             ) : (
-                <p>Chưa có đnáh giá cho sản phẩm này. Hãy trờ thành người đầu tiên đánh giá sản phẩm!</p>
+                <Text type="secondary" style={{ textAlign: "center", display: "block" }}>
+                    Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên đánh giá sản phẩm!
+                </Text>
             )}
-
-
         </div>
     );
 };
 
 export default Comment;
+

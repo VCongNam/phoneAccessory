@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from "react";
 import { Layout, Row, Col, Card, List, Spin, Carousel, Rate } from "antd";
 import { Modal, Button } from 'antd';
@@ -263,7 +264,7 @@ function ProductDetail() {
                         <AvgRate productId={id} />
 
                         <p className="product-price">{formatPrice(product.sell_price)} VND</p>
-                        <p> số lượng sản phẩm còn trong kho: {product.stock_quantity}</p>
+                        <p>Số lượng sản phẩm còn trong kho: <span style={{ color: 'red' }}>{product.stock_quantity}</span></p>
 
                         <label htmlFor="quantity">Số lượng:</label>
                         <input
@@ -334,5 +335,6 @@ function ProductDetail() {
         </div>
     );
 };
+
 
 export default ProductDetail;
