@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { Link } from 'react-router-dom';
 
 // Register the components
 ChartJS.register(
@@ -21,42 +22,70 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-// Kết nối đến Supabase
-
 
 const ProductStat = () => {
-  const [products, setProducts] = useState([]);
+  const [productStats, setProductStats] = useState([]);
   const [totalProducts, setTotalProducts] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   // Lấy dữ liệu sản phẩm từ Supabase
+  const fetchProductData = async () => {
+    setLoading(true);
+  
+    // Fetch products
+    const { data: products, error: productsError } = await supabase
+      .from('products')
+      .select('product_id, name, stock_quantity, img, status, product_code');
+  
+    if (productsError) {
+      console.error('Error fetching products:', productsError);
+      setLoading(false);
+      return;
+    }
+  
+    // Fetch order items
+    const { data: orderItems, error: orderItemsError } = await supabase
+      .from('order_items')
+      .select('product_id, quantity');
+  
+    if (orderItemsError) {
+      console.error('Error fetching order items:', orderItemsError);
+      setLoading(false);
+      return;
+    }
+  
+    // Calculate total quantity sold for each product
+    const quantitySoldMap = orderItems.reduce((acc, item) => {
+      acc[item.product_id] = (acc[item.product_id] || 0) + item.quantity;
+      return acc;
+    }, {});
+  
+    // Add quantity_sold to each product
+    const productsWithSales = products.map(product => ({
+      ...product,
+      quantity_sold: quantitySoldMap[product.product_id] || 0 // Default to 0 if no sales
+    }));
+  
+    setProductStats(productsWithSales);
+    setTotalProducts(productsWithSales.length);
+    setLoading(false);
+  };
+  
   useEffect(() => {
-    const fetchProducts = async () => {
-        const { data, error, count } = await supabase
-          .from('products')
-          .select('product_code, name, stock_quantity', { count: 'exact' }) // Include count: 'exact' here
-          .order('stock_quantity', { ascending: false });
-      
-        if (error) {
-          console.error('Lỗi khi lấy dữ liệu từ Supabase:', error);
-        } else {
-          setProducts(data);
-          setTotalProducts(count); // Set the total count from the response
-        }
-      };
-      
-
-    fetchProducts();
+    fetchProductData();
   }, []);
-
+  
+  
+  
   // Cấu hình dữ liệu cho biểu đồ Bar Chart
   const chartData = {
-    labels: products.map((product) =>  product.product_code),
+    labels: productStats.map((product) => product.product_code),
     datasets: [
       {
         label: 'Số lượng tồn kho',
-        data: products.map((product) => product.stock_quantity),
+        data: productStats.map((product) => product.stock_quantity),
         backgroundColor: 'rgba(54, 12, 45, 0.6)',
-        borderColor: 'rgba(54, 162, 235, 2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
         borderWidth: 1,
       },
     ],
@@ -65,49 +94,82 @@ const ProductStat = () => {
   // Cột cho bảng từ dữ liệu Supabase
   const columns = [
     {
-      title: 'Tên Sản Phẩm',
-      dataIndex: 'name',
-      key: 'name',
-      sorter: (a, b) => a.name.localeCompare(b.name),
+      title: 'Số thứ tự',
+      dataIndex: 'index',
+      key: 'index',
+      render: (_, __, index) => index + 1,
     },
     {
-      title: 'Số Lượng Tồn Kho',
+      title: 'Ảnh',
+      dataIndex: 'img',
+      key: 'img',
+      render: (image, record) => (
+        <Link to={`/productdetail/${record.product_id}`}>
+          <img src={image ? image[0] : ''} alt="product" style={{ width: 100, border: '1px solid #ccc' }} />
+        </Link>
+      ),
+    },
+    {
+      title: 'Mã sản phẩm',
+      dataIndex: 'product_code',
+      key: 'product_code',
+      render: (productId) => (
+        <Link to={`/productdetail/${productId}`}>{productId}</Link>
+      ),
+    },
+    {
+      title: 'Tên sản phẩm',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Tồn kho',
       dataIndex: 'stock_quantity',
       key: 'stock_quantity',
       sorter: (a, b) => a.stock_quantity - b.stock_quantity,
     },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      filters: [
+        { text: 'Chờ Duyệt', value: 1 },
+        { text: 'Đã Duyệt', value: 2 },
+        { text: 'Từ Chối', value: 3 },
+      ],
+      onFilter: (value, record) => record.status === value,
+      render: (status) => {
+        if (status === 1) return 'Chờ Duyệt';
+        if (status === 2) return 'Đã Duyệt';
+        if (status === 3) return 'Từ Chối';
+        return 'Không xác định';
+      },
+    },
+    {
+      title: 'Số lượng đã bán',
+      dataIndex: 'quantity_sold',
+      key: 'quantity_sold',
+      sorter: (a, b) => a.quantity_sold - b.quantity_sold,
+    },
+    
   ];
-
-  // Xử lý khi có sự thay đổi trong bảng
-  const onTableChange = (pagination, filters, sorter) => {
-    console.log('params', pagination, filters, sorter);
-  };
 
   return (
     <div>
-      
       <div style={{ marginBottom: '20px' }}>
         <h3>Số Lượng Tồn Kho Sản Phẩm</h3>
-         <div style={{ marginBottom: '20px', fontSize: '1.5em', fontWeight: 'bold' }}>
-        TỔNG SỐ SẢN PHẨM: <span style={{ color: 'red' }}>{totalProducts} </span>sản phẩm
-         </div>     
-         <Table
-          dataSource={products}
-          columns={columns}
-          rowKey="name"
-          onChange={onTableChange}
-        />
+        <div style={{ marginBottom: '20px', fontSize: '1.5em', fontWeight: 'bold' }}>
+          TỔNG SỐ SẢN PHẨM: <span style={{ color: 'red' }}>{totalProducts}</span> sản phẩm
+        </div>
+        <Table dataSource={productStats} columns={columns} rowKey="product_id" loading={loading} />
       </div>
       
       <div style={{ marginBottom: '20px' }}>
         <h3>Biểu Đồ Tồn Kho Sản Phẩm</h3>
         <Bar data={chartData} options={{ responsive: true }} />
       </div>
-      
-      
     </div>
   );
 };
 
 export default ProductStat;
-

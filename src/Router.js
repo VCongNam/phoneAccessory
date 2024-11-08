@@ -7,11 +7,12 @@ import ProductDetail from './Pages/ProductDetail';
 import DashboardPage from './Pages/AdminDash';
 import CartDetail from './Pages/CartDetail';
 import Profile from './Pages/Profile';
-import AdminAuth from './Pages/AdminLogin';
-import SellerAuth from './Pages/SellerLogin';
+import AuthPortal from './Pages/AuthLogin';
 import DashboardPage1 from './Pages/SellerDashboard';
 import CheckoutPage from './Pages/CheckOut';
 import OrderConfirmation from './Pages/OrderCf';
+import BrandProductList from './Pages/BrandProductList'
+import SearchProductList from './Pages/SearchProductList';
 
 const AppRouter = () => {
     return (
@@ -26,16 +27,17 @@ const AppRouter = () => {
                     <Route element={<PrivateRoutes requiredRole={3} />}>
                         <Route path="/SellerDashboard" element={<DashboardPage1 />} />
                     </Route>
-                    <Route path="/adminlogin" element={<AdminAuth />} />
-                    <Route path="/sellerlogin" element={<SellerAuth />} />
+                    <Route path="/authlogin" element={<AuthPortal />} />
                     <Route path="/" element={<Home />} exact />
                     <Route path="/productlist" element={<ProductList />} />
                     <Route path="/productdetail/:id" element={<ProductDetail />} />
                     <Route path="/productlist/:id" element={<ProductList />} />
+                    <Route path="/BrandProducts/:brandId" element={<BrandProductList />} />
                     <Route path="/login" element={<Auth />} />
                     <Route path="/cart" element={<CartDetail />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path='/SearchProductList' element={<SearchProductList/>}/>
                     <Route path="/order-confirmation" element={<OrderConfirmation/>} />
                 </Routes>
             </div>

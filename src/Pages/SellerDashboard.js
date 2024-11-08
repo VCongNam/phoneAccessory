@@ -5,7 +5,6 @@ import SellerSidebar from '../Components/SellerSliderbar/SellerSliderbar';
 import SellerProductList from '../Components/Sellerlistproductmana/SellerProductList';
 import DashboardOverview from '../Components/GeneralDash/General';
 import SellerOrderManagement from '../Components/OrderManagement/SellerOrderManagement';
-import SellerCus from '../Components/CustomerManagement/SellerCus';
 const { Content } = Layout;
 
 const DashboardPage1 = () => {
@@ -19,8 +18,6 @@ const DashboardPage1 = () => {
         return <SellerProductList />;
       case 'orders':
         return <SellerOrderManagement />;
-        case 'customers':
-          return <SellerCus />;
       default:
         return <DashboardOverview />;
     }
@@ -31,7 +28,7 @@ const DashboardPage1 = () => {
     dashboard: ['Tổng quan'],
     products: ['Quản lý sản phẩm'],
     orders: ['Quản lý đơn hàng'],
-    customers: ['Quản lý khách hàng'],  
+    
   
   };
 
@@ -57,5 +54,3 @@ const DashboardPage1 = () => {
 };
 
 export default DashboardPage1;
-
-

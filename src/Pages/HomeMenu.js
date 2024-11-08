@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col, Card, Spin, Input } from 'antd';
 import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { useNavigate } from 'react-router-dom';
 import './CSS/HomeMenu.css';
 import capsac from './images/capsac.png';
 import cusac from './images/cusac.png';
@@ -44,6 +45,7 @@ const formatPrice = (price) => {
 };
 
 const HomeMenu = () => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
@@ -103,12 +105,28 @@ const HomeMenu = () => {
       </div>
     );
   }
+  const handleSearch1 = (value) => {
+    setSearchValue(value);
+    if (value.trim() === '') {
+      setSearchResults([]);
+      return;
+    }
 
+    const filteredProducts = products.filter(product =>
+      product?.name?.toLowerCase().includes(value.toLowerCase())
+    );
+    setSearchResults(filteredProducts);
+
+    // Navigate to the product list page with search results
+    navigate('/SearchProductList', { state: { searchResults: filteredProducts } });
+  };
+  
   return (
     <div className="product-grid-container">
       <div className="search-container" style={{ maxWidth: '600px', margin: '0 auto 2rem auto' }}>
         <Search
           placeholder="Nhập sản phẩm bạn muốn tìm"
+         onSearch={handleSearch1}
           onChange={(e) => handleSearch(e.target.value)}
           value={searchValue}
           size='large'
@@ -128,17 +146,20 @@ const HomeMenu = () => {
             {searchResults.map((product) => (
               <Link 
                 key={product?.product_id} 
-                to={`/ProductDetail/productlist/${product?.product_id}`}
+                to={`/ProductDetail/${product?.product_id}`}
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
-                <div className="search-result-item" style={{
+                <div className="search-result-item"  style={{
                   padding: '0.5rem 1rem',
                   borderBottom: '1px solid #eee',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '1rem'
-                }}>
+
+                }}
+
+                >
                   <img 
                     src={product?.img?.[0] || '/placeholder-image.png'} 
                     alt={product?.name || 'Sản phẩm'}
@@ -170,6 +191,7 @@ const HomeMenu = () => {
       </div>
 
       <h3 className="text-center mb-4">ĐÚNG HÀNG - ĐÚNG GIÁ - ĐÚNG CHẤT LƯỢNG</h3>
+      <h3 className="text-center mb-4">Danh mục sản phẩm</h3>
       
       <Row gutter={[16, 16]} justify="center">
       {categories.slice(0, 8).map((category) => {

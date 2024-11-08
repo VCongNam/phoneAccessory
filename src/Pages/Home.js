@@ -4,7 +4,7 @@ import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
 import HomeBrand from "./HomeBrand"; // Import component ProductList
 import { Link } from 'react-router-dom';
-
+import HotProducts from "./HotPage";
 import HomeMenu from "./HomeMenu";
 import bn1 from "./images/bn1.png";
 import bn2 from "./images/bn2.png";
@@ -81,6 +81,7 @@ const Home = () => {
           </div>
         </Carousel>
         <HomeMenu />
+        <HotProducts/>
         {/* Danh sách sản phẩm của thương hiệu "iPhone" */}
         <HomeBrand brandName="Apple" /> {/* Truyền tên thương hiệu vào BrandName */}
         {/* Danh sách sản phẩm của thương hiệu "Samsung" */}
