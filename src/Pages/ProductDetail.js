@@ -1,16 +1,17 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Layout, Row, Col, Card, List, Spin, Carousel } from "antd";
+import { Layout, Row, Col, Card, List, Spin, Carousel, Rate } from "antd";
 import { Modal, Button } from 'antd';
 import { useParams } from 'react-router-dom';
 import { supabase } from "../supabaseClient"; // Import Supabase client
 import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
-import Rating from './Rating'; // Import the Rating component
 import { useNavigate } from "react-router-dom";
 import { decoder64 } from '../Components/Base64Encoder/Base64Encoder';
 import { toast, ToastContainer } from 'react-toastify'; // Import Toast from react-toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
 import "./CSS/ProductDetail.css";
+import Comments from "./Comments";
+import AvgRate from "./avgcmt";
 
 const { Content } = Layout;
 const { Meta } = Card;
@@ -27,6 +28,12 @@ function ProductDetail() {
     const [selectedImage, setSelectedImage] = useState(null); // Thêm state cho ảnh chính
     const [isAdding, setIsAdding] = useState(false); // New state for "Add to Cart" button
     const navigate = useNavigate();
+    const [comments, setComments] = useState([]);
+    const [rating, setRating] = useState(0);
+    const [feedback, setFeedback] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [existingFeedback, setExistingFeedback] = useState(null);
+    const [averageRate, setAverageRate] = useState(0);
 
     const getCookie = (name) => {
         const value = `; ${document.cookie}`;
@@ -48,6 +55,7 @@ function ProductDetail() {
             setLoading(false);
         }
     };
+
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -78,7 +86,7 @@ function ProductDetail() {
 
             setLoading(false);
         };
-        fetchUserAndCart();
+        fetchUserAndCart()
         fetchProduct();
     }, [id]);
 
@@ -90,16 +98,21 @@ function ProductDetail() {
         return <p>Không tìm thấy sản phẩm.</p>;
     }
 
-    const handleQuantityChange = (e) => {
-        if (e.target.value < 1) {
-            alert("Quantity must be at least 1");
+    const handleQuantityChange = (newQuantity) => {
+        if (newQuantity < 1) {
+            toast.warn('Số lượng sản phẩm phải lơn hơn 1');
             return;
         }
-        setQuantity(e.target.value);
+        if (newQuantity > product.stock_quantity) {
+            toast.warn(`Số lượng sản phẩm vượt quá tồn kho. Đã đặt về ${product.stock_quantity}.`);
+            setQuantity(product.stock_quantity);
+        } else {
+            setQuantity(newQuantity);
+        }
     };
 
     const handleAddToCart = async () => {
-        if (getCookie('token') == null) {
+        if (!user) {
             Modal.confirm({
                 title: 'Bạn chưa đăng nhập',
                 content: 'Đăng nhập trước khi thêm sản phẩm vào giỏ hàng.',
@@ -111,25 +124,34 @@ function ProductDetail() {
             });
             return;
         }
+
+        if (quantity > product.stock_quantity) {
+            toast.warn(`Số lượng sản phẩm bạn muốn mua vượt quá tồn kho. Chỉ còn lại ${product.stock_quantity} sản phẩm.`);
+            setQuantity(product.stock_quantity);
+            return;
+        }
+
         const userid = user.user_id;
+        const product_id = product.product_id;
+
         const fetchCart = async () => {
             const { data: cart, error } = await supabase
                 .from('cart')
                 .select('*')
                 .eq('user_id', userid)
                 .single();
+
             if (error) {
                 console.error("cart error:", error);
-                toast.error("Lỗi giỏ hàng: " + error.message); // Toast in Vietnamese
+                toast.error("Lỗi giỏ hàng: " + error.message);
             } else {
                 setCart(cart);
             }
-            setLoading(false);
         };
-        fetchCart();
+
+        await fetchCart();
 
         if (cart) {
-            const product_id = product.product_id;
             try {
                 const { data: cart_item, error: cartDetailError } = await supabase
                     .from('cart_item')
@@ -140,50 +162,47 @@ function ProductDetail() {
 
                 if (cart_item) {
                     const newQuantity = cart_item.quantity + +quantity;
-                    const { error: updateError } = await supabase
-                        .from('cart_item')
-                        .update({ quantity: newQuantity })
-                        .eq('cart_id', cart.id)
-                        .eq('product_id', product_id);
-                    if (updateError) {
-                        console.error('Error updating cart detail:', updateError);
-                        toast.error('Lỗi cập nhật giỏ hàng: ' + updateError.message, {
-                            style: { backgroundColor: '#f5222d', color: '#fff' } // Custom error style
-                        });
+
+                    if (newQuantity > product.stock_quantity) {
+                        toast.warn(`Không thể thêm vượt quá tồn kho. Đã điều chỉnh số lượng tối đa là ${product.stock_quantity}.`);
+                        await supabase
+                            .from('cart_item')
+                            .update({ quantity: product.stock_quantity })
+                            .eq('cart_id', cart.id)
+                            .eq('product_id', product_id);
                     } else {
-                        toast.success(`Cập nhật số lượng sản phẩm ${product.name} lên ${newQuantity}.`, {
-                            style: { backgroundColor: '#52c41a', color: '#fff' } // Custom success style
-                        });
+                        const { error: updateError } = await supabase
+                            .from('cart_item')
+                            .update({ quantity: newQuantity })
+                            .eq('cart_id', cart.id)
+                            .eq('product_id', product_id);
+
+                        if (updateError) {
+                            console.error('Error updating cart detail:', updateError);
+                            toast.error('Lỗi cập nhật giỏ hàng: ' + updateError.message);
+                        } else {
+                            toast.success(`Cập nhật số lượng sản phẩm ${product.name} lên ${newQuantity}.`);
+                        }
                     }
                 } else {
                     const { error: insertError } = await supabase
                         .from('cart_item')
                         .insert({ cart_id: cart.id, product_id: product_id, quantity: quantity });
+
                     if (insertError) {
                         console.error('Error adding product to cart:', insertError);
-                        toast.error('Lỗi thêm sản phẩm vào giỏ hàng: ' + insertError.message, {
-                            style: { backgroundColor: '#f5222d', color: '#fff' }
-                        });
+                        toast.error('Lỗi thêm sản phẩm vào giỏ hàng: ' + insertError.message);
                     } else {
-                        toast.success(`Đã thêm ${quantity} ${product.name} vào giỏ hàng.`, {
-                            style: { backgroundColor: '#52c41a', color: '#fff' }
-                        });
+                        toast.success(`Đã thêm ${quantity} ${product.name} vào giỏ hàng.`);
                     }
                 }
             } catch (error) {
                 console.error('Error adding to cart:', error);
-                toast.error('Lỗi thêm vào giỏ hàng: ' + error.message, {
-                    style: { backgroundColor: '#f5222d', color: '#fff' }
-                });
+                toast.error('Lỗi thêm vào giỏ hàng: ' + error.message);
             }
         }
-        setIsAdding(false);
     };
 
-
-    const handleRate = (rating) => {
-        console.log(`Rated ${product.name}: ${rating} stars`);
-    };
 
     const formatPrice = (price) => {
         return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -194,10 +213,16 @@ function ProductDetail() {
         setSelectedImage(imgUrl);
     };
 
+    const handleProductClick = (id) => {
+        navigate(`/ProductDetail/${id}`);
+        window.location.reload();
+    };
+
+
     return (
-        <div>
+        <div style={{ backgroundColor: "#F9F4F2" }}>
             <Header />
-            <div>
+            <div >
                 <ToastContainer /> {/* Toast container to show toasts */}
                 <div className="product-container">
                     <div className="product-image-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -234,20 +259,22 @@ function ProductDetail() {
                     </div>
                     <div className="product-details">
                         <h1>{product.name}</h1>
-                        {/* <div className="product-rating">
-                            <Rating totalStars={5} onRate={handleRate} />
-                        </div> */}
+                        {/* Display average rating using Rate component */}
+                        <AvgRate productId={id} />
+
                         <p className="product-price">{formatPrice(product.sell_price)} VND</p>
+                        <p> số lượng sản phẩm còn trong kho: {product.stock_quantity}</p>
 
                         <label htmlFor="quantity">Số lượng:</label>
                         <input
                             type="number"
-                            id="quantity"
-                            name="quantity"
-                            min="1"
                             value={quantity}
-                            onChange={handleQuantityChange}
+                            onChange={(e) => handleQuantityChange(Number(e.target.value))}
+                            min="1"
+                            max={product.stock_quantity}
+                            style={{ margin: '5px' }}
                         />
+
                         <button onClick={handleAddToCart} disabled={isAdding}>
                             {isAdding ? "Đang thêm sản phẩm..." : "Thêm vào giỏ"}
                         </button>
@@ -261,6 +288,10 @@ function ProductDetail() {
                 </div>
 
             </div>
+            <div>
+                <Comments productId={id} user={user} />
+            </div>
+
             <div className="product-carousel">
                 <h2 className="carousel-title">Sản phẩm cùng thể loại</h2>
                 <Carousel
@@ -282,6 +313,11 @@ function ProductDetail() {
                                         style={{ height: "auto", objectFit: "cover" }}
                                     />
                                 }
+                                actions={[
+                                    <Button type="primary" onClick={() => handleProductClick(product.product_id)}>
+                                        Xem chi tiết
+                                    </Button>,
+                                ]}
                                 className="product-card"
                             >
                                 <Meta
