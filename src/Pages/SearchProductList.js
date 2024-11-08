@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { Layout, Row, Col, Card, Spin, Button, Select } from "antd";
+import { Layout, Row, Col, Card, Button } from "antd";
 import "./CSS/ProductList.css";
 import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
