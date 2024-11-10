@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Row, Col, Card, Input, List, Spin, Button, Select } from "antd";
+import { Layout, Row, Col, Card, Input, List, Spin, Button, Select, Pagination } from "antd";
 import { supabase } from "../supabaseClient";
 import Header from "../Components/Header/Header";
 import Footer from "../Components/Footer/Footer";
@@ -17,18 +17,39 @@ const ProductList = () => {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedBrand, setSelectedBrand] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const pageSize = 16;
   const { id: categoryId } = useParams();
   const navigate = useNavigate();
 
-  // Fetch products based on selected category or brand
+  // Fetch products based on selected category or brand with pagination
   const fetchProducts = async () => {
     setLoading(true);
-    let query = supabase.from("products").select("*").eq("status", 2);
 
-    if (categoryId) query = query.eq("cate_id", categoryId);
-    if (selectedBrand) query = query.eq("brand_id", selectedBrand);
+    // Query to count total products based on filters
+    let countQuery = supabase.from("products").select("*", { count: "exact" }).eq("status", 2);
+    if (categoryId) countQuery = countQuery.eq("cate_id", categoryId);
+    if (selectedBrand) countQuery = countQuery.eq("brand_id", selectedBrand);
 
-    const { data, error } = await query;
+    const { count, error: countError } = await countQuery;
+    if (countError) {
+      console.error("Error counting products:", countError);
+    } else {
+      setTotalProducts(count); // Set total product count for pagination
+    }
+
+    // Query to get paginated products
+    let productQuery = supabase
+      .from("products")
+      .select("*")
+      .eq("status", 2)
+      .range((currentPage - 1) * pageSize, currentPage * pageSize - 1); // Range for pagination
+
+    if (categoryId) productQuery = productQuery.eq("cate_id", categoryId);
+    if (selectedBrand) productQuery = productQuery.eq("brand_id", selectedBrand);
+
+    const { data, error } = await productQuery;
     if (error) {
       console.error("Error fetching products:", error);
     } else {
@@ -36,6 +57,7 @@ const ProductList = () => {
     }
     setLoading(false);
   };
+
 
   // Fetch categories and brands
   const fetchCategories = async () => {
@@ -54,7 +76,7 @@ const ProductList = () => {
     fetchCategories();
     fetchBrands();
     fetchProducts();
-  }, [categoryId, selectedBrand]);
+  }, [categoryId, selectedBrand, currentPage]);
 
   // Search products by name
   const handleSearch = async (value) => {
@@ -120,6 +142,11 @@ const ProductList = () => {
     } else {
       return "Tất cả sản phẩm";
     }
+  };
+
+  // Handle page change
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -209,14 +236,30 @@ const ProductList = () => {
                       ]}
                     >
                       <Meta
-                        title={product.name}
-                        description={<p style={{ color: "#121214", marginTop: "10px" }}>Giá: {product.sell_price.toLocaleString()} VND</p>}
+                        title={<span>
+                          {product.name} {product.isHot == 1 && <span className="hot-badge">Hot</span>}
+                        </span>}
+
+                        description={<strong style={{ color: "#ee4d2d", marginTop: "10px" }}>Giá: {product.sell_price.toLocaleString()} VND</strong>}
                       />
                     </Card>
                   </Col>
                 ))}
               </Row>
             )}
+
+            {/* Pagination */}
+            <Row justify="end" style={{ marginTop: 20 }}>
+              <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={totalProducts}
+                onChange={handlePageChange}
+                style={{ textAlign: "right" }}
+              />
+            </Row>
+
+
           </Col>
         </Row>
       </Content>
