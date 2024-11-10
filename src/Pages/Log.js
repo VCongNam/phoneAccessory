@@ -11,7 +11,7 @@ const { Title } = Typography;
 const { Content } = Layout;
 
 const SlidingAuthForm = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   const [loginForm] = Form.useForm();
   const [registerForm] = Form.useForm();
 
@@ -39,7 +39,7 @@ const SlidingAuthForm = () => {
       ]);
 
       if (insertError) {
-        message.error(`Error inserting into account table: ${insertError.message}`);
+        message.error(`Số điện thoại đã tồn tại trong hệ thống`);
       } else {
         message.success('Đăng kí thành công');
         setIsLogin(true);
